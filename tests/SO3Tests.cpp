@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @file NaiveSO3Tests.cpp
-/// @brief Unit tests for the naive implementation of the SO3 Lie Group math.
-/// @details Unit tests for the various Lie Group functions will test both special cases,
+/// \file NaiveSO3Tests.cpp
+/// \brief Unit tests for the naive implementation of the SO3 Lie Group math.
+/// \details Unit tests for the various Lie Group functions will test both special cases,
 ///          and randomly generated cases.
 ///
-/// @author Sean Anderson
+/// \author Sean Anderson
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <math.h>
@@ -25,7 +25,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief General test of SO(3) hat function
+/// \brief General test of SO(3) hat function
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST_CASE("Test 3x3 hat function.", "[lgmath]" ) {
 
@@ -68,7 +68,7 @@ TEST_CASE("Test 3x3 hat function.", "[lgmath]" ) {
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Test special cases of exponential functions: vec2rot and rot2vec
+/// \brief Test special cases of exponential functions: vec2rot and rot2vec
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST_CASE("Special case tests of vec2rot.", "[lgmath]" ) {
 
@@ -170,7 +170,7 @@ TEST_CASE("Special case tests of vec2rot.", "[lgmath]" ) {
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief General test of exponential functions: vec2rot and rot2vec
+/// \brief General test of exponential functions: vec2rot and rot2vec
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST_CASE("Compare analytical and numeric vec2rot.", "[lgmath]" ) {
 
@@ -234,7 +234,7 @@ TEST_CASE("Compare analytical and numeric vec2rot.", "[lgmath]" ) {
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief General test of exponential jacobians: vec2jac and vec2jacinv
+/// \brief General test of exponential jacobians: vec2jac and vec2jacinv
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST_CASE("Compare analytical jacobians, inverses and numeric counterparts.", "[lgmath]" ) {
 

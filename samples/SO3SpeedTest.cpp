@@ -35,8 +35,8 @@ int main(int argc, char **argv) {
     m33 = lgmath::so3::hat(v3);
   }
   time1 = timer.milliseconds();
-  std::cout << "speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "for comparison: 0.0059usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   0.0059usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -47,8 +47,8 @@ int main(int argc, char **argv) {
     m33 = lgmath::so3::vec2rot(v3);
   }
   time1 = timer.milliseconds();
-  std::cout << "speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "for comparison: 0.077usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   0.077usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -59,8 +59,8 @@ int main(int argc, char **argv) {
     v3 = lgmath::so3::rot2vec(m33);
   }
   time1 = timer.milliseconds();
-  std::cout << "speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "for comparison: 0.053usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   0.053usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -71,8 +71,8 @@ int main(int argc, char **argv) {
     m33 = lgmath::so3::vec2jac(v3);
   }
   time1 = timer.milliseconds();
-  std::cout << "speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "for comparison: 0.0907usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   0.0907usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -83,8 +83,8 @@ int main(int argc, char **argv) {
     m33 = lgmath::so3::vec2jacinv(v3);
   }
   time1 = timer.milliseconds();
-  std::cout << "speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "for comparison: 0.0623usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   0.0623usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   return 0;

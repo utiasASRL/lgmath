@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @file SE3.cpp
-/// @brief Implementation file for the SE3 Lie Group math functions.
-/// @details These namespace functions provide implementations of the special Euclidean (SE)
+/// \file SE3.cpp
+/// \brief Implementation file for the SE3 Lie Group math functions.
+/// \details These namespace functions provide implementations of the special Euclidean (SE)
 ///          Lie group functions that we commonly use in robotics.
 ///
-/// @author Sean Anderson
+/// \author Sean Anderson
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <lgmath/SE3.hpp>
@@ -17,7 +17,7 @@ namespace lgmath {
 namespace se3 {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief builds the 4x4 "skew symmetric matrix" (see eq. 4 in Barfoot-TRO-2014)
+/// \brief builds the 4x4 "skew symmetric matrix" (see eq. 4 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,4,4> hat(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis) {
   Eigen::Matrix<double,4,4> mat = Eigen::Matrix<double,4,4>::Zero();
@@ -30,7 +30,7 @@ Eigen::Matrix<double,4,4> hat(const Eigen::Matrix<double,6,1>& vec) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief builds the 6x6 curly hat matrix (see eq. 12 in Barfoot-TRO-2014)
+/// \brief builds the 6x6 curly hat matrix (see eq. 12 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> curlyhat(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis) {
   Eigen::Matrix<double,6,6> mat = Eigen::Matrix<double,6,6>::Zero();
@@ -43,7 +43,7 @@ Eigen::Matrix<double,6,6> curlyhat(const Eigen::Matrix<double,6,1> & vec) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief turns a 4x1 homogeneous point into the 4x6 matrix (see eq. 72 in Barfoot-TRO-2014)
+/// \brief turns a 4x1 homogeneous point into the 4x6 matrix (see eq. 72 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,4,6> point2fs(const Eigen::Matrix<double,3,1>& p, double scale) {
   Eigen::Matrix<double,4,6> mat = Eigen::Matrix<double,4,6>::Zero();
@@ -53,7 +53,7 @@ Eigen::Matrix<double,4,6> point2fs(const Eigen::Matrix<double,3,1>& p, double sc
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief turns a 4x1 homogeneous point into the 6x4 matrix (see eq. 72 in Barfoot-TRO-2014)
+/// \brief turns a 4x1 homogeneous point into the 6x4 matrix (see eq. 72 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,4> point2sf(const Eigen::Matrix<double,3,1>& p, double scale) {
   Eigen::Matrix<double,6,4> mat = Eigen::Matrix<double,6,4>::Zero();
@@ -63,7 +63,7 @@ Eigen::Matrix<double,6,4> point2sf(const Eigen::Matrix<double,3,1>& p, double sc
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief builds a transformation matrix using the exponential map (see Barfoot-TRO-2014 Appendix B1)
+/// \brief builds a transformation matrix using the exponential map (see Barfoot-TRO-2014 Appendix B1)
 //////////////////////////////////////////////////////////////////////////////////////////////
 void vec2tran_analytical(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis, Eigen::Matrix<double,3,3>* outRot, Eigen::Matrix<double,3,1>* outTrans) {
 
@@ -82,7 +82,7 @@ void vec2tran_analytical(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matr
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief builds a transformation matrix using the first N terms of the infinite series (see eq. 96 in Barfoot-TRO-2014)
+/// \brief builds a transformation matrix using the first N terms of the infinite series (see eq. 96 in Barfoot-TRO-2014)
 ///        Not efficient, but mostly used to test the analytical method.
 //////////////////////////////////////////////////////////////////////////////////////////////
 void vec2tran_numerical(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis, Eigen::Matrix<double,3,3>* outRot, Eigen::Matrix<double,3,1>* outTrans, unsigned int numTerms) {
@@ -111,7 +111,7 @@ void vec2tran_numerical(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matri
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief builds components of the transformation matrix, analytical or numeric is determined by numTerms
+/// \brief builds components of the transformation matrix, analytical or numeric is determined by numTerms
 //////////////////////////////////////////////////////////////////////////////////////////////
 void vec2tran(const Eigen::Matrix<double,6,1>& vec, Eigen::Matrix<double,3,3>* outRot, Eigen::Matrix<double,3,1>* outTrans, unsigned int numTerms)
 {
@@ -123,7 +123,7 @@ void vec2tran(const Eigen::Matrix<double,6,1>& vec, Eigen::Matrix<double,3,3>* o
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief builds a 4x4 transformation matrix, analytical or numeric is determined by numTerms
+/// \brief builds a 4x4 transformation matrix, analytical or numeric is determined by numTerms
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,4,4> vec2tran(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms) {
 
@@ -140,7 +140,7 @@ Eigen::Matrix<double,4,4> vec2tran(const Eigen::Matrix<double,6,1>& vec, unsigne
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief compute the matrix log of a transformation matrix (see Barfoot-TRO-2014 Appendix B2)
+/// \brief compute the matrix log of a transformation matrix (see Barfoot-TRO-2014 Appendix B2)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix<double,3,3>& rot, const Eigen::Matrix<double,3,1>& trans) {
   Eigen::Matrix<double,6,1> xi;
@@ -154,7 +154,7 @@ Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix<double,4,4>& mat) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief builds the 6x6 adjoint transformation matrix from a 4x4 one (see eq. 101 in Barfoot-TRO-2014)
+/// \brief builds the 6x6 adjoint transformation matrix from a 4x4 one (see eq. 101 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix<double,3,3>& rot, const Eigen::Matrix<double,3,1>& trans) {
   Eigen::Matrix<double,6,6> adT = Eigen::Matrix<double,6,6>::Zero();
@@ -167,7 +167,7 @@ Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix<double,4,4>& mat) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief construction of the 3x3 "Q" matrix, used in the 6x6 Jacobian of SE(3) (see eq. 102 in Barfoot-TRO-2014)
+/// \brief construction of the 3x3 "Q" matrix, used in the 6x6 Jacobian of SE(3) (see eq. 102 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,3,3> vec2Q(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis) {
   const double ang = aaxis.norm();
@@ -194,7 +194,7 @@ Eigen::Matrix<double,3,3> vec2Q(const Eigen::Matrix<double,6,1>& vec) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief construction of the 6x6 Jacobian of SE(3) (see eq. 100 in Barfoot-TRO-2014)
+/// \brief construction of the 6x6 Jacobian of SE(3) (see eq. 100 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis) {
 
@@ -230,7 +230,7 @@ Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& vec, unsigned
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief construction of the 6x6 inverse Jacobian of SE(3) (see eq. 103 in Barfoot-TRO-2014)
+/// \brief construction of the 6x6 inverse Jacobian of SE(3) (see eq. 103 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis) {
 

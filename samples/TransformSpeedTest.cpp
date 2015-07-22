@@ -37,8 +37,8 @@ int main(int argc, char **argv) {
     transform = lgmath::se3::Transformation(v6);
   }
   time1 = timer.milliseconds();
-  std::cout << "speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "for comparison: 0.122usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   0.122usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -49,8 +49,8 @@ int main(int argc, char **argv) {
     v6 = transform.vec();
   }
   time1 = timer.milliseconds();
-  std::cout << "speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "for comparison: 0.132usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   0.132usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -61,8 +61,8 @@ int main(int argc, char **argv) {
     transform = transform*transform;
   }
   time1 = timer.milliseconds();
-  std::cout << "speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "for comparison: 0.025usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   0.025usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -73,8 +73,8 @@ int main(int argc, char **argv) {
     transform = transform/transform;
   }
   time1 = timer.milliseconds();
-  std::cout << "speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "for comparison: 0.035usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   0.035usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -85,8 +85,8 @@ int main(int argc, char **argv) {
     v4 = transform*v4;
   }
   time1 = timer.milliseconds();
-  std::cout << "speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "for comparison: 0.015usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   0.015usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   return 0;

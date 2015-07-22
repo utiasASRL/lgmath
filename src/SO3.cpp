@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @file SO3.cpp
-/// @brief Implementation file for the SO3 Lie Group math functions.
-/// @details These namespace functions provide implementations of the special orthogonal (SO)
+/// \file SO3.cpp
+/// \brief Implementation file for the SO3 Lie Group math functions.
+/// \details These namespace functions provide implementations of the special orthogonal (SO)
 ///          Lie group functions that we commonly use in robotics.
 ///
-/// @author Sean Anderson
+/// \author Sean Anderson
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <lgmath/SO3.hpp>
@@ -16,7 +16,7 @@ namespace lgmath {
 namespace so3 {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief builds the 3x3 skew symmetric matrix (see eq. 5 in Barfoot-TRO-2014)
+/// \brief builds the 3x3 skew symmetric matrix (see eq. 5 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,3,3> hat(const Eigen::Matrix<double,3,1>& vec) {
   Eigen::Matrix<double,3,3> mat;
@@ -27,7 +27,7 @@ Eigen::Matrix<double,3,3> hat(const Eigen::Matrix<double,3,1>& vec) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief builds a rotation matrix using the exponential map (see eq. 97 in Barfoot-TRO-2014)
+/// \brief builds a rotation matrix using the exponential map (see eq. 97 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,3,3> vec2rot(const Eigen::Matrix<double,3,1>& aaxis, unsigned int numTerms) {
   const double a = aaxis.norm(); // Get angle
@@ -60,7 +60,7 @@ Eigen::Matrix<double,3,3> vec2rot(const Eigen::Matrix<double,3,1>& aaxis, unsign
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief efficiently builds a rotation matrix when the Jacobian is also needed using
+/// \brief efficiently builds a rotation matrix when the Jacobian is also needed using
 ///        the identity rot(v) = eye(3) + hat(v)*jac(v)
 //////////////////////////////////////////////////////////////////////////////////////////////
 void vec2rot(const Eigen::Matrix<double,3,1>& aaxis, Eigen::Matrix<double,3,3>* outRot, Eigen::Matrix<double,3,3>* outJac) {
@@ -71,7 +71,7 @@ void vec2rot(const Eigen::Matrix<double,3,1>& aaxis, Eigen::Matrix<double,3,3>* 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief compute the matrix log of a rotation matrix (see Barfoot-TRO-2014 Appendix B2)
+/// \brief compute the matrix log of a rotation matrix (see Barfoot-TRO-2014 Appendix B2)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,3,1> rot2vec(const Eigen::Matrix<double,3,3>& mat) {
 
@@ -107,7 +107,7 @@ Eigen::Matrix<double,3,1> rot2vec(const Eigen::Matrix<double,3,3>& mat) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief builds the 3x3 jacobian matrix of SO(3) (see eq. 98 in Barfoot-TRO-2014)
+/// \brief builds the 3x3 jacobian matrix of SO(3) (see eq. 98 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,3,3> vec2jac(const Eigen::Matrix<double,3,1>& aaxis, unsigned int numTerms) {
   const double a = aaxis.norm(); // Get angle
@@ -138,7 +138,7 @@ Eigen::Matrix<double,3,3> vec2jac(const Eigen::Matrix<double,3,1>& aaxis, unsign
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief builds the 3x3 inverse jacobian matrix of SO(3) (see eq. 99 in Barfoot-TRO-2014)
+/// \brief builds the 3x3 inverse jacobian matrix of SO(3) (see eq. 99 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,3,3> vec2jacinv(const Eigen::Matrix<double,3,1>& aaxis, unsigned int numTerms) {
   const double a = aaxis.norm(); // Get angle

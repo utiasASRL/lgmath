@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @file Transformation.cpp
-/// @brief Implementation file for a transformation matrix class.
-/// @details Light weight transformation class, intended to be fast, and not to provide
+/// \file Transformation.cpp
+/// \brief Implementation file for a transformation matrix class.
+/// \details Light weight transformation class, intended to be fast, and not to provide
 ///          unnecessary functionality.
 ///
-/// @author Sean Anderson
+/// \author Sean Anderson
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <lgmath/Transformation.hpp>
@@ -14,49 +14,49 @@ namespace lgmath {
 namespace se3 {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Default constructor
+/// \brief Default constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation() :
   C_ba_(Eigen::Matrix<double,3,3>::Identity()), r_ab_inb_(Eigen::Matrix<double,3,1>::Zero()) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Copy constructor
+/// \brief Copy constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation(const Transformation& T) :
   C_ba_(T.C_ba_), r_ab_inb_(T.r_ab_inb_) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Constructor
+/// \brief Constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation(const Eigen::Matrix4d& T) :
   C_ba_(T.block<3,3>(0,0)), r_ab_inb_(T.block<3,1>(0,3)) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
+/// \brief Constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation(const Eigen::Matrix<double,3,3>& C_ba, const Eigen::Matrix<double,3,1>& r_ba_ina) :
   C_ba_(C_ba), r_ab_inb_(-C_ba*r_ba_ina) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Constructor. The transformation will be T_ba = vec2tran(vec)
+/// \brief Constructor. The transformation will be T_ba = vec2tran(vec)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms) {
   lgmath::se3::vec2tran(vec, &C_ba_, &r_ab_inb_, numTerms);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Constructor. The transformation will be T_ba = vec2tran(vec)
+/// \brief Constructor. The transformation will be T_ba = vec2tran(vec)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation(const Eigen::VectorXd& vec) {
   lgmath::se3::vec2tran(vec, &C_ba_, &r_ab_inb_, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Assignment operator. Note pass-by-value is intentional.
+/// \brief Assignment operator. Note pass-by-value is intentional.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation& Transformation::operator=(Transformation T) {
   // Swap (this)'s parameters with the temporary object passed by value
@@ -67,7 +67,7 @@ Transformation& Transformation::operator=(Transformation T) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Gets basic matrix representation of the transformation
+/// \brief Gets basic matrix representation of the transformation
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,4,4> Transformation::matrix() const {
   Eigen::Matrix4d T_ba = Eigen::Matrix4d::Identity();
@@ -77,35 +77,35 @@ Eigen::Matrix<double,4,4> Transformation::matrix() const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Gets the underlying rotation matrix
+/// \brief Gets the underlying rotation matrix
 //////////////////////////////////////////////////////////////////////////////////////////////
 const Eigen::Matrix<double,3,3>& Transformation::C_ba() const {
   return C_ba_;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Gets the "forward" translation r_ba_ina = -C_ba.transpose()*r_ab_inb
+/// \brief Gets the "forward" translation r_ba_ina = -C_ba.transpose()*r_ab_inb
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,3,1> Transformation::r_ba_ina() const {
   return -C_ba_.transpose()*r_ab_inb_;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Gets the underlying r_ab_inb vector.
+/// \brief Gets the underlying r_ab_inb vector.
 //////////////////////////////////////////////////////////////////////////////////////////////
 const Eigen::Matrix<double,3,1>& Transformation::r_ab_inb() const {
   return r_ab_inb_;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Get the corresponding Lie algebra using the logarithmic map
+/// \brief Get the corresponding Lie algebra using the logarithmic map
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,1> Transformation::vec() const {
   return lgmath::se3::tran2vec(this->C_ba_, this->r_ab_inb_);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Get the inverse matrix
+/// \brief Get the inverse matrix
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation Transformation::inverse() const {
   Transformation temp;
@@ -115,14 +115,14 @@ Transformation Transformation::inverse() const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Get the 6x6 adjoint transformation matrix
+/// \brief Get the 6x6 adjoint transformation matrix
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> Transformation::adjoint() const {
   return lgmath::se3::tranAd(C_ba_, r_ab_inb_);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief In-place right-hand side multiply T_rhs
+/// \brief In-place right-hand side multiply T_rhs
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation& Transformation::operator*=(const Transformation& T_rhs) {
   r_ab_inb_ = C_ba_*T_rhs.r_ab_inb_ + r_ab_inb_;
@@ -131,7 +131,7 @@ Transformation& Transformation::operator*=(const Transformation& T_rhs) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Right-hand side multiply T_rhs
+/// \brief Right-hand side multiply T_rhs
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation Transformation::operator*(const Transformation& T_rhs) const {
   Transformation temp(*this);
@@ -140,7 +140,7 @@ Transformation Transformation::operator*(const Transformation& T_rhs) const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief In-place right-hand side multiply this matrix by the inverse of T_rhs
+/// \brief In-place right-hand side multiply this matrix by the inverse of T_rhs
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation& Transformation::operator/=(const Transformation& T_rhs) {
   this->r_ab_inb_ = this->C_ba_ * -T_rhs.C_ba_.transpose()*T_rhs.r_ab_inb_ + this->r_ab_inb_;
@@ -149,7 +149,7 @@ Transformation& Transformation::operator/=(const Transformation& T_rhs) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Right-hand side multiply this matrix by the inverse of T_rhs
+/// \brief Right-hand side multiply this matrix by the inverse of T_rhs
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation Transformation::operator/(const Transformation& T_rhs) const {
   Transformation temp(*this);
@@ -158,7 +158,7 @@ Transformation Transformation::operator/(const Transformation& T_rhs) const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief Right-hand side multiply this matrix by the homogeneous vector p_a
+/// \brief Right-hand side multiply this matrix by the homogeneous vector p_a
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,4,1> Transformation::operator*(const Eigen::Matrix<double,4,1>& p_a) const {
   Eigen::Matrix<double,4,1> p_b;
@@ -171,7 +171,7 @@ Eigen::Matrix<double,4,1> Transformation::operator*(const Eigen::Matrix<double,4
 } // lgmath
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief print transformation
+/// \brief print transformation
 //////////////////////////////////////////////////////////////////////////////////////////////
 std::ostream& operator<<(std::ostream& out, const lgmath::se3::Transformation& T) {
   out << std::endl << T.matrix() << std::endl;

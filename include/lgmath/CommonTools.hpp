@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @file CommonTools.hpp
-/// @brief A header-only helper file with a few common tools.
-/// @details Implements a basic timer tool.
+/// \file CommonTools.hpp
+/// \brief A header-only helper file with a few common tools.
+/// \details Implements a basic timer tool.
 
-/// @author Sean Anderson, ASRL
+/// \author Sean Anderson, ASRL
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef OPTIMUS_COMMON_TOOLS_HPP

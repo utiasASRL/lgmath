@@ -1,10 +1,10 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// @file NaiveSE3Tests.cpp
-/// @brief Unit tests for the naive implementation of the SE3 Lie Group math.
-/// @details Unit tests for the various Lie Group functions will test both special cases,
+/// \file NaiveSE3Tests.cpp
+/// \brief Unit tests for the naive implementation of the SE3 Lie Group math.
+/// \details Unit tests for the various Lie Group functions will test both special cases,
 ///          and randomly generated cases.
 ///
-/// @author Sean Anderson
+/// \author Sean Anderson
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <math.h>
@@ -26,7 +26,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief General test of SE(3) hat function
+/// \brief General test of SE(3) hat function
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST_CASE("Test 4x4 hat function.", "[lgmath]" ) {
 
@@ -61,7 +61,7 @@ TEST_CASE("Test 4x4 hat function.", "[lgmath]" ) {
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief General test of SE(3) curlyhat function
+/// \brief General test of SE(3) curlyhat function
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST_CASE("Test curlyhat function.", "[lgmath]" ) {
 
@@ -98,7 +98,7 @@ TEST_CASE("Test curlyhat function.", "[lgmath]" ) {
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief General test of homogeneous point to 4x6 matrix function
+/// \brief General test of homogeneous point to 4x6 matrix function
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST_CASE("Test point to 4x6 matrix function.", "[lgmath]" ) {
 
@@ -133,7 +133,7 @@ TEST_CASE("Test point to 4x6 matrix function.", "[lgmath]" ) {
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief General test of homogeneous point to 6x4 matrix function
+/// \brief General test of homogeneous point to 6x4 matrix function
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST_CASE("Test point to 6x4 matrix function.", "[lgmath]" ) {
 
@@ -170,7 +170,7 @@ TEST_CASE("Test point to 6x4 matrix function.", "[lgmath]" ) {
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief General test of exponential functions: vec2tran and tran2vec
+/// \brief General test of exponential functions: vec2tran and tran2vec
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST_CASE("Compare analytical and numeric vec2tran.", "[lgmath]" ) {
 
@@ -227,7 +227,7 @@ TEST_CASE("Compare analytical and numeric vec2tran.", "[lgmath]" ) {
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief General test of exponential jacobians: vec2jac and vec2jacinv
+/// \brief General test of exponential jacobians: vec2jac and vec2jacinv
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST_CASE("Compare analytical jacobians, inverses and numeric counterparts in SE(3).", "[lgmath]" ) {
 
@@ -288,7 +288,7 @@ TEST_CASE("Compare analytical jacobians, inverses and numeric counterparts in SE
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-/// @brief General test of adjoint tranformation identity, Ad(T(v)) = I + curlyhat(v)*J(v)
+/// \brief General test of adjoint tranformation identity, Ad(T(v)) = I + curlyhat(v)*J(v)
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST_CASE("Test the identity Ad(T(v)) = I + curlyhat(v)*J(v).", "[lgmath]" ) {
 
