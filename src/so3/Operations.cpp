@@ -193,11 +193,14 @@ Eigen::Vector3d rot2vec(const Eigen::Matrix3d& C_ab) {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief builds the 3x3 Jacobian matrix of SO(3)
 ///
-/// Build the 3x3 left Jacobian of SO(3). For the sake of a notation, we assign subscripts,
+/// Build the 3x3 left Jacobian of SO(3).
+///
+/// For the sake of a notation, we assign subscripts,
+///
+///   J_ab = J(aaxis_ba),
+///
 /// although we note to the SO(3) novice that this Jacobian is not a rotation matrix, and
 /// should be used with care.
-///
-///   J_ab = J(aaxis_ba)
 ///
 /// For more information see eq. 98 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -238,17 +241,17 @@ Eigen::Matrix3d vec2jac(const Eigen::Vector3d& aaxis_ba, unsigned int numTerms) 
   }
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief builds the 3x3 inverse Jacobian matrix of SO(3)
 ///
-/// Build the 3x3 inverse left Jacobian of SO(3). For the sake of a notation, we assign
-/// subscripts, although we note to the SO(3) novice that this Jacobian is not a rotation
-/// matrix, and should be used with care.
+/// Build the 3x3 inverse left Jacobian of SO(3).
 ///
-///   J_ab_inverse = J^{-1}(aaxis_ba)
+/// For the sake of a notation, we assign subscripts,
 ///
-/// *Note that J_ab_inverse is not equivalent to J_ba:
+///   J_ab_inverse = J^{-1}(aaxis_ba),
+///
+/// although we note to the SO(3) novice that this Jacobian is not a rotation matrix, and
+/// should be used with care. Also, please note that J_ab_inverse is not equivalent to J_ba:
 ///
 ///   J^{-1}(aaxis_ba) != J(-aaxis_ba)
 ///
