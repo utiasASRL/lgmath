@@ -17,148 +17,273 @@ namespace lgmath {
 namespace so3 {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 3x3 skew symmetric matrix (see eq. 5 in Barfoot-TRO-2014)
+/// \brief Builds the 3x3 skew symmetric matrix
+///
+/// Builds the 3x3 skew symmetric matrix from the 3x1 vector:
+///
+/// 0.0  -v3   v2
+///  v3  0.0  -v1
+/// -v2   v1  0.0
+///
+/// See eq. 5 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,3,3> hat(const Eigen::Matrix<double,3,1>& vec) {
-  Eigen::Matrix<double,3,3> mat;
-  mat <<    0.0,  -vec[2],   vec[1],
-         vec[2],      0.0,  -vec[0],
-        -vec[1],   vec[0],      0.0;
+Eigen::Matrix3d hat(const Eigen::Vector3d& vector) {
+  Eigen::Matrix3d mat;
+  mat <<       0.0,  -vector[2],   vector[1],
+         vector[2],         0.0,  -vector[0],
+        -vector[1],   vector[0],         0.0;
   return mat;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds a rotation matrix using the exponential map (see eq. 97 in Barfoot-TRO-2014)
+/// \brief Builds a rotation matrix using the exponential map
+///
+/// This function builds a rotation matrix, C_ab, from the exponential map (from an axis-
+/// angle parameterization).
+///
+///   C_ab = exp(phi_ba),
+///
+/// where phi_ba is a 3x1 axis angle, where the axis is normalized and and the magnitude of the
+/// rotation can be recovered by finding the norm of the axis angle. Note that the angle around
+/// the axis, phi_ba, is a right-hand-rule (counter-clockwise positive) angle from 'a' to 'b'.
+/// For more information see eq. 97 in Barfoot-TRO-2014.
+///
+/// Alternatively, we that note that
+///
+///   C_ba = exp(-phi_ba) = exp(phi_ab).
+///
+/// Typical robotics convention has some oddity when it comes using this exponential map in
+/// practice. For example, if we wish to integrate the kinematics:
+///
+///   d/dt C = omega^ * C,
+///
+/// where omega is the 3x1 angular velocity, we employ the convention:
+///
+///   C_20 = exp(deltaTime*-omega^) * C_10,
+///
+/// Noting that omega is negative (left-hand-rule).
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,3,3> vec2rot(const Eigen::Matrix<double,3,1>& aaxis, unsigned int numTerms) {
-  const double a = aaxis.norm(); // Get angle
-  if(a < 1e-12) { // If angle is very small, return Identity
-    return Eigen::Matrix<double,3,3>::Identity();
+Eigen::Matrix3d vec2rot(const Eigen::Vector3d& aaxis_ba, unsigned int numTerms) {
+
+  // Get angle
+  const double phi_ba = aaxis_ba.norm();
+
+  // If angle is very small, return Identity
+  if(phi_ba < 1e-12) {
+    return Eigen::Matrix3d::Identity();
   }
 
-  if (numTerms == 0) { // Analytical solution
+  if (numTerms == 0) {
 
-    Eigen::Matrix<double,3,1> axis = aaxis/a;
-    const double sa = sin(a);
-    const double ca = cos(a);
-    return ca*Eigen::Matrix<double,3,3>::Identity() + (1.0 - ca)*axis*axis.transpose() + sa*so3::hat(axis);
+    // Analytical solution
+    Eigen::Vector3d axis = aaxis_ba/phi_ba;
+    const double sinphi_ba = sin(phi_ba);
+    const double cosphi_ba = cos(phi_ba);
+    return cosphi_ba*Eigen::Matrix3d::Identity() +
+           (1.0 - cosphi_ba)*axis*axis.transpose() +
+           sinphi_ba*so3::hat(axis);
 
-  } else { // Numerical Solution: Good for testing the analytical solution
+  } else {
 
-    Eigen::Matrix<double,3,3> C = Eigen::Matrix<double,3,3>::Identity();
+    // Numerical solution (good for testing the analytical solution)
+    Eigen::Matrix3d C_ab = Eigen::Matrix3d::Identity();
 
     // Incremental variables
-    Eigen::Matrix<double,3,3> x_small = so3::hat(aaxis);
-    Eigen::Matrix<double,3,3> x_small_n = Eigen::Matrix<double,3,3>::Identity();
+    Eigen::Matrix3d x_small = so3::hat(aaxis_ba);
+    Eigen::Matrix3d x_small_n = Eigen::Matrix3d::Identity();
 
     // Loop over sum up to the specified numTerms
     for (unsigned int n = 1; n <= numTerms; n++) {
       x_small_n = x_small_n*x_small/double(n);
-      C += x_small_n;
+      C_ab += x_small_n;
     }
-    return C;
+    return C_ab;
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief efficiently builds a rotation matrix when the Jacobian is also needed using
-///        the identity rot(v) = eye(3) + hat(v)*jac(v)
+/// \brief builds and returns both the rotation matrix and SO(3) Jacobian
+///
+/// Similar to the function 'vec2rot', this function builds a rotation matrix, C_ab, using an
+/// equivalent expression to the exponential map, but allows us to simultaneously extract
+/// the Jacobian of SO(3), which is also required in some cases.
+///
+///   J_ab = jac(aaxis_ba)
+///   C_ab = exp(aaxis_ba^) = identity + aaxis_ba^ * J_ab
+///
 //////////////////////////////////////////////////////////////////////////////////////////////
-void vec2rot(const Eigen::Matrix<double,3,1>& aaxis, Eigen::Matrix<double,3,3>* outRot, Eigen::Matrix<double,3,3>* outJac) {
-  CHECK_NOTNULL(outRot);
-  CHECK_NOTNULL(outJac);
-  *outJac = so3::vec2jac(aaxis);
-  *outRot = Eigen::Matrix<double,3,3>::Identity() + so3::hat(aaxis)*(*outJac);
+void vec2rot(const Eigen::Vector3d& aaxis_ba, Eigen::Matrix3d* out_C_ab, Eigen::Matrix3d* out_J_ab) {
+
+  // Check pointers
+  CHECK_NOTNULL(out_C_ab);
+  CHECK_NOTNULL(out_J_ab);
+
+  // Set Jacobian term
+  *out_J_ab = so3::vec2jac(aaxis_ba);
+
+  // Set rotation matrix
+  *out_C_ab = Eigen::Matrix3d::Identity() + so3::hat(aaxis_ba) * (*out_J_ab);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief compute the matrix log of a rotation matrix (see Barfoot-TRO-2014 Appendix B2)
+/// \brief compute the matrix log of a rotation matrix
+///
+/// Compute the inverse of the exponential map (the logarithmic map). This lets us go from
+/// a 3x3 rotation matrix back to a 3x1 axis angle parameterization. In some cases, when the
+/// rotation matrix is 'numerically off', this involves some 'projection' back to SO(3).
+///
+///   aaxis_ba = ln(C_ab)
+///
+/// where aaxis_ba is a 3x1 axis angle, where the axis is normalized and and the magnitude of the
+/// rotation can be recovered by finding the norm of the axis angle. Note that the angle around
+/// the axis, aaxis_ba, is a right-hand-rule (counter-clockwise positive) angle from 'a' to 'b'.
+///
+/// Alternatively, we that note that
+///
+///   aaxis_ab = -aaxis_ba = ln(C_ba) = ln(C_ab^T)
+///
+/// See Barfoot-TRO-2014 Appendix B2 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,3,1> rot2vec(const Eigen::Matrix<double,3,3>& mat) {
+Eigen::Vector3d rot2vec(const Eigen::Matrix3d& C_ab) {
 
-  const double a = acos(0.5*(mat.trace()-1.0)); // Get angle
-  const double sa = sin(a);
+  // Get angle
+  const double phi_ba = acos(0.5*(C_ab.trace()-1.0));
+  const double sinphi_ba = sin(phi_ba);
 
-  if (fabs(sa) > 1e-9) { // General case, angle is NOT near 0, pi, or 2*pi
-    Eigen::Matrix<double,3,1> axis;
-    axis << mat(2,1) - mat(1,2),
-            mat(0,2) - mat(2,0),
-            mat(1,0) - mat(0,1);
-    return (0.5*a/sa)*axis;
-  } else if (fabs(a) > 1e-9) { // Angle is near pi or 2*pi
-    // Note with this method we do not know the sign of 'a', however since we know a is close to
-    // pi or 2*pi, the sign is unimportant..
+  if (fabs(sinphi_ba) > 1e-9) {
+
+    // General case, angle is NOT near 0, pi, or 2*pi
+    Eigen::Vector3d axis;
+    axis << C_ab(2,1) - C_ab(1,2),
+            C_ab(0,2) - C_ab(2,0),
+            C_ab(1,0) - C_ab(0,1);
+    return (0.5*phi_ba/sinphi_ba)*axis;
+
+  } else if (fabs(phi_ba) > 1e-9) {
+
+    // Angle is near pi or 2*pi
+    // ** Note with this method we do not know the sign of 'phi', however since we know phi is
+    //    close to pi or 2*pi, the sign is unimportant..
 
     // Find the eigenvalues and eigenvectors
-    Eigen::SelfAdjointEigenSolver<Eigen::Matrix<double,3,3> > eigenSolver(mat);
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d > eigenSolver(C_ab);
 
     // Try each eigenvalue
     for (int i = 0; i < 3; i++) {
+
       // Check if eigen value is near +1.0
       if ( fabs(eigenSolver.eigenvalues()[i] - 1.0) < 1e-6 ) {
+
         // Get corresponding angle-axis
-        Eigen::Matrix<double,3,1> aaxis = a*eigenSolver.eigenvectors().col(i);
-        return aaxis;
+        Eigen::Vector3d aaxis_ba = phi_ba*eigenSolver.eigenvectors().col(i);
+        return aaxis_ba;
       }
     }
+
+    // Runtime error
     CHECK(false) << "rot2vec: angle is near pi or 2*pi, but none of the eigenvalues were near 1...";
-  } else { // Angle is near zero
-    return Eigen::Matrix<double,3,1>::Zero();
+
+  } else {
+
+    // Angle is near zero
+    return Eigen::Vector3d::Zero();
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 3x3 jacobian matrix of SO(3) (see eq. 98 in Barfoot-TRO-2014)
+/// \brief builds the 3x3 Jacobian matrix of SO(3)
+///
+/// Build the 3x3 left Jacobian of SO(3). For the sake of a notation, we assign subscripts,
+/// although we note to the SO(3) novice that this Jacobian is not a rotation matrix, and
+/// should be used with care.
+///
+///   J_ab = J(aaxis_ba)
+///
+/// For more information see eq. 98 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,3,3> vec2jac(const Eigen::Matrix<double,3,1>& aaxis, unsigned int numTerms) {
-  const double a = aaxis.norm(); // Get angle
-  if(a < 1e-12) {
-    return Eigen::Matrix<double,3,3>::Identity(); // If angle is very small, return Identity
+Eigen::Matrix3d vec2jac(const Eigen::Vector3d& aaxis_ba, unsigned int numTerms) {
+
+  // Get angle
+  const double phi_ba = aaxis_ba.norm();
+  if(phi_ba < 1e-12) {
+
+    // If angle is very small, return Identity
+    return Eigen::Matrix3d::Identity();
   }
 
-  if (numTerms == 0) { // Analytical solution
-    Eigen::Matrix<double,3,1> axis = aaxis/a;
-    const double sa = sin(a)/a;
-    const double ca = (1.0-cos(a))/a;
-    return sa*Eigen::Matrix<double,3,3>::Identity() + (1.0 - sa)*axis*axis.transpose() + ca*so3::hat(axis);
-  } else { // Numerical Solution: Good for testing the analytical solution
-    Eigen::Matrix<double,3,3> J = Eigen::Matrix<double,3,3>::Identity();
+  if (numTerms == 0) {
+
+    // Analytical solution
+    Eigen::Vector3d axis = aaxis_ba/phi_ba;
+    const double sinTerm = sin(phi_ba)/phi_ba;
+    const double cosTerm = (1.0-cos(phi_ba))/phi_ba;
+    return sinTerm*Eigen::Matrix3d::Identity() +
+           (1.0 - sinTerm)*axis*axis.transpose() +
+           cosTerm*so3::hat(axis);
+  } else {
+
+    // Numerical solution (good for testing the analytical solution)
+    Eigen::Matrix3d J_ab = Eigen::Matrix3d::Identity();
 
     // Incremental variables
-    Eigen::Matrix<double,3,3> x_small = so3::hat(aaxis);
-    Eigen::Matrix<double,3,3> x_small_n = Eigen::Matrix<double,3,3>::Identity();
+    Eigen::Matrix3d x_small = so3::hat(aaxis_ba);
+    Eigen::Matrix3d x_small_n = Eigen::Matrix3d::Identity();
 
     // Loop over sum up to the specified numTerms
     for (unsigned int n = 1; n <= numTerms; n++) {
       x_small_n = x_small_n*x_small/double(n+1);
-      J += x_small_n;
+      J_ab += x_small_n;
     }
-    return J;
+    return J_ab;
   }
 }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 3x3 inverse jacobian matrix of SO(3) (see eq. 99 in Barfoot-TRO-2014)
+/// \brief builds the 3x3 inverse Jacobian matrix of SO(3)
+///
+/// Build the 3x3 inverse left Jacobian of SO(3). For the sake of a notation, we assign
+/// subscripts, although we note to the SO(3) novice that this Jacobian is not a rotation
+/// matrix, and should be used with care.
+///
+///   J_ab_inverse = J^{-1}(aaxis_ba)
+///
+/// *Note that J_ab_inverse is not equivalent to J_ba:
+///
+///   J^{-1}(aaxis_ba) != J(-aaxis_ba)
+///
+/// For more information see eq. 99 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,3,3> vec2jacinv(const Eigen::Matrix<double,3,1>& aaxis, unsigned int numTerms) {
-  const double a = aaxis.norm(); // Get angle
-  if(a < 1e-12) {
-    return Eigen::Matrix<double,3,3>::Identity(); // If angle is very small, return Identity
+Eigen::Matrix3d vec2jacinv(const Eigen::Vector3d& aaxis_ba, unsigned int numTerms) {
+
+  // Get angle
+  const double phi_ba = aaxis_ba.norm();
+  if(phi_ba < 1e-12) {
+
+    // If angle is very small, return Identity
+    return Eigen::Matrix3d::Identity();
   }
 
-  if (numTerms == 0) { // Analytical solution
-    Eigen::Matrix<double,3,1> axis = aaxis/a;
-    const double a2 = 0.5*a;
-    const double a2cota2 = a2/tan(a2);
-    return a2cota2*Eigen::Matrix<double,3,3>::Identity() + (1.0 - a2cota2)*axis*axis.transpose() - a2*so3::hat(axis);
-  } else { // Numerical Solution: Good for testing the analytical solution
+  if (numTerms == 0) {
+
+    // Analytical solution
+    Eigen::Vector3d axis = aaxis_ba/phi_ba;
+    const double halfphi = 0.5*phi_ba;
+    const double cotanTerm = halfphi/tan(halfphi);
+    return cotanTerm*Eigen::Matrix3d::Identity() +
+           (1.0 - cotanTerm)*axis*axis.transpose() -
+           halfphi*so3::hat(axis);
+  } else {
+
+    // Logic error
     CHECK(numTerms <= 20) << "Terms higher than 20 for vec2jacinv are not supported";
-    Eigen::Matrix<double,3,3> J = Eigen::Matrix<double,3,3>::Identity();
+
+    // Numerical solution (good for testing the analytical solution)
+    Eigen::Matrix3d J_ab_inverse = Eigen::Matrix3d::Identity();
 
     // Incremental variables
-    Eigen::Matrix<double,3,3> x_small = so3::hat(aaxis);
-    Eigen::Matrix<double,3,3> x_small_n = Eigen::Matrix<double,3,3>::Identity();
+    Eigen::Matrix3d x_small = so3::hat(aaxis_ba);
+    Eigen::Matrix3d x_small_n = Eigen::Matrix3d::Identity();
 
     // Boost has a bernoulli package... but we shouldn't need more than 20
     Eigen::Matrix<double,21,1> bernoulli;
@@ -169,9 +294,9 @@ Eigen::Matrix<double,3,3> vec2jacinv(const Eigen::Matrix<double,3,1>& aaxis, uns
     // Loop over sum up to the specified numTerms
     for (unsigned int n = 1; n <= numTerms; n++) {
       x_small_n = x_small_n*x_small/double(n);
-      J += bernoulli(n)*x_small_n;
+      J_ab_inverse += bernoulli(n)*x_small_n;
     }
-    return J;
+    return J_ab_inverse;
   }
 }
 

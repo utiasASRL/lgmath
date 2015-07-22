@@ -19,51 +19,111 @@ namespace lgmath {
 namespace so3 {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 3x3 skew symmetric matrix (see eq. 5 in Barfoot-TRO-2014)
-//////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,3,3> hat(const Eigen::Matrix<double,3,1>& vec);
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds a rotation matrix using the exponential map (see eq. 97 in Barfoot-TRO-2014)
+/// \brief Builds the 3x3 skew symmetric matrix
 ///
-///        **For right-hand-rule rotations:
-///            C_ab = exp(phi_ba), where phi_ba is counter-clockwise positive
-///        **For left-hand-rule rotations:
-///            C_ba = exp(phi_ab), where phi_ab is clockwise positive (-phi_ba)
-//////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,3,3> vec2rot(const Eigen::Matrix<double,3,1>& aaxis, unsigned int numTerms = 0);
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief efficiently builds the rotation matrix and Jacobian (faster then finding each
-///        individually) using the identity rot(a) = eye(3) + hat(a)*jac(a)
+/// The hat (^) operator, builds the 3x3 skew symmetric matrix from the 3x1 vector:
 ///
-///        **For right-hand-rule rotations:
-///            C_ab = 1 + hat(phi_ba)*J(phi_ba), where phi_ba is counter-clockwise positive
-///        **For left-hand-rule rotations:
-///            C_ba = 1 + hat(phi_ab)*J(phi_ab), where phi_ab is clockwise positive (-phi_ba)
-//////////////////////////////////////////////////////////////////////////////////////////////
-void vec2rot(const Eigen::Matrix<double,3,1>& aaxis, Eigen::Matrix<double,3,3>* outRot,
-             Eigen::Matrix<double,3,3>* outJac);
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief compute the matrix log of a rotation matrix (see Barfoot-TRO-2014 Appendix B2)
+/// v^ = [0.0  -v3   v2]
+///      [ v3  0.0  -v1]
+///      [-v2   v1  0.0]
 ///
-///        **For right-hand-rule rotations:
-///            phi_ba = ln(C_ab), where phi_ba is counter-clockwise positive
-///        **For left-hand-rule rotations:
-///            phi_ab = ln(C_ba), where phi_ab is clockwise positive (-phi_ba)
+/// See eq. 5 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,3,1> rot2vec(const Eigen::Matrix<double,3,3>& mat);
+Eigen::Matrix3d hat(const Eigen::Vector3d& vector);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 3x3 jacobian matrix of SO(3) (see eq. 98 in Barfoot-TRO-2014)
+/// \brief Builds a rotation matrix using the exponential map
+///
+/// This function builds a rotation matrix, C_ab, from the exponential map (from an axis-
+/// angle parameterization).
+///
+///   C_ab = exp(aaxis_ba^),
+///
+/// where aaxis_ba is a 3x1 axis angle, where the axis is normalized and and the magnitude of the
+/// rotation can be recovered by finding the norm of the axis angle. Note that the angle around
+/// the axis, aaxis_ba, is a right-hand-rule (counter-clockwise positive) angle from 'a' to 'b'.
+/// For more information see eq. 97 in Barfoot-TRO-2014.
+///
+/// Alternatively, we that note that
+///
+///   C_ba = exp(-aaxis_ba^) = exp(aaxis_ab^).
+///
+/// Typical robotics convention has some oddity when it comes using this exponential map in
+/// practice. For example, if we wish to integrate the kinematics:
+///
+///   d/dt C = omega^ * C,
+///
+/// where omega is the 3x1 angular velocity, we employ the convention:
+///
+///   C_20 = exp(deltaTime*-omega^) * C_10,
+///
+/// Noting that omega is negative (left-hand-rule).
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,3,3> vec2jac(const Eigen::Matrix<double,3,1>& aaxis, unsigned int numTerms = 0);
+Eigen::Matrix3d vec2rot(const Eigen::Vector3d& aaxis_ba, unsigned int numTerms = 0);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 3x3 inverse jacobian matrix of SO(3) (see eq. 99 in Barfoot-TRO-2014)
+/// \brief builds and returns both the rotation matrix and SO(3) Jacobian
+///
+/// Similar to the function 'vec2rot', this function builds a rotation matrix, C_ab, using an
+/// equivalent expression to the exponential map, but allows us to simultaneously extract
+/// the Jacobian of SO(3), which is also required in some cases.
+///
+///   J_ab = jac(aaxis_ba)
+///   C_ab = exp(aaxis_ba^) = identity + aaxis_ba^ * J_ab
+///
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,3,3> vec2jacinv(const Eigen::Matrix<double,3,1>& aaxis, unsigned int numTerms = 0);
+void vec2rot(const Eigen::Vector3d& aaxis_ba, Eigen::Matrix3d* out_C_ab, Eigen::Matrix3d* out_J_ab);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief compute the matrix log of a rotation matrix
+///
+/// Compute the inverse of the exponential map (the logarithmic map). This lets us go from
+/// a 3x3 rotation matrix back to a 3x1 axis angle parameterization. In some cases, when the
+/// rotation matrix is 'numerically off', this involves some 'projection' back to SO(3).
+///
+///   aaxis_ba = ln(C_ab)
+///
+/// where aaxis_ba is a 3x1 axis angle, where the axis is normalized and and the magnitude of the
+/// rotation can be recovered by finding the norm of the axis angle. Note that the angle around
+/// the axis, aaxis_ba, is a right-hand-rule (counter-clockwise positive) angle from 'a' to 'b'.
+///
+/// Alternatively, we that note that
+///
+///   aaxis_ab = -aaxis_ba = ln(C_ba) = ln(C_ab^T)
+///
+/// See Barfoot-TRO-2014 Appendix B2 for more information.
+//////////////////////////////////////////////////////////////////////////////////////////////
+Eigen::Vector3d rot2vec(const Eigen::Matrix3d& C_ab);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief builds the 3x3 Jacobian matrix of SO(3)
+///
+/// Build the 3x3 left Jacobian of SO(3). For the sake of a notation, we assign subscripts,
+/// although we note to the SO(3) novice that this Jacobian is not a rotation matrix, and
+/// should be used with care.
+///
+///   J_ab = J(aaxis_ba)
+///
+/// For more information see eq. 98 in Barfoot-TRO-2014.
+//////////////////////////////////////////////////////////////////////////////////////////////
+Eigen::Matrix3d vec2jac(const Eigen::Vector3d& aaxis_ba, unsigned int numTerms = 0);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief builds the 3x3 inverse Jacobian matrix of SO(3)
+///
+/// Build the 3x3 inverse left Jacobian of SO(3). For the sake of a notation, we assign
+/// subscripts, although we note to the SO(3) novice that this Jacobian is not a rotation
+/// matrix, and should be used with care.
+///
+///   J_ab_inverse = J^{-1}(aaxis_ba)
+///
+/// *Note that J_ab_inverse is not equivalent to J_ba:
+///
+///   J^{-1}(aaxis_ba) != J(-aaxis_ba)
+///
+/// For more information see eq. 99 in Barfoot-TRO-2014.
+//////////////////////////////////////////////////////////////////////////////////////////////
+Eigen::Matrix3d vec2jacinv(const Eigen::Vector3d& aaxis_ba, unsigned int numTerms = 0);
 
 } // so3
 } // lgmath
