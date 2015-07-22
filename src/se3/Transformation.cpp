@@ -7,8 +7,9 @@
 /// \author Sean Anderson
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <lgmath/Transformation.hpp>
-#include <lgmath/SE3.hpp>
+#include <lgmath/se3/Transformation.hpp>
+
+#include <lgmath/se3/Operations.hpp>
 
 namespace lgmath {
 namespace se3 {

@@ -2,7 +2,7 @@
 ### Header
 ################################################################################
 cmake_minimum_required(VERSION 2.8)
-project(LGMath)
+project(lgmath)
 
 ################################################################################
 ### Misc
@@ -93,7 +93,7 @@ endif(OPENMP_FOUND)
 ################################################################################
 
 # Find the header files
-file(GLOB_RECURSE HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/lgmath/*.hpp")
+file(GLOB_RECURSE HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
 
 # Find the sources files
 file(GLOB_RECURSE SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")

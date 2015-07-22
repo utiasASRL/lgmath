@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \file SE3.cpp
+/// \file Operations.cpp
 /// \brief Implementation file for the SE3 Lie Group math functions.
 /// \details These namespace functions provide implementations of the special Euclidean (SE)
 ///          Lie group functions that we commonly use in robotics.
@@ -7,8 +7,9 @@
 /// \author Sean Anderson
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <lgmath/SE3.hpp>
-#include <lgmath/SO3.hpp>
+#include <lgmath/se3/Operations.hpp>
+
+#include <lgmath/so3/Operations.hpp>
 #include <Eigen/Dense>
 #include <glog/logging.h>
 #include <stdio.h>

@@ -15,9 +15,9 @@
 #include <Eigen/Dense>
 #include <lgmath/CommonMath.hpp>
 
-#include <lgmath/SO3.hpp>
-#include <lgmath/SE3.hpp>
-#include <lgmath/Transformation.hpp>
+#include <lgmath/so3/Operations.hpp>
+#include <lgmath/se3/Operations.hpp>
+#include <lgmath/se3/Transformation.hpp>
 
 #include "catch.hpp"
 

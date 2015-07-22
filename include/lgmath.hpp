@@ -1,0 +1,24 @@
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \file lgmath.hpp
+/// \brief Convenience Header
+///
+/// \author Sean Anderson
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef LGMATH_HPP
+#define LGMATH_HPP
+
+// SO2
+// todo
+
+// SE2
+// todo
+
+// SO3
+#include <lgmath/so3/Operations.hpp>
+
+// SE3
+#include <lgmath/se3/Operations.hpp>
+#include <lgmath/se3/Transformation.hpp>
+
+#endif // LGMATH_HPP

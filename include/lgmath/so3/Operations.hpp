@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \file SO3.hpp
+/// \file Operations.hpp
 /// \brief Header file for the SO3 Lie Group math functions.
 /// \details These namespace functions provide implementations of the special orthogonal (SO)
 ///          Lie group functions that we commonly use in robotics.

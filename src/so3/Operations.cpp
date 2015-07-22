@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \file SO3.cpp
+/// \file Operations.cpp
 /// \brief Implementation file for the SO3 Lie Group math functions.
 /// \details These namespace functions provide implementations of the special orthogonal (SO)
 ///          Lie group functions that we commonly use in robotics.
@@ -7,7 +7,8 @@
 /// \author Sean Anderson
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <lgmath/SO3.hpp>
+#include <lgmath/so3/Operations.hpp>
+
 #include <Eigen/Dense>
 #include <glog/logging.h>
 #include <stdio.h>

@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \file SE3.hpp
+/// \file Operations.hpp
 /// \brief Header file for the SE3 Lie Group math functions.
 /// \details These namespace functions provide implementations of the special Euclidean (SE)
 ///          Lie group functions that we commonly use in robotics.
