@@ -20,20 +20,20 @@ namespace se3 {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief builds the 4x4 "skew symmetric matrix" (see eq. 4 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,4,4> hat(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis) {
-  Eigen::Matrix<double,4,4> mat = Eigen::Matrix<double,4,4>::Zero();
+Eigen::Matrix4d hat(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis) {
+  Eigen::Matrix4d mat = Eigen::Matrix4d::Zero();
   mat.topLeftCorner<3,3>() = so3::hat(aaxis);
   mat.topRightCorner<3,1>() = rho;
   return mat;
 }
-Eigen::Matrix<double,4,4> hat(const Eigen::Matrix<double,6,1>& vec) {
+Eigen::Matrix4d hat(const Eigen::Matrix<double,6,1>& vec) {
   return hat(vec.head<3>(), vec.tail<3>());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief builds the 6x6 curly hat matrix (see eq. 12 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> curlyhat(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis) {
+Eigen::Matrix<double,6,6> curlyhat(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis) {
   Eigen::Matrix<double,6,6> mat = Eigen::Matrix<double,6,6>::Zero();
   mat.topLeftCorner<3,3>() = mat.bottomRightCorner<3,3>() = so3::hat(aaxis);
   mat.topRightCorner<3,3>() = so3::hat(rho);
@@ -46,9 +46,9 @@ Eigen::Matrix<double,6,6> curlyhat(const Eigen::Matrix<double,6,1> & vec) {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief turns a 4x1 homogeneous point into the 4x6 matrix (see eq. 72 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,4,6> point2fs(const Eigen::Matrix<double,3,1>& p, double scale) {
+Eigen::Matrix<double,4,6> point2fs(const Eigen::Vector3d& p, double scale) {
   Eigen::Matrix<double,4,6> mat = Eigen::Matrix<double,4,6>::Zero();
-  mat.topLeftCorner<3,3>() = scale*Eigen::Matrix<double,3,3>::Identity();
+  mat.topLeftCorner<3,3>() = scale*Eigen::Matrix3d::Identity();
   mat.topRightCorner<3,3>() = -so3::hat(p);
   return mat;
 }
@@ -56,7 +56,7 @@ Eigen::Matrix<double,4,6> point2fs(const Eigen::Matrix<double,3,1>& p, double sc
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief turns a 4x1 homogeneous point into the 6x4 matrix (see eq. 72 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,4> point2sf(const Eigen::Matrix<double,3,1>& p, double scale) {
+Eigen::Matrix<double,6,4> point2sf(const Eigen::Vector3d& p, double scale) {
   Eigen::Matrix<double,6,4> mat = Eigen::Matrix<double,6,4>::Zero();
   mat.bottomLeftCorner<3,3>() = -so3::hat(p);
   mat.topRightCorner<3,1>() = p;
@@ -66,17 +66,17 @@ Eigen::Matrix<double,6,4> point2sf(const Eigen::Matrix<double,3,1>& p, double sc
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief builds a transformation matrix using the exponential map (see Barfoot-TRO-2014 Appendix B1)
 //////////////////////////////////////////////////////////////////////////////////////////////
-void vec2tran_analytical(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis, Eigen::Matrix<double,3,3>* outRot, Eigen::Matrix<double,3,1>* outTrans) {
+void vec2tran_analytical(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis, Eigen::Matrix3d* outRot, Eigen::Vector3d* outTrans) {
 
   // Check outputs
   CHECK_NOTNULL(outRot);
   CHECK_NOTNULL(outTrans);
 
   if(aaxis.norm() < 1e-12) { // If angle is very small, rotation is Identity
-    *outRot = Eigen::Matrix<double,3,3>::Identity();
+    *outRot = Eigen::Matrix3d::Identity();
     *outTrans = rho;
   } else {
-    Eigen::Matrix<double,3,3> jac;
+    Eigen::Matrix3d jac;
     so3::vec2rot(aaxis, outRot, &jac);
     *outTrans = jac*rho;
   }
@@ -86,19 +86,19 @@ void vec2tran_analytical(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matr
 /// \brief builds a transformation matrix using the first N terms of the infinite series (see eq. 96 in Barfoot-TRO-2014)
 ///        Not efficient, but mostly used to test the analytical method.
 //////////////////////////////////////////////////////////////////////////////////////////////
-void vec2tran_numerical(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis, Eigen::Matrix<double,3,3>* outRot, Eigen::Matrix<double,3,1>* outTrans, unsigned int numTerms) {
+void vec2tran_numerical(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis, Eigen::Matrix3d* outRot, Eigen::Vector3d* outTrans, unsigned int numTerms) {
 
   // Check outputs
   CHECK_NOTNULL(outRot);
   CHECK_NOTNULL(outTrans);
 
   // Init 4x4
-  Eigen::Matrix<double,4,4> T = Eigen::Matrix<double,4,4>::Identity();
+  Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
 
   // Incremental variables
   Eigen::Matrix<double,6,1> vec; vec << rho, aaxis;
-  Eigen::Matrix<double,4,4> x_small = se3::hat(vec);
-  Eigen::Matrix<double,4,4> x_small_n = Eigen::Matrix<double,4,4>::Identity();
+  Eigen::Matrix4d x_small = se3::hat(vec);
+  Eigen::Matrix4d x_small_n = Eigen::Matrix4d::Identity();
 
   // Loop over sum up to the specified numTerms
   for (unsigned int n = 1; n <= numTerms; n++) {
@@ -114,7 +114,7 @@ void vec2tran_numerical(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matri
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief builds components of the transformation matrix, analytical or numeric is determined by numTerms
 //////////////////////////////////////////////////////////////////////////////////////////////
-void vec2tran(const Eigen::Matrix<double,6,1>& vec, Eigen::Matrix<double,3,3>* outRot, Eigen::Matrix<double,3,1>* outTrans, unsigned int numTerms)
+void vec2tran(const Eigen::Matrix<double,6,1>& vec, Eigen::Matrix3d* outRot, Eigen::Vector3d* outTrans, unsigned int numTerms)
 {
   if (numTerms == 0) {  // Analytical solution
     vec2tran_analytical(vec.head<3>(), vec.tail<3>(), outRot, outTrans);
@@ -126,15 +126,15 @@ void vec2tran(const Eigen::Matrix<double,6,1>& vec, Eigen::Matrix<double,3,3>* o
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief builds a 4x4 transformation matrix, analytical or numeric is determined by numTerms
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,4,4> vec2tran(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms) {
+Eigen::Matrix4d vec2tran(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms) {
 
   // Get rotation and translation
-  Eigen::Matrix<double,3,3> rot;
-  Eigen::Matrix<double,3,1> tran;
+  Eigen::Matrix3d rot;
+  Eigen::Vector3d tran;
   vec2tran(vec, &rot, &tran, numTerms);
 
   // Fill output
-  Eigen::Matrix<double,4,4> mat = Eigen::Matrix<double,4,4>::Identity();
+  Eigen::Matrix4d mat = Eigen::Matrix4d::Identity();
   mat.topLeftCorner<3,3>() = rot;
   mat.topRightCorner<3,1>() = tran;
   return mat;
@@ -143,34 +143,34 @@ Eigen::Matrix<double,4,4> vec2tran(const Eigen::Matrix<double,6,1>& vec, unsigne
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief compute the matrix log of a transformation matrix (see Barfoot-TRO-2014 Appendix B2)
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix<double,3,3>& rot, const Eigen::Matrix<double,3,1>& trans) {
+Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix3d& rot, const Eigen::Vector3d& trans) {
   Eigen::Matrix<double,6,1> xi;
-  Eigen::Matrix<double,3,1> angi = so3::rot2vec(rot);
-  Eigen::Matrix<double,3,1> rho = so3::vec2jacinv(angi)*trans;
+  Eigen::Vector3d angi = so3::rot2vec(rot);
+  Eigen::Vector3d rho = so3::vec2jacinv(angi)*trans;
   xi << rho, angi;
   return xi;
 }
-Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix<double,4,4>& mat) {
+Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix4d& mat) {
   return tran2vec(mat.topLeftCorner<3,3>(), mat.topRightCorner<3,1>());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief builds the 6x6 adjoint transformation matrix from a 4x4 one (see eq. 101 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix<double,3,3>& rot, const Eigen::Matrix<double,3,1>& trans) {
+Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix3d& rot, const Eigen::Vector3d& trans) {
   Eigen::Matrix<double,6,6> adT = Eigen::Matrix<double,6,6>::Zero();
   adT.topLeftCorner<3,3>() = adT.bottomRightCorner<3,3>() = rot;
   adT.topRightCorner<3,3>() = so3::hat(trans)*rot;
   return adT;
 }
-Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix<double,4,4>& mat) {
+Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix4d& mat) {
   return tranAd(mat.topLeftCorner<3,3>(), mat.topRightCorner<3,1>());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief construction of the 3x3 "Q" matrix, used in the 6x6 Jacobian of SE(3) (see eq. 102 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,3,3> vec2Q(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis) {
+Eigen::Matrix3d vec2Q(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis) {
   const double ang = aaxis.norm();
   const double ang2 = ang*ang;
   const double ang3 = ang2*ang;
@@ -181,27 +181,27 @@ Eigen::Matrix<double,3,3> vec2Q(const Eigen::Matrix<double,3,1>& rho, const Eige
   const double m2 = (ang - sang)/ang3;
   const double m3 = (1.0 - 0.5*ang2 - cang)/ang4;
   const double m4 = 0.5*(m3 - 3*(ang - sang - ang3/6)/ang5);
-  Eigen::Matrix<double,3,3> rx = so3::hat(rho);
-  Eigen::Matrix<double,3,3> px = so3::hat(aaxis);
-  Eigen::Matrix<double,3,3> pxrx = px*rx;
-  Eigen::Matrix<double,3,3> rxpx = rx*px;
-  Eigen::Matrix<double,3,3> pxrxpx = pxrx*px;
+  Eigen::Matrix3d rx = so3::hat(rho);
+  Eigen::Matrix3d px = so3::hat(aaxis);
+  Eigen::Matrix3d pxrx = px*rx;
+  Eigen::Matrix3d rxpx = rx*px;
+  Eigen::Matrix3d pxrxpx = pxrx*px;
   // TODO: Look into Eigen if there exists anything for optimizing operations. Example below. kcu
   //return 0.5 * rx + m2 * (pxrx + rxpx + pxrxpx) - m3 * (px*pxrx + rxpx*px - 3*pxrxpx).eval() - m4 * (pxrxpx*px + px*pxrxpx).eval();
   return 0.5 * rx + m2 * (pxrx + rxpx + pxrxpx) - m3 * (px*pxrx + rxpx*px - 3*pxrxpx) - m4 * (pxrxpx*px + px*pxrxpx);
 }
-Eigen::Matrix<double,3,3> vec2Q(const Eigen::Matrix<double,6,1>& vec) {
+Eigen::Matrix3d vec2Q(const Eigen::Matrix<double,6,1>& vec) {
   return vec2Q(vec.head<3>(), vec.tail<3>());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief construction of the 6x6 Jacobian of SE(3) (see eq. 100 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis) {
+Eigen::Matrix<double,6,6> vec2jac(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis) {
 
   Eigen::Matrix<double,6,6> jac = Eigen::Matrix<double,6,6>::Zero();
   if(aaxis.norm() < 1e-12) {  // If angle is very small, so3 jacobian is Identity
-    jac.topLeftCorner<3,3>() = jac.bottomRightCorner<3,3>() = Eigen::Matrix<double,3,3>::Identity();
+    jac.topLeftCorner<3,3>() = jac.bottomRightCorner<3,3>() = Eigen::Matrix3d::Identity();
     jac.topRightCorner<3,3>() = 0.5*so3::hat(rho);
   } else {                    // general scenario
     jac.topLeftCorner<3,3>() = jac.bottomRightCorner<3,3>() = so3::vec2jac(aaxis);
@@ -233,14 +233,14 @@ Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& vec, unsigned
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief construction of the 6x6 inverse Jacobian of SE(3) (see eq. 103 in Barfoot-TRO-2014)
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Matrix<double,3,1>& rho, const Eigen::Matrix<double,3,1>& aaxis) {
+Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis) {
 
   Eigen::Matrix<double,6,6> seJacInv = Eigen::Matrix<double,6,6>::Zero();
   if(aaxis.norm() < 1e-12) {  // If angle is very small, so3 jacobian is Identity
-    seJacInv.topLeftCorner<3,3>() = seJacInv.bottomRightCorner<3,3>() = Eigen::Matrix<double,3,3>::Identity();
+    seJacInv.topLeftCorner<3,3>() = seJacInv.bottomRightCorner<3,3>() = Eigen::Matrix3d::Identity();
     seJacInv.topRightCorner<3,3>() = -0.5*so3::hat(rho);
   } else {                    // general scenario
-    Eigen::Matrix<double,3,3> soJacInv = so3::vec2jacinv(aaxis);
+    Eigen::Matrix3d soJacInv = so3::vec2jacinv(aaxis);
     seJacInv.topLeftCorner<3,3>() = seJacInv.bottomRightCorner<3,3>() = soJacInv;
     seJacInv.topRightCorner<3,3>() = -soJacInv*se3::vec2Q(rho, aaxis)*soJacInv;
   }
