@@ -1,0 +1,13 @@
+# - Config file for the libpointmatcher package
+# It defines the following variables
+#  LGMath_INCLUDE_DIRS - include directories for pointmatcher
+#  LGMath_LIBRARIES    - libraries to link against
+ 
+# Compute paths
+get_filename_component(LGMATH_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(LGMath_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+
+set(LGMath_LIBRARIES "@LGMATH_LIB@;@EXTERNAL_LIBS@")
+
+# This causes catkin simple to link against these libraries
+#set(LGMath_FOUND_CATKIN_PROJECT true)
