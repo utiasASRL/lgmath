@@ -91,7 +91,7 @@ TEST_CASE("Rotation Constructors.", "[lgmath]" ) {
   // Rotation(const Eigen::VectorXd& vec);
   SECTION("exponential map with VectorXd" ) {
     Eigen::VectorXd vec = Eigen::Vector3d::Random();
-    Eigen::Matrix3d tmat = lgmath::se3::vec2tran(vec);
+    Eigen::Matrix3d tmat = lgmath::so3::vec2rot(vec);
     lgmath::so3::Rotation test(vec);
     INFO("tmat: " << tmat);
     INFO("test: " << test.matrix());
