@@ -310,7 +310,8 @@ Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix4d& T_ab) {
 ///
 /// See eq. 101 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix3d& C_ab, const Eigen::Vector3d& r_ba_ina) {
+Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix3d& C_ab,
+                                 const Eigen::Vector3d& r_ba_ina) {
 
   Eigen::Matrix<double,6,6> adjoint_T_ab = Eigen::Matrix<double,6,6>::Zero();
   adjoint_T_ab.topLeftCorner<3,3>() = adjoint_T_ab.bottomRightCorner<3,3>() = C_ab;
@@ -360,7 +361,8 @@ Eigen::Matrix3d vec2Q(const Eigen::Vector3d& rho_ba, const Eigen::Vector3d& aaxi
   Eigen::Matrix3d pxrxpx = pxrx*px;
 
   // Construct Q matrix
-  return 0.5 * rx + m2 * (pxrx + rxpx + pxrxpx) - m3 * (px*pxrx + rxpx*px - 3*pxrxpx) - m4 * (pxrxpx*px + px*pxrxpx);
+  return 0.5 * rx + m2 * (pxrx + rxpx + pxrxpx)
+         - m3 * (px*pxrx + rxpx*px - 3*pxrxpx) - m4 * (pxrxpx*px + px*pxrxpx);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -391,7 +393,8 @@ Eigen::Matrix3d vec2Q(const Eigen::Matrix<double,6,1>& xi_ba) {
 ///
 /// For more information see eq. 100 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> vec2jac(const Eigen::Vector3d& rho_ba, const Eigen::Vector3d& aaxis_ba) {
+Eigen::Matrix<double,6,6> vec2jac(const Eigen::Vector3d& rho_ba,
+                                  const Eigen::Vector3d& aaxis_ba) {
 
   // Init
   Eigen::Matrix<double,6,6> J_ab = Eigen::Matrix<double,6,6>::Zero();
@@ -417,7 +420,8 @@ Eigen::Matrix<double,6,6> vec2jac(const Eigen::Vector3d& rho_ba, const Eigen::Ve
 ///
 /// For more information see eq. 100 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& xi_ba, unsigned int numTerms) {
+Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& xi_ba,
+                                  unsigned int numTerms) {
 
   if (numTerms == 0) {
 

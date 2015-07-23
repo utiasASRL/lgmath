@@ -114,7 +114,8 @@ Eigen::Matrix3d vec2rot(const Eigen::Vector3d& aaxis_ba, unsigned int numTerms) 
 ///
 /// For more information see eq. 97 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-void vec2rot(const Eigen::Vector3d& aaxis_ba, Eigen::Matrix3d* out_C_ab, Eigen::Matrix3d* out_J_ab) {
+void vec2rot(const Eigen::Vector3d& aaxis_ba, Eigen::Matrix3d* out_C_ab,
+             Eigen::Matrix3d* out_J_ab) {
 
   // Check pointers
   CHECK_NOTNULL(out_C_ab);
@@ -136,9 +137,10 @@ void vec2rot(const Eigen::Vector3d& aaxis_ba, Eigen::Matrix3d* out_C_ab, Eigen::
 ///
 ///   aaxis_ba = ln(C_ab)
 ///
-/// where aaxis_ba is a 3x1 axis angle, where the axis is normalized and and the magnitude of the
-/// rotation can be recovered by finding the norm of the axis angle. Note that the angle around
-/// the axis, aaxis_ba, is a right-hand-rule (counter-clockwise positive) angle from 'a' to 'b'.
+/// where aaxis_ba is a 3x1 axis angle, where the axis is normalized and the magnitude of
+/// the rotation can be recovered by finding the norm of the axis angle. Note that the
+/// angle around the axis, aaxis_ba, is a right-hand-rule (counter-clockwise positive)
+/// angle from 'a' to 'b'.
 ///
 /// Alternatively, we that note that
 ///
@@ -183,7 +185,7 @@ Eigen::Vector3d rot2vec(const Eigen::Matrix3d& C_ab) {
     }
 
     // Runtime error
-    CHECK(false) << "rot2vec: angle is near pi or 2*pi, but none of the eigenvalues were near 1...";
+    CHECK(false) << "rot2vec: angle is near pi or 2*pi, but no eigenvalues were near 1...";
 
   } else {
 

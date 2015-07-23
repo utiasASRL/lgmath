@@ -195,7 +195,8 @@ Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix4d& T_ab);
 ///
 /// See eq. 101 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix3d& C_ab, const Eigen::Vector3d& r_ba_ina);
+Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix3d& C_ab,
+                                 const Eigen::Vector3d& r_ba_ina);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds the 6x6 adjoint transformation matrix from a 4x4 one
@@ -242,7 +243,8 @@ Eigen::Matrix3d vec2Q(const Eigen::Matrix<double,6,1>& xi_ba);
 ///
 /// For more information see eq. 100 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> vec2jac(const Eigen::Vector3d& rho_ba, const Eigen::Vector3d& aaxis_ba);
+Eigen::Matrix<double,6,6> vec2jac(const Eigen::Vector3d& rho_ba,
+                                  const Eigen::Vector3d& aaxis_ba);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds the 6x6 Jacobian matrix of SE(3) from the se(3) algebra; note that the
@@ -251,7 +253,8 @@ Eigen::Matrix<double,6,6> vec2jac(const Eigen::Vector3d& rho_ba, const Eigen::Ve
 ///
 /// For more information see eq. 100 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& xi_ba, unsigned int numTerms = 0);
+Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& xi_ba,
+                                  unsigned int numTerms = 0);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds the 6x6 inverse Jacobian matrix of SE(3) using the analytical expression
@@ -268,7 +271,8 @@ Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& xi_ba, unsign
 ///
 /// For more information see eq. 103 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Vector3d& rho_ba, const Eigen::Vector3d& aaxis_ba);
+Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Vector3d& rho_ba,
+                                     const Eigen::Vector3d& aaxis_ba);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds the 6x6 inverse Jacobian matrix of SE(3) from the se(3) algebra; note that
@@ -277,7 +281,8 @@ Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Vector3d& rho_ba, const Eigen:
 ///
 /// For more information see eq. 103 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Matrix<double,6,1>& xi_ba, unsigned int numTerms = 0);
+Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Matrix<double,6,1>& xi_ba,
+                                     unsigned int numTerms = 0);
 
 } // se3
 } // lgmath
