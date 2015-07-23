@@ -72,7 +72,7 @@ Eigen::Matrix<double,6,6> curlyhat(const Eigen::Vector3d& rho, const Eigen::Vect
 ///
 /// See eq. 12 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> curlyhat(const Eigen::Matrix<double,6,1>& vec);
+Eigen::Matrix<double,6,6> curlyhat(const Eigen::Matrix<double,6,1>& xi);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Turns a homogeneous point into a special 4x6 matrix
@@ -94,8 +94,8 @@ Eigen::Matrix<double,6,4> point2sf(const Eigen::Vector3d& p, double scale = 1);
 /// This function builds a transformation matrix, T_ab, using the analytical exponential map,
 /// from the se3 algebra vector, xi_ba,
 ///
-///   T_ab = exp(xi_ba^) = [ C_ab r_ba_ina],   xi_ba = [aaxis_ba]
-///                        [  0^T        1]            [  rho_ba]
+///   T_ab = exp(xi_ba^) = [ C_ab r_ba_ina],   xi_ba = [  rho_ba]
+///                        [  0^T        1]            [aaxis_ba]
 ///
 /// where C_ab is a 3x3 rotation matrix from 'b' to 'a', r_ba_ina is the 3x1 translation
 /// vector from 'a' to 'b' expressed in frame 'a', aaxis_ba is a 3x1 axis-angle vector,
@@ -117,8 +117,8 @@ Eigen::Matrix<double,6,4> point2sf(const Eigen::Vector3d& p, double scale = 1);
 ///
 /// Both the analytical (numTerms = 0) or the numerical (numTerms > 0) may be evaluated.
 //////////////////////////////////////////////////////////////////////////////////////////////
-void vec2tran_analytical(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis,
-                         Eigen::Matrix3d* outRot, Eigen::Vector3d* outTrans);
+void vec2tran_analytical(const Eigen::Vector3d& rho_ba, const Eigen::Vector3d& aaxis_ba,
+                         Eigen::Matrix3d* out_C_ab, Eigen::Vector3d* out_r_ba_ina);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds a transformation matrix using the first N terms of the infinite series
@@ -128,22 +128,22 @@ void vec2tran_analytical(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxi
 ///
 /// For more information see eq. 96 in Barfoot-TRO-2014
 //////////////////////////////////////////////////////////////////////////////////////////////
-void vec2tran_numerical(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis,
-                        Eigen::Matrix3d* outRot, Eigen::Vector3d* outTrans,
+void vec2tran_numerical(const Eigen::Vector3d& rho_ba, const Eigen::Vector3d& aaxis_ba,
+                        Eigen::Matrix3d* out_C_ab, Eigen::Vector3d* out_r_ba_ina,
                         unsigned int numTerms = 0);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds the 3x3 rotation and 3x1 translation using the exponential map, the
 ///        default parameters (numTerms = 0) use the analytical solution.
 //////////////////////////////////////////////////////////////////////////////////////////////
-void vec2tran(const Eigen::Matrix<double,6,1>& vec, Eigen::Matrix3d* outRot,
-              Eigen::Vector3d* outTrans, unsigned int numTerms = 0);
+void vec2tran(const Eigen::Matrix<double,6,1>& xi_ba, Eigen::Matrix3d* out_C_ab,
+              Eigen::Vector3d* out_r_ba_ina, unsigned int numTerms = 0);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds a 4x4 transformation matrix using the exponential map, the
 ///        default parameters (numTerms = 0) use the analytical solution.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix4d vec2tran(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms = 0);
+Eigen::Matrix4d vec2tran(const Eigen::Matrix<double,6,1>& xi_ba, unsigned int numTerms = 0);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Compute the matrix log of a transformation matrix (from the rotation and trans)
@@ -162,7 +162,8 @@ Eigen::Matrix4d vec2tran(const Eigen::Matrix<double,6,1>& vec, unsigned int numT
 ///
 /// See Barfoot-TRO-2014 Appendix B2 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix3d& rot, const Eigen::Vector3d& trans);
+Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix3d& C_ab,
+                                   const Eigen::Vector3d& r_ba_ina);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Compute the matrix log of a transformation matrix
@@ -180,7 +181,7 @@ Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix3d& rot, const Eigen::Vect
 ///
 /// See Barfoot-TRO-2014 Appendix B2 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix4d& mat);
+Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix4d& T_ab);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds the 6x6 adjoint transformation matrix from the 3x3 rotation matrix and 3x1
@@ -194,7 +195,7 @@ Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix4d& mat);
 ///
 /// See eq. 101 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix3d& rot, const Eigen::Vector3d& trans);
+Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix3d& C_ab, const Eigen::Vector3d& r_ba_ina);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds the 6x6 adjoint transformation matrix from a 4x4 one
@@ -206,21 +207,21 @@ Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix3d& rot, const Eigen::Vector
 ///
 /// See eq. 101 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix4d& mat);
+Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix4d& T_ab);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Construction of the 3x3 "Q" matrix, used in the 6x6 Jacobian of SE(3)
 ///
 /// See eq. 102 in Barfoot-TRO-2014 for more information
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix3d vec2Q(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis);
+Eigen::Matrix3d vec2Q(const Eigen::Vector3d& rho_ba, const Eigen::Vector3d& aaxis_ba);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Construction of the 3x3 "Q" matrix, used in the 6x6 Jacobian of SE(3)
 ///
 /// See eq. 102 in Barfoot-TRO-2014 for more information
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix3d vec2Q(const Eigen::Matrix<double,6,1>& vec);
+Eigen::Matrix3d vec2Q(const Eigen::Matrix<double,6,1>& xi_ba);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds the 6x6 Jacobian matrix of SE(3) using the analytical expression
@@ -241,7 +242,7 @@ Eigen::Matrix3d vec2Q(const Eigen::Matrix<double,6,1>& vec);
 ///
 /// For more information see eq. 100 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> vec2jac(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis);
+Eigen::Matrix<double,6,6> vec2jac(const Eigen::Vector3d& rho_ba, const Eigen::Vector3d& aaxis_ba);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds the 6x6 Jacobian matrix of SE(3) from the se(3) algebra; note that the
@@ -250,7 +251,7 @@ Eigen::Matrix<double,6,6> vec2jac(const Eigen::Vector3d& rho, const Eigen::Vecto
 ///
 /// For more information see eq. 100 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms = 0);
+Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& xi_ba, unsigned int numTerms = 0);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds the 6x6 inverse Jacobian matrix of SE(3) using the analytical expression
@@ -267,7 +268,7 @@ Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& vec, unsigned
 ///
 /// For more information see eq. 103 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis);
+Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Vector3d& rho_ba, const Eigen::Vector3d& aaxis_ba);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds the 6x6 inverse Jacobian matrix of SE(3) from the se(3) algebra; note that
@@ -276,7 +277,7 @@ Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Vector3d& rho, const Eigen::Ve
 ///
 /// For more information see eq. 103 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms = 0);
+Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Matrix<double,6,1>& xi_ba, unsigned int numTerms = 0);
 
 } // se3
 } // lgmath
