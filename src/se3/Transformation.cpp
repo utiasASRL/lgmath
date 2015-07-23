@@ -9,6 +9,7 @@
 
 #include <lgmath/se3/Transformation.hpp>
 
+#include <lgmath/so3/Operations.hpp>
 #include <lgmath/se3/Operations.hpp>
 
 #include <glog/logging.h>
@@ -33,15 +34,30 @@ Transformation::Transformation(const Transformation& T) :
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
-Transformation::Transformation(const Eigen::Matrix4d& T) :
-  C_ba_(T.block<3,3>(0,0)), r_ab_inb_(T.block<3,1>(0,3)) {
+Transformation::Transformation(const Eigen::Matrix4d& T, bool reproj) :
+  r_ab_inb_(T.block<3,1>(0,3)) {
+
+  // Reproject rotation matrix to ensure it is valid
+  if (reproj) {
+    C_ba_ = so3::vec2rot(so3::rot2vec(T.block<3,3>(0,0)));
+  } else {
+    C_ba_ = T.block<3,3>(0,0);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
-Transformation::Transformation(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina) :
-  C_ba_(C_ba), r_ab_inb_(-C_ba*r_ba_ina) {
+Transformation::Transformation(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina,
+                               bool reproj) {
+
+  // Reproject rotation matrix to ensure it is valid
+  if (reproj) {
+    C_ba_ = so3::vec2rot(so3::rot2vec(C_ba));
+  } else {
+    C_ba_ = C_ba;
+  }
+  r_ab_inb_ = -C_ba_*r_ba_ina;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

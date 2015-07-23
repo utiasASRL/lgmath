@@ -58,6 +58,13 @@ TEST_CASE("Rotation Constructors.", "[lgmath]" ) {
     INFO("cmat: " << rand.matrix());
     INFO("test: " << test.matrix());
     CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
+
+    // Test manual with no reprojection
+    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Random();
+    lgmath::so3::Rotation test_bad(notRotation, false); // don't project
+    INFO("cmat: " << test_bad.matrix());
+    INFO("test: " << notRotation.matrix());
+    CHECK(lgmath::common::nearEqual(test_bad.matrix(), notRotation.matrix(), 1e-6));
   }
 
   // Rotation& operator=(Rotation C);
@@ -67,12 +74,6 @@ TEST_CASE("Rotation Constructors.", "[lgmath]" ) {
     INFO("cmat: " << rand.matrix());
     INFO("test: " << test.matrix());
     CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
-
-    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Random();
-    lgmath::so3::Rotation test_bad(notRotation, false); // don't project
-    INFO("cmat: " << test_bad.matrix());
-    INFO("test: " << notRotation.matrix());
-    CHECK(lgmath::common::nearEqual(test_bad.matrix(), notRotation.matrix(), 1e-6));
   }
 
   // Rotation(const Eigen::Vector3d& vec, unsigned int numTerms = 0);
