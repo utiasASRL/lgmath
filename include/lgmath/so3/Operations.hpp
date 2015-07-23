@@ -34,12 +34,12 @@ Eigen::Matrix3d hat(const Eigen::Vector3d& vector);
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds a rotation matrix using the exponential map
 ///
-/// This function builds a rotation matrix, C_ab, from the exponential map (from an axis-
+/// This function builds a rotation matrix, C_ab, using the exponential map (from an axis-
 /// angle parameterization).
 ///
 ///   C_ab = exp(aaxis_ba^),
 ///
-/// where aaxis_ba is a 3x1 axis angle, where the axis is normalized and and the magnitude of the
+/// where aaxis_ba is a 3x1 axis angle, where the axis is normalized and the magnitude of the
 /// rotation can be recovered by finding the norm of the axis angle. Note that the angle around
 /// the axis, aaxis_ba, is a right-hand-rule (counter-clockwise positive) angle from 'a' to 'b'.
 /// For more information see eq. 97 in Barfoot-TRO-2014.

@@ -18,7 +18,17 @@ namespace lgmath {
 namespace se3 {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 4x4 "skew symmetric matrix" (see eq. 4 in Barfoot-TRO-2014)
+/// \brief Builds the 4x4 "skew symmetric matrix"
+///
+/// The hat (^) operator, builds the 4x4 skew symmetric matrix from the 3x1 axis angle
+/// vector and 3x1 translation vector.
+///
+/// hat(rho, aaxis) = [aaxis^ rho] = [0.0  -a3   a2  rho1]
+///                   [  0^T    0]   [ a3  0.0  -a1  rho2]
+///                                  [-a2   a1  0.0  rho3]
+///                                  [0.0  0.0  0.0   0.0]
+///
+/// See eq. 4 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix4d hat(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis) {
   Eigen::Matrix4d mat = Eigen::Matrix4d::Zero();
@@ -26,12 +36,33 @@ Eigen::Matrix4d hat(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis) {
   mat.topRightCorner<3,1>() = rho;
   return mat;
 }
-Eigen::Matrix4d hat(const Eigen::Matrix<double,6,1>& vec) {
-  return hat(vec.head<3>(), vec.tail<3>());
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Builds the 4x4 "skew symmetric matrix"
+///
+/// The hat (^) operator, builds the 4x4 skew symmetric matrix from the 6x1 vector:
+///
+/// xi^ = [rho  ] = [aaxis^ rho] = [0.0  -a3   a2  rho1]
+///       [aaxis]   [  0^T    0]   [ a3  0.0  -a1  rho2]
+///                                [-a2   a1  0.0  rho3]
+///                                [0.0  0.0  0.0   0.0]
+///
+/// See eq. 4 in Barfoot-TRO-2014 for more information.
+//////////////////////////////////////////////////////////////////////////////////////////////
+Eigen::Matrix4d hat(const Eigen::Matrix<double,6,1>& xi) {
+  return hat(xi.head<3>(), xi.tail<3>());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 6x6 curly hat matrix (see eq. 12 in Barfoot-TRO-2014)
+/// \brief Builds the 6x6 "curly hat" matrix (related to the skew symmetric matrix)
+///
+/// The curly hat operator builds the 6x6 skew symmetric matrix from the 3x1 axis angle
+/// vector and 3x1 translation vector.
+///
+/// curlyhat(rho, aaxis) = [aaxis^   rho^]
+///                        [     0 aaxis^]
+///
+/// See eq. 12 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> curlyhat(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis) {
   Eigen::Matrix<double,6,6> mat = Eigen::Matrix<double,6,6>::Zero();
@@ -39,12 +70,26 @@ Eigen::Matrix<double,6,6> curlyhat(const Eigen::Vector3d& rho, const Eigen::Vect
   mat.topRightCorner<3,3>() = so3::hat(rho);
   return mat;
 }
-Eigen::Matrix<double,6,6> curlyhat(const Eigen::Matrix<double,6,1> & vec) {
-  return curlyhat(vec.head<3>(), vec.tail<3>());
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Builds the 6x6 "curly hat" matrix (related to the skew symmetric matrix)
+///
+/// The curly hat operator builds the 6x6 skew symmetric matrix
+/// from the 6x1 se3 algebra vector, xi:
+///
+/// curlyhat(xi) = curlyhat([rho  ]) = [aaxis^   rho^]
+///                        ([aaxis])   [     0 aaxis^]
+///
+/// See eq. 12 in Barfoot-TRO-2014 for more information.
+//////////////////////////////////////////////////////////////////////////////////////////////
+Eigen::Matrix<double,6,6> curlyhat(const Eigen::Matrix<double,6,1> & xi) {
+  return curlyhat(xi.head<3>(), xi.tail<3>());
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief turns a 4x1 homogeneous point into the 4x6 matrix (see eq. 72 in Barfoot-TRO-2014)
+/// \brief Turns a homogeneous point into a special 4x6 matrix
+///
+/// See eq. 72 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,4,6> point2fs(const Eigen::Vector3d& p, double scale) {
   Eigen::Matrix<double,4,6> mat = Eigen::Matrix<double,4,6>::Zero();
@@ -54,7 +99,9 @@ Eigen::Matrix<double,4,6> point2fs(const Eigen::Vector3d& p, double scale) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief turns a 4x1 homogeneous point into the 6x4 matrix (see eq. 72 in Barfoot-TRO-2014)
+/// \brief Turns a homogeneous point into a special 6x4 matrix
+///
+/// See eq. 72 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,4> point2sf(const Eigen::Vector3d& p, double scale) {
   Eigen::Matrix<double,6,4> mat = Eigen::Matrix<double,6,4>::Zero();

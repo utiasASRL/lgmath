@@ -38,7 +38,7 @@ Eigen::Matrix3d hat(const Eigen::Vector3d& vector) {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds a rotation matrix using the exponential map
 ///
-/// This function builds a rotation matrix, C_ab, from the exponential map (from an axis-
+/// This function builds a rotation matrix, C_ab, using the exponential map (from an axis-
 /// angle parameterization).
 ///
 ///   C_ab = exp(phi_ba),
