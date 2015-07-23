@@ -11,6 +11,8 @@
 
 #include <lgmath/se3/Operations.hpp>
 
+#include <glog/logging.h>
+
 namespace lgmath {
 namespace se3 {
 
