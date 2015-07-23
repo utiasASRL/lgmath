@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \file NaiveSE3Tests.cpp
-/// \brief Unit tests for the naive implementation of the SE3 Lie Group math.
+/// \file TransformTests.cpp
+/// \brief Unit tests for the implementation of the transformation matrix class.
 /// \details Unit tests for the various Lie Group functions will test both special cases,
 ///          and randomly generated cases.
 ///
@@ -40,7 +40,7 @@ TEST_CASE("Transformation Constructors.", "[lgmath]" ) {
   // Transformation();
   SECTION("default" ) {
     lgmath::se3::Transformation tmatrix;
-    Eigen::Matrix<double,4,4> test = Eigen::Matrix<double,4,4>::Identity();
+    Eigen::Matrix4d test = Eigen::Matrix4d::Identity();
     INFO("tmat: " << tmatrix.matrix());
     INFO("test: " << test);
     CHECK(lgmath::common::nearEqual(tmatrix.matrix(), test, 1e-6));
@@ -49,6 +49,14 @@ TEST_CASE("Transformation Constructors.", "[lgmath]" ) {
   // Transformation(const Transformation& T);
   SECTION("copy constructor" ) {
     lgmath::se3::Transformation test(rand);
+    INFO("tmat: " << rand.matrix());
+    INFO("test: " << test.matrix());
+    CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
+  }
+
+  // Transformation(const Eigen::Matrix4d& T);
+  SECTION("matrix constructor" ) {
+    lgmath::se3::Transformation test(rand.matrix());
     INFO("tmat: " << rand.matrix());
     INFO("test: " << test.matrix());
     CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
@@ -65,7 +73,7 @@ TEST_CASE("Transformation Constructors.", "[lgmath]" ) {
   // Transformation(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms = 0);
   SECTION("exponential map" ) {
     Eigen::Matrix<double,6,1> vec = Eigen::Matrix<double,6,1>::Random();
-    Eigen::Matrix<double,4,4> tmat = lgmath::se3::vec2tran(vec);
+    Eigen::Matrix4d tmat = lgmath::se3::vec2tran(vec);
     lgmath::se3::Transformation testAnalytical(vec);
     lgmath::se3::Transformation testNumerical(vec,15);
     INFO("tmat: " << tmat);
@@ -75,10 +83,28 @@ TEST_CASE("Transformation Constructors.", "[lgmath]" ) {
     CHECK(lgmath::common::nearEqual(tmat, testNumerical.matrix(), 1e-6));
   }
 
+  // Transformation(const Eigen::VectorXd& vec);
+  SECTION("exponential map with VectorXd" ) {
+    Eigen::VectorXd vec = Eigen::Matrix<double,6,1>::Random();
+    Eigen::Matrix4d tmat = lgmath::se3::vec2tran(vec);
+    lgmath::se3::Transformation test(vec);
+    INFO("tmat: " << tmat);
+    INFO("test: " << test.matrix());
+    CHECK(lgmath::common::nearEqual(tmat, test.matrix(), 1e-6));
+
+//    Eigen::VectorXd vec3 = Eigen::Matrix<double,3,1>::Random();
+//    try {
+//      lgmath::se3::Transformation testFailure(vec3);
+//      CHECK(*this doesn't happen*);
+//    } catch () {
+//      CHECK(*this happens*);
+//    }
+  }
+
   //Transformation(const Eigen::Matrix<double,3,3>& C_ba, const Eigen::Matrix<double,3,1>& r_ba_ina);
   SECTION("test C/r constructor" ) {
     lgmath::se3::Transformation tmat(C_ba, r_ba_ina);
-    Eigen::Matrix<double,4,4> test = Eigen::Matrix<double,4,4>::Identity();
+    Eigen::Matrix4d test = Eigen::Matrix4d::Identity();
     test.topLeftCorner<3,3>() = C_ba;
     test.topRightCorner<3,1>() = -C_ba*r_ba_ina;
 
@@ -100,7 +126,7 @@ TEST_CASE("Transformation get methods.", "[lgmath]" ) {
   lgmath::se3::Transformation T_ba(C_ba, r_ba_ina);
 
   // Construct simple eigen matrix from random rotation and translation
-  Eigen::Matrix<double,4,4> test = Eigen::Matrix<double,4,4>::Identity();
+  Eigen::Matrix4d test = Eigen::Matrix4d::Identity();
   Eigen::Matrix<double,3,1> r_ab_inb = -C_ba*r_ba_ina;
   test.topLeftCorner<3,3>() = C_ba;
   test.topRightCorner<3,1>() = r_ab_inb;
@@ -157,7 +183,7 @@ TEST_CASE("Test transformation to/from SE(3) algebra.", "[lgmath]" ) {
   const unsigned numTests = trueVecs.size();
 
   // Calc transformation matrices
-  std::vector<Eigen::Matrix<double,4,4> > transMatrices;
+  std::vector<Eigen::Matrix4d > transMatrices;
   for (unsigned i = 0; i < numTests; i++) {
     transMatrices.push_back(lgmath::se3::vec2tran(trueVecs.at(i)));
   }
@@ -225,7 +251,7 @@ TEST_CASE("Test transformation inverse.", "[lgmath]" ) {
   }
 
   // Calc transformation matrices
-  std::vector<Eigen::Matrix<double,4,4> > transMatrices;
+  std::vector<Eigen::Matrix4d > transMatrices;
   for (unsigned i = 0; i < numTests; i++) {
     transMatrices.push_back(lgmath::se3::vec2tran(trueVecs.at(i)));
   }
@@ -249,7 +275,7 @@ TEST_CASE("Test transformation inverse.", "[lgmath]" ) {
   SECTION("test product of inverse") {
     for (unsigned i = 0; i < numTests; i++) {
       INFO("T*Tinv: " << transformations.at(i).matrix()*transformations.at(i).inverse().matrix());
-      CHECK(lgmath::common::nearEqual(transformations.at(i).matrix()*transformations.at(i).inverse().matrix(), Eigen::Matrix<double,4,4>::Identity(), 1e-6));
+      CHECK(lgmath::common::nearEqual(transformations.at(i).matrix()*transformations.at(i).inverse().matrix(), Eigen::Matrix4d::Identity(), 1e-6));
     }
   }
 
@@ -267,7 +293,7 @@ TEST_CASE("Test transformation inverse.", "[lgmath]" ) {
     for (unsigned i = 0; i < numTests-1; i++) {
       lgmath::se3::Transformation test = transformations.at(i);
       test *= transformations.at(i+1);
-      Eigen::Matrix<double,4,4> matrix = transMatrices.at(i)*transMatrices.at(i+1);
+      Eigen::Matrix4d matrix = transMatrices.at(i)*transMatrices.at(i+1);
       INFO("matr: " << matrix);
       INFO("tran: " << test.matrix());
       CHECK(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
@@ -278,7 +304,7 @@ TEST_CASE("Test transformation inverse.", "[lgmath]" ) {
   SECTION("test product") {
     for (unsigned i = 0; i < numTests-1; i++) {
       lgmath::se3::Transformation test = transformations.at(i)*transformations.at(i+1);
-      Eigen::Matrix<double,4,4> matrix = transMatrices.at(i)*transMatrices.at(i+1);
+      Eigen::Matrix4d matrix = transMatrices.at(i)*transMatrices.at(i+1);
       INFO("matr: " << matrix);
       INFO("tran: " << test.matrix());
       CHECK(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
@@ -290,7 +316,7 @@ TEST_CASE("Test transformation inverse.", "[lgmath]" ) {
     for (unsigned i = 0; i < numTests-1; i++) {
       lgmath::se3::Transformation test = transformations.at(i);
       test /= transformations.at(i+1);
-      Eigen::Matrix<double,4,4> matrix = transMatrices.at(i) * transMatrices.at(i+1).inverse();
+      Eigen::Matrix4d matrix = transMatrices.at(i) * transMatrices.at(i+1).inverse();
       INFO("matr: " << matrix);
       INFO("tran: " << test.matrix());
       CHECK(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
@@ -301,7 +327,7 @@ TEST_CASE("Test transformation inverse.", "[lgmath]" ) {
   SECTION("test product with inverse") {
     for (unsigned i = 0; i < numTests-1; i++) {
       lgmath::se3::Transformation test = transformations.at(i) / transformations.at(i+1);
-      Eigen::Matrix<double,4,4> matrix = transMatrices.at(i) * transMatrices.at(i+1).inverse();
+      Eigen::Matrix4d matrix = transMatrices.at(i) * transMatrices.at(i+1).inverse();
       INFO("matr: " << matrix);
       INFO("tran: " << test.matrix());
       CHECK(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
@@ -311,12 +337,12 @@ TEST_CASE("Test transformation inverse.", "[lgmath]" ) {
   // Test product with landmark
   SECTION("test product with landmark") {
     for (unsigned i = 0; i < numTests; i++) {
-      Eigen::Matrix<double,4,1> eig = transMatrices.at(i)*landmarks.at(i);
+      Eigen::Matrix<double,4,1> mat = transMatrices.at(i)*landmarks.at(i);
       Eigen::Matrix<double,4,1> test = transformations.at(i)*landmarks.at(i);
 
-      INFO("matr: " << eig);
+      INFO("matr: " << mat);
       INFO("test: " << test);
-      CHECK(lgmath::common::nearEqual(eig, test, 1e-6));
+      CHECK(lgmath::common::nearEqual(mat, test, 1e-6));
     }
   }
 

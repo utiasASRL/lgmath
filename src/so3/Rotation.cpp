@@ -45,14 +45,14 @@ Rotation::Rotation(const Eigen::Matrix3d& C, bool reproj) {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The rotation will be C_ba = vec2rot(aaxis_ab)
 //////////////////////////////////////////////////////////////////////////////////////////////
-Rotation(const Eigen::Vector3d& aaxis_ab, unsigned int numTerms) {
+Rotation::Rotation(const Eigen::Vector3d& aaxis_ab, unsigned int numTerms) {
   C_ba_ = lgmath::so3::vec2rot(aaxis_ab, numTerms);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The rotation will be C_ba = vec2rot(aaxis_ab), aaxis_ab must be 3x1
 //////////////////////////////////////////////////////////////////////////////////////////////
-Rotation(const Eigen::VectorXd& aaxis_ab) {
+Rotation::Rotation(const Eigen::VectorXd& aaxis_ab) {
 
   // Logic error
   CHECK(aaxis_ab.rows() == 3);
