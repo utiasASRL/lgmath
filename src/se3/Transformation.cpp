@@ -18,7 +18,7 @@ namespace se3 {
 /// \brief Default constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation() :
-  C_ba_(Eigen::Matrix<double,3,3>::Identity()), r_ab_inb_(Eigen::Matrix<double,3,1>::Zero()) {
+  C_ba_(Eigen::Matrix3d::Identity()), r_ab_inb_(Eigen::Vector3d::Zero()) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,22 +38,27 @@ Transformation::Transformation(const Eigen::Matrix4d& T) :
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
-Transformation::Transformation(const Eigen::Matrix<double,3,3>& C_ba, const Eigen::Matrix<double,3,1>& r_ba_ina) :
+Transformation::Transformation(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina) :
   C_ba_(C_ba), r_ab_inb_(-C_ba*r_ba_ina) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Constructor. The transformation will be T_ba = vec2tran(vec)
+/// \brief Constructor. The transformation will be T_ba = vec2tran(xi_ab)
 //////////////////////////////////////////////////////////////////////////////////////////////
-Transformation::Transformation(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms) {
-  lgmath::se3::vec2tran(vec, &C_ba_, &r_ab_inb_, numTerms);
+Transformation::Transformation(const Eigen::Matrix<double,6,1>& xi_ab, unsigned int numTerms) {
+  lgmath::se3::vec2tran(xi_ab, &C_ba_, &r_ab_inb_, numTerms);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Constructor. The transformation will be T_ba = vec2tran(vec)
+/// \brief Constructor. The transformation will be T_ba = vec2tran(xi_ab), xi_ab must be 6x1
 //////////////////////////////////////////////////////////////////////////////////////////////
-Transformation::Transformation(const Eigen::VectorXd& vec) {
-  lgmath::se3::vec2tran(vec, &C_ba_, &r_ab_inb_, 0);
+Transformation::Transformation(const Eigen::VectorXd& xi_ab) {
+
+  // Logic error
+  CHECK(xi_ab.rows() == 6);
+
+  // Construct using exponential map
+  lgmath::se3::vec2tran(xi_ab, &C_ba_, &r_ab_inb_, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +75,7 @@ Transformation& Transformation::operator=(Transformation T) {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Gets basic matrix representation of the transformation
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,4,4> Transformation::matrix() const {
+Eigen::Matrix4d Transformation::matrix() const {
   Eigen::Matrix4d T_ba = Eigen::Matrix4d::Identity();
   T_ba.topLeftCorner<3,3>() = C_ba_;
   T_ba.topRightCorner<3,1>() = r_ab_inb_;
@@ -80,21 +85,21 @@ Eigen::Matrix<double,4,4> Transformation::matrix() const {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Gets the underlying rotation matrix
 //////////////////////////////////////////////////////////////////////////////////////////////
-const Eigen::Matrix<double,3,3>& Transformation::C_ba() const {
+const Eigen::Matrix3d& Transformation::C_ba() const {
   return C_ba_;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Gets the "forward" translation r_ba_ina = -C_ba.transpose()*r_ab_inb
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,3,1> Transformation::r_ba_ina() const {
+Eigen::Vector3d Transformation::r_ba_ina() const {
   return -C_ba_.transpose()*r_ab_inb_;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Gets the underlying r_ab_inb vector.
 //////////////////////////////////////////////////////////////////////////////////////////////
-const Eigen::Matrix<double,3,1>& Transformation::r_ab_inb() const {
+const Eigen::Vector3d& Transformation::r_ab_inb() const {
   return r_ab_inb_;
 }
 
@@ -161,8 +166,8 @@ Transformation Transformation::operator/(const Transformation& T_rhs) const {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Right-hand side multiply this matrix by the homogeneous vector p_a
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,4,1> Transformation::operator*(const Eigen::Matrix<double,4,1>& p_a) const {
-  Eigen::Matrix<double,4,1> p_b;
+Eigen::Vector4d Transformation::operator*(const Eigen::Vector4d& p_a) const {
+  Eigen::Vector4d p_b;
   p_b.head<3>() = C_ba_*p_a.head<3>() + r_ab_inb_*p_a[3];
   p_b[3] = p_a[3];
   return p_b;
