@@ -30,6 +30,7 @@ add_executable(lgmath_unit_tests
   ${CMAKE_CURRENT_SOURCE_DIR}/SO3Tests.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/SE3Tests.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/TransformTests.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/RotationTests.cpp
 )
 target_link_libraries(lgmath_unit_tests lgmath ${DEPEND_LIBS})
 
