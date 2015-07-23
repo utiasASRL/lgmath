@@ -183,6 +183,20 @@ Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix3d& rot, const Eigen::Vect
 Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix4d& mat);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Builds the 6x6 adjoint transformation matrix from the 3x3 rotation matrix and 3x1
+///        translation vector.
+///
+/// Builds the 6x6 adjoint transformation matrix from the 3x3 rotation matrix and 3x1
+///        translation vector.
+///
+///  Adjoint(T_ab) = Adjoint([C_ab r_ba_ina]) = [C_ab r_ba_ina^*C_ab] = exp(curlyhat(xi_ba))
+///                         ([ 0^T        1])   [   0           C_ab]
+///
+/// See eq. 101 in Barfoot-TRO-2014 for more information.
+//////////////////////////////////////////////////////////////////////////////////////////////
+Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix3d& rot, const Eigen::Vector3d& trans);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds the 6x6 adjoint transformation matrix from a 4x4 one
 ///
 /// Builds the 6x6 adjoint transformation matrix from a 4x4 transformation matrix
@@ -192,19 +206,24 @@ Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix4d& mat);
 ///
 /// See eq. 101 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix3d& rot, const Eigen::Vector3d& trans);
 Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix4d& mat);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief construction of the 3x3 "Q" matrix, used in the 6x6 Jacobian of SE(3)
+/// \brief Construction of the 3x3 "Q" matrix, used in the 6x6 Jacobian of SE(3)
 ///
 /// See eq. 102 in Barfoot-TRO-2014 for more information
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix3d vec2Q(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Construction of the 3x3 "Q" matrix, used in the 6x6 Jacobian of SE(3)
+///
+/// See eq. 102 in Barfoot-TRO-2014 for more information
+//////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix3d vec2Q(const Eigen::Matrix<double,6,1>& vec);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 6x6 Jacobian matrix of SE(3)
+/// \brief Builds the 6x6 Jacobian matrix of SE(3) using the analytical expression
 ///
 /// Build the 6x6 left Jacobian of SE(3).
 ///
@@ -220,13 +239,21 @@ Eigen::Matrix3d vec2Q(const Eigen::Matrix<double,6,1>& vec);
 ///
 ///   Adjoint(exp(xi_ba^)) = identity + curlyhat(xi_ba) * J(xi_ba).
 ///
-/// For more information see eq. 102 in Barfoot-TRO-2014.
+/// For more information see eq. 100 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> vec2jac(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Builds the 6x6 Jacobian matrix of SE(3) from the se(3) algebra; note that the
+///        default parameter (numTerms = 0) will call the analytical solution, but the
+///        numerical solution can also be evaluating to some number of terms.
+///
+/// For more information see eq. 100 in Barfoot-TRO-2014.
+//////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms = 0);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 6x6 inverse Jacobian matrix of SE(3)
+/// \brief Builds the 6x6 inverse Jacobian matrix of SE(3) using the analytical expression
 ///
 /// Build the 6x6 inverse left Jacobian of SE(3).
 ///
@@ -241,6 +268,14 @@ Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& vec, unsigned
 /// For more information see eq. 103 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Builds the 6x6 inverse Jacobian matrix of SE(3) from the se(3) algebra; note that
+///        the default parameter (numTerms = 0) will call the analytical solution, but the
+///        numerical solution can also be evaluating to some number of terms.
+///
+/// For more information see eq. 103 in Barfoot-TRO-2014.
+//////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms = 0);
 
 } // se3

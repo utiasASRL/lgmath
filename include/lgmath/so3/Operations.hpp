@@ -43,7 +43,6 @@ Eigen::Matrix3d hat(const Eigen::Vector3d& vector);
 /// can be recovered by finding the norm of the vector, and the axis of rotation is the unit-
 /// length vector that arises from normalization. Note that the angle around the axis,
 /// aaxis_ba, is a right-hand-rule (counter-clockwise positive) angle from 'a' to 'b'.
-/// For more information see eq. 97 in Barfoot-TRO-2014.
 ///
 /// Alternatively, we that note that
 ///
@@ -59,11 +58,12 @@ Eigen::Matrix3d hat(const Eigen::Vector3d& vector);
 ///   C_20 = exp(deltaTime*-omega^) * C_10,
 ///
 /// Noting that omega is negative (left-hand-rule).
+/// For more information see eq. 97 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix3d vec2rot(const Eigen::Vector3d& aaxis_ba, unsigned int numTerms = 0);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds and returns both the rotation matrix and SO(3) Jacobian
+/// \brief Builds and returns both the rotation matrix and SO(3) Jacobian
 ///
 /// Similar to the function 'vec2rot', this function builds a rotation matrix, C_ab, using an
 /// equivalent expression to the exponential map, but allows us to simultaneously extract
@@ -72,11 +72,12 @@ Eigen::Matrix3d vec2rot(const Eigen::Vector3d& aaxis_ba, unsigned int numTerms =
 ///   J_ab = jac(aaxis_ba)
 ///   C_ab = exp(aaxis_ba^) = identity + aaxis_ba^ * J_ab
 ///
+/// For more information see eq. 97 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
 void vec2rot(const Eigen::Vector3d& aaxis_ba, Eigen::Matrix3d* out_C_ab, Eigen::Matrix3d* out_J_ab);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief compute the matrix log of a rotation matrix
+/// \brief Compute the matrix log of a rotation matrix
 ///
 /// Compute the inverse of the exponential map (the logarithmic map). This lets us go from
 /// a 3x3 rotation matrix back to a 3x1 axis angle parameterization. In some cases, when the
@@ -97,7 +98,7 @@ void vec2rot(const Eigen::Vector3d& aaxis_ba, Eigen::Matrix3d* out_C_ab, Eigen::
 Eigen::Vector3d rot2vec(const Eigen::Matrix3d& C_ab);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 3x3 Jacobian matrix of SO(3)
+/// \brief Builds the 3x3 Jacobian matrix of SO(3)
 ///
 /// Build the 3x3 left Jacobian of SO(3).
 ///
@@ -113,7 +114,7 @@ Eigen::Vector3d rot2vec(const Eigen::Matrix3d& C_ab);
 Eigen::Matrix3d vec2jac(const Eigen::Vector3d& aaxis_ba, unsigned int numTerms = 0);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 3x3 inverse Jacobian matrix of SO(3)
+/// \brief Builds the 3x3 inverse Jacobian matrix of SO(3)
 ///
 /// Build the 3x3 inverse left Jacobian of SO(3).
 ///
