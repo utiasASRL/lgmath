@@ -90,46 +90,24 @@ Eigen::Matrix<double,6,4> point2sf(const Eigen::Vector3d& p, double scale = 1);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Builds a transformation matrix using the analytical exponential map
-//////////////////////////////////////////////////////////////////////////////////////////////
-void vec2tran_analytical(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis,
-                         Eigen::Matrix3d* outRot, Eigen::Vector3d* outTrans);
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds a transformation matrix using the first N terms of the infinite series
 ///
-/// For more information see eq. 96 in Barfoot-TRO-2014
-//////////////////////////////////////////////////////////////////////////////////////////////
-void vec2tran_numerical(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis,
-                        Eigen::Matrix3d* outRot, Eigen::Vector3d* outTrans,
-                        unsigned int numTerms = 0);
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Builds the 3x3 rotation and 3x1 translation using the exponential map
-//////////////////////////////////////////////////////////////////////////////////////////////
-void vec2tran(const Eigen::Matrix<double,6,1>& vec, Eigen::Matrix3d* outRot,
-              Eigen::Vector3d* outTrans, unsigned int numTerms = 0);
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Builds a transformation matrix using the exponential map
+/// This function builds a transformation matrix, T_ab, using the analytical exponential map,
+/// from the se3 algebra vector, xi_ba,
 ///
-/// This function builds a transformation matrix, T_ab, using the exponential map (from the
-/// se3 algebra vector, xi_ba,
+///   T_ab = exp(xi_ba^) = [ C_ab r_ba_ina],   xi_ba = [aaxis_ba]
+///                        [  0^T        1]            [  rho_ba]
 ///
-///   T_ab = exp(xi_ba^), xi_ba = [aaxis_ba]
-///                               [  rho_ba]
+/// where C_ab is a 3x3 rotation matrix from 'b' to 'a', r_ba_ina is the 3x1 translation
+/// vector from 'a' to 'b' expressed in frame 'a', aaxis_ba is a 3x1 axis-angle vector,
+/// the magnitude of the angle of rotation can be recovered by finding the norm of the vector,
+/// and the axis of rotation is the unit-length vector that arises from normalization.
+/// Note that the angle around the axis, aaxis_ba, is a right-hand-rule (counter-clockwise
+/// positive) angle from 'a' to 'b'.
 ///
-/// where aaxis_ba is a 3x1 axis-angle vector, where the magnitude of the angle of rotation
-/// can be recovered by finding the norm of the vector, and the axis of rotation is the unit
-/// length vector that arises from normalization. Note that the angle around the axis,
-/// aaxis_ba, is a right-hand-rule (counter-clockwise positive) angle from 'a' to 'b'. The
-/// parameter, rho_ba, is a special translation-like parameter related to 'twist' theory.
-/// Assuming that the transformation was applied in a smooth fashion, rho_ba, is most
-/// intuitively described as being the fixed-length translation along the curve that that the
-/// rotating and translating body would track through space. Alternatively, similar to how
-/// an axis-angle vector can be thought of as the application of a constant angular velocity
-/// over a fixed period of time, the translation parameter, rho, can be thought of as the
-/// application of a linear velocity (expressed in the 'moving' frame) over a the same
-/// fixed time (e.g. a car drives 'x' meters while turning at a rate of 'y' rad/s)
+/// The parameter, rho_ba, is a special translation-like parameter related to 'twist' theory.
+/// It is most inuitively described as being like a constant linear velocity (expressed in
+/// the smoothly-moving frame) for a fixed duration; for example, consider the curve of a
+/// car driving 'x' meters while turning at a rate of 'y' rad/s.
 ///
 /// For more information see Barfoot-TRO-2014 Appendix B1.
 ///
@@ -139,34 +117,128 @@ void vec2tran(const Eigen::Matrix<double,6,1>& vec, Eigen::Matrix3d* outRot,
 ///
 /// Both the analytical (numTerms = 0) or the numerical (numTerms > 0) may be evaluated.
 //////////////////////////////////////////////////////////////////////////////////////////////
+void vec2tran_analytical(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis,
+                         Eigen::Matrix3d* outRot, Eigen::Vector3d* outTrans);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Builds a transformation matrix using the first N terms of the infinite series
+///
+/// Builds a transformation matrix numerically using the infinite series evalation
+/// of the exponential map.
+///
+/// For more information see eq. 96 in Barfoot-TRO-2014
+//////////////////////////////////////////////////////////////////////////////////////////////
+void vec2tran_numerical(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis,
+                        Eigen::Matrix3d* outRot, Eigen::Vector3d* outTrans,
+                        unsigned int numTerms = 0);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Builds the 3x3 rotation and 3x1 translation using the exponential map, the
+///        default parameters (numTerms = 0) use the analytical solution.
+//////////////////////////////////////////////////////////////////////////////////////////////
+void vec2tran(const Eigen::Matrix<double,6,1>& vec, Eigen::Matrix3d* outRot,
+              Eigen::Vector3d* outTrans, unsigned int numTerms = 0);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Builds a 4x4 transformation matrix using the exponential map, the
+///        default parameters (numTerms = 0) use the analytical solution.
+//////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix4d vec2tran(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms = 0);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief compute the matrix log of a transformation matrix (see Barfoot-TRO-2014 Appendix B2)
+/// \brief Compute the matrix log of a transformation matrix (from the rotation and trans)
+///
+/// Compute the inverse of the exponential map (the logarithmic map). This lets us go from
+/// a the 3x3 rotation and 3x1 translation vector back to a 6x1 se3 algebra vector (composed
+/// of a 3x1 axis-angle vector and 3x1 twist-translation vector). In some cases, when the
+/// rotation in the transformation matrix is 'numerically off', this involves some
+/// 'projection' back to SE(3).
+///
+///   xi_ba = ln(T_ab)
+///
+/// where xi_ba is the 6x1 se3 algebra vector. Alternatively, we that note that
+///
+///   xi_ab = -xi_ba = ln(T_ba) = ln(T_ab^{-1})
+///
+/// See Barfoot-TRO-2014 Appendix B2 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix3d& rot, const Eigen::Vector3d& trans);
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Compute the matrix log of a transformation matrix
+///
+/// Compute the inverse of the exponential map (the logarithmic map). This lets us go from
+/// a 4x4 transformation matrix back to a 6x1 se3 algebra vector (composed of a 3x1 axis-angle
+/// vector and 3x1 twist-translation vector). In some cases, when the rotation in the
+/// transformation matrix is 'numerically off', this involves some 'projection' back to SE(3).
+///
+///   xi_ba = ln(T_ab)
+///
+/// where xi_ba is the 6x1 se3 algebra vector. Alternatively, we that note that
+///
+///   xi_ab = -xi_ba = ln(T_ba) = ln(T_ab^{-1})
+///
+/// See Barfoot-TRO-2014 Appendix B2 for more information.
+//////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,1> tran2vec(const Eigen::Matrix4d& mat);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief builds the 6x6 adjoint transformation matrix from a 4x4 one (see eq. 101 in Barfoot-TRO-2014)
+/// \brief Builds the 6x6 adjoint transformation matrix from a 4x4 one
+///
+/// Builds the 6x6 adjoint transformation matrix from a 4x4 transformation matrix
+///
+///  Adjoint(T_ab) = Adjoint([C_ab r_ba_ina]) = [C_ab r_ba_ina^*C_ab] = exp(curlyhat(xi_ba))
+///                         ([ 0^T        1])   [   0           C_ab]
+///
+/// See eq. 101 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix3d& rot, const Eigen::Vector3d& trans);
 Eigen::Matrix<double,6,6> tranAd(const Eigen::Matrix4d& mat);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief construction of the 3x3 "Q" matrix, used in the 6x6 Jacobian of SE(3) (see eq. 102 in Barfoot-TRO-2014)
+/// \brief construction of the 3x3 "Q" matrix, used in the 6x6 Jacobian of SE(3)
+///
+/// See eq. 102 in Barfoot-TRO-2014 for more information
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix3d vec2Q(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis);
 Eigen::Matrix3d vec2Q(const Eigen::Matrix<double,6,1>& vec);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief construction of the 6x6 Jacobian of SE(3) (see eq. 100 in Barfoot-TRO-2014)
+/// \brief builds the 6x6 Jacobian matrix of SE(3)
+///
+/// Build the 6x6 left Jacobian of SE(3).
+///
+/// For the sake of a notation, we assign subscripts consistence with the transformation,
+///
+///   J_ab = J(xi_ba)
+///
+/// Where applicable, we also note that
+///
+///   J(xi_ba) = Adjoint(exp(xi_ba^)) * J(-xi_ba),
+///
+/// and
+///
+///   Adjoint(exp(xi_ba^)) = identity + curlyhat(xi_ba) * J(xi_ba).
+///
+/// For more information see eq. 102 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> vec2jac(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis);
 Eigen::Matrix<double,6,6> vec2jac(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms = 0);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief construction of the 6x6 inverse Jacobian of SE(3) (see eq. 103 in Barfoot-TRO-2014)
+/// \brief builds the 6x6 inverse Jacobian matrix of SE(3)
+///
+/// Build the 6x6 inverse left Jacobian of SE(3).
+///
+/// For the sake of a notation, we assign subscripts consistence with the transformation,
+///
+///   J_ab_inverse = J(xi_ba)^{-1},
+///
+/// Please note that J_ab_inverse is not equivalent to J_ba:
+///
+///   J(xi_ba)^{-1} != J(-xi_ba)
+///
+/// For more information see eq. 103 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Vector3d& rho, const Eigen::Vector3d& aaxis);
 Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms = 0);

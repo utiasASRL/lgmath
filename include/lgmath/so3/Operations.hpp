@@ -39,9 +39,10 @@ Eigen::Matrix3d hat(const Eigen::Vector3d& vector);
 ///
 ///   C_ab = exp(aaxis_ba^),
 ///
-/// where aaxis_ba is a 3x1 axis angle, where the axis is normalized and the magnitude of the
-/// rotation can be recovered by finding the norm of the axis angle. Note that the angle around
-/// the axis, aaxis_ba, is a right-hand-rule (counter-clockwise positive) angle from 'a' to 'b'.
+/// where aaxis_ba is a 3x1 axis-angle vector, the magnitude of the angle of rotation
+/// can be recovered by finding the norm of the vector, and the axis of rotation is the unit-
+/// length vector that arises from normalization. Note that the angle around the axis,
+/// aaxis_ba, is a right-hand-rule (counter-clockwise positive) angle from 'a' to 'b'.
 /// For more information see eq. 97 in Barfoot-TRO-2014.
 ///
 /// Alternatively, we that note that
@@ -100,7 +101,7 @@ Eigen::Vector3d rot2vec(const Eigen::Matrix3d& C_ab);
 ///
 /// Build the 3x3 left Jacobian of SO(3).
 ///
-/// For the sake of a notation, we assign subscripts,
+/// For the sake of a notation, we assign subscripts consistence with the rotation,
 ///
 ///   J_ab = J(aaxis_ba),
 ///
@@ -116,14 +117,14 @@ Eigen::Matrix3d vec2jac(const Eigen::Vector3d& aaxis_ba, unsigned int numTerms =
 ///
 /// Build the 3x3 inverse left Jacobian of SO(3).
 ///
-/// For the sake of a notation, we assign subscripts,
+/// For the sake of a notation, we assign subscripts consistence with the rotation,
 ///
-///   J_ab_inverse = J^{-1}(aaxis_ba),
+///   J_ab_inverse = J(aaxis_ba)^{-1},
 ///
 /// although we note to the SO(3) novice that this Jacobian is not a rotation matrix, and
 /// should be used with care. Also, please note that J_ab_inverse is not equivalent to J_ba:
 ///
-///   J^{-1}(aaxis_ba) != J(-aaxis_ba)
+///   J(aaxis_ba)^{-1} != J(-aaxis_ba)
 ///
 /// For more information see eq. 99 in Barfoot-TRO-2014.
 //////////////////////////////////////////////////////////////////////////////////////////////
