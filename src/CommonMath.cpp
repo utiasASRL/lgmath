@@ -9,7 +9,6 @@
 #include <lgmath/CommonMath.hpp>
 
 #include <math.h>
-#include <glog/logging.h>
 
 namespace lgmath {
 namespace common {

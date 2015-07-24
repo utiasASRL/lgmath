@@ -1,14 +1,9 @@
 #include <iostream>
 
-#include <glog/logging.h>
-
 #include <lgmath/CommonTools.hpp>
 #include <lgmath/so3/Operations.hpp>
 
 int main(int argc, char **argv) {
-
-  // Init Logging
-  google::InitGoogleLogging(argv[0]);
 
   // Init variables
   unsigned int N = 1000000;

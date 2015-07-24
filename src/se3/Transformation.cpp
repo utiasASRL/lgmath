@@ -9,10 +9,10 @@
 
 #include <lgmath/se3/Transformation.hpp>
 
+#include <stdexcept>
+
 #include <lgmath/so3/Operations.hpp>
 #include <lgmath/se3/Operations.hpp>
-
-#include <glog/logging.h>
 
 namespace lgmath {
 namespace se3 {
@@ -72,8 +72,11 @@ Transformation::Transformation(const Eigen::Matrix<double,6,1>& xi_ab, unsigned 
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation(const Eigen::VectorXd& xi_ab) {
 
-  // Logic error
-  CHECK(xi_ab.rows() == 6);
+  // Throw logic error
+  if (xi_ab.rows() != 6) {
+    throw std::invalid_argument("Tried to initialize a transformation "
+                                "from a VectorXd that was not dimension 6");
+  }
 
   // Construct using exponential map
   lgmath::se3::vec2tran(xi_ab, &C_ba_, &r_ab_inb_, 0);

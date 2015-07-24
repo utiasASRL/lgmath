@@ -10,7 +10,7 @@
 #include <lgmath/so3/Operations.hpp>
 
 #include <Eigen/Dense>
-#include <glog/logging.h>
+#include <stdexcept>
 #include <stdio.h>
 
 namespace lgmath {
@@ -118,8 +118,12 @@ void vec2rot(const Eigen::Vector3d& aaxis_ba, Eigen::Matrix3d* out_C_ab,
              Eigen::Matrix3d* out_J_ab) {
 
   // Check pointers
-  CHECK_NOTNULL(out_C_ab);
-  CHECK_NOTNULL(out_J_ab);
+  if (out_C_ab == NULL) {
+    throw std::invalid_argument("Null pointer out_C_ab in vec2rot");
+  }
+  if (out_J_ab == NULL) {
+    throw std::invalid_argument("Null pointer out_J_ab in vec2rot");
+  }
 
   // Set Jacobian term
   *out_J_ab = so3::vec2jac(aaxis_ba);
@@ -185,7 +189,8 @@ Eigen::Vector3d rot2vec(const Eigen::Matrix3d& C_ab) {
     }
 
     // Runtime error
-    CHECK(false) << "rot2vec: angle is near pi or 2*pi, but no eigenvalues were near 1...";
+    throw std::runtime_error("so3 logarithmic map failed to find an axis-angle, "
+                             "angle was near pi, or 2*pi, but no eigenvalues were near 1");
 
   } else {
 
@@ -283,7 +288,9 @@ Eigen::Matrix3d vec2jacinv(const Eigen::Vector3d& aaxis_ba, unsigned int numTerm
   } else {
 
     // Logic error
-    CHECK(numTerms <= 20) << "Terms higher than 20 for vec2jacinv are not supported";
+    if (numTerms > 20) {
+      throw std::invalid_argument("Numerical vec2jacinv does not support numTerms > 20");
+    }
 
     // Numerical solution (good for testing the analytical solution)
     Eigen::Matrix3d J_ab_inverse = Eigen::Matrix3d::Identity();
