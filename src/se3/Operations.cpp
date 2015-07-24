@@ -9,10 +9,11 @@
 
 #include <lgmath/se3/Operations.hpp>
 
-#include <lgmath/so3/Operations.hpp>
 #include <Eigen/Dense>
-#include <glog/logging.h>
+#include <stdexcept>
 #include <stdio.h>
+
+#include <lgmath/so3/Operations.hpp>
 
 namespace lgmath {
 namespace se3 {
@@ -149,9 +150,13 @@ Eigen::Matrix<double,6,4> point2sf(const Eigen::Vector3d& p, double scale) {
 void vec2tran_analytical(const Eigen::Vector3d& rho_ba, const Eigen::Vector3d& aaxis_ba,
                          Eigen::Matrix3d* out_C_ab, Eigen::Vector3d* out_r_ba_ina) {
 
-  // Check outputs
-  CHECK_NOTNULL(out_C_ab);
-  CHECK_NOTNULL(out_r_ba_ina);
+  // Check pointers
+  if (out_C_ab == NULL) {
+    throw std::invalid_argument("Null pointer out_C_ab in vec2tran_analytical");
+  }
+  if (out_r_ba_ina == NULL) {
+    throw std::invalid_argument("Null pointer out_r_ba_ina in vec2tran_analytical");
+  }
 
   if(aaxis_ba.norm() < 1e-12) {
 
@@ -184,9 +189,13 @@ void vec2tran_numerical(const Eigen::Vector3d& rho_ba, const Eigen::Vector3d& aa
                         Eigen::Matrix3d* out_C_ab, Eigen::Vector3d* out_r_ba_ina,
                         unsigned int numTerms) {
 
-  // Check outputs
-  CHECK_NOTNULL(out_C_ab);
-  CHECK_NOTNULL(out_r_ba_ina);
+  // Check pointers
+  if (out_C_ab == NULL) {
+    throw std::invalid_argument("Null pointer out_C_ab in vec2tran_numerical");
+  }
+  if (out_r_ba_ina == NULL) {
+    throw std::invalid_argument("Null pointer out_r_ba_ina in vec2tran_numerical");
+  }
 
   // Init 4x4 transformation
   Eigen::Matrix4d T_ab = Eigen::Matrix4d::Identity();
@@ -499,7 +508,9 @@ Eigen::Matrix<double,6,6> vec2jacinv(const Eigen::Matrix<double,6,1>& xi_ba,
   } else {
 
     // Logic error
-    CHECK(numTerms <= 20) << "Terms higher than 20 for vec2jacinv are not supported";
+    if (numTerms > 20) {
+      throw std::invalid_argument("Numerical vec2jacinv does not support numTerms > 20");
+    }
 
     // Numerical solution (good for testing the analytical solution)
     Eigen::Matrix<double,6,6> J_ab = Eigen::Matrix<double,6,6>::Identity();

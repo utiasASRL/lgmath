@@ -6,7 +6,6 @@
 #include <lgmath/se3/Operations.hpp>
 #include <lgmath/se3/Transformation.hpp>
 
-
 int main(int argc, char **argv) {
 
   // Init Logging
