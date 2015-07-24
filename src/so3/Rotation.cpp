@@ -57,8 +57,8 @@ Rotation::Rotation(const Eigen::VectorXd& aaxis_ab) {
 
   // Throw logic error
   if (aaxis_ab.rows() != 3) {
-    throw std::logic_error("Tried to initialize a rotation "
-                           "from a VectorXd that was not dimension 3");
+    throw std::invalid_argument("Tried to initialize a rotation "
+                                "from a VectorXd that was not dimension 3");
   }
 
   // Construct using exponential map

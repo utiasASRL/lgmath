@@ -108,7 +108,7 @@ TEST_CASE("Rotation Constructors.", "[lgmath]" ) {
     lgmath::so3::Rotation testFailure;
     try {
       testFailure = lgmath::so3::Rotation(badvec);
-    } catch (const std::logic_error& e) {
+    } catch (const std::invalid_argument& e) {
       testFailure = test;
     }
     INFO("tmat: " << testFailure.matrix());

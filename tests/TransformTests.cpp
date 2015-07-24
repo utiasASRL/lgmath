@@ -113,7 +113,7 @@ TEST_CASE("Transformation Constructors.", "[lgmath]" ) {
     lgmath::se3::Transformation testFailure;
     try {
       testFailure = lgmath::se3::Transformation(badvec);
-    } catch (const std::logic_error& e) {
+    } catch (const std::invalid_argument& e) {
       testFailure = test;
     }
     INFO("tmat: " << testFailure.matrix());

@@ -74,8 +74,8 @@ Transformation::Transformation(const Eigen::VectorXd& xi_ab) {
 
   // Throw logic error
   if (xi_ab.rows() != 6) {
-    throw std::logic_error("Tried to initialize a transformation "
-                           "from a VectorXd that was not dimension 6");
+    throw std::invalid_argument("Tried to initialize a transformation "
+                                "from a VectorXd that was not dimension 6");
   }
 
   // Construct using exponential map
