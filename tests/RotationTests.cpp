@@ -97,14 +97,23 @@ TEST_CASE("Rotation Constructors.", "[lgmath]" ) {
     INFO("tmat: " << tmat);
     INFO("test: " << test.matrix());
     CHECK(lgmath::common::nearEqual(tmat, test.matrix(), 1e-6));
+  }
 
-//    Eigen::VectorXd vec4 = Eigen::Matrix<double,4,1>::Random();
-//    try {
-//      lgmath::so3::Rotation testFailure(vec4);
-//      CHECK(*this doesn't happen*);
-//    } catch () {
-//      CHECK(*this happens*);
-//    }
+  // Rotation(const Eigen::VectorXd& vec);
+  SECTION("exponential map with bad VectorXd" ) {
+    Eigen::VectorXd vec = Eigen::Vector3d::Random();
+    lgmath::so3::Rotation test(vec);
+
+    Eigen::VectorXd badvec = Eigen::Matrix<double,6,1>::Random();
+    lgmath::so3::Rotation testFailure;
+    try {
+      testFailure = lgmath::so3::Rotation(badvec);
+    } catch (const std::logic_error& e) {
+      testFailure = test;
+    }
+    INFO("tmat: " << testFailure.matrix());
+    INFO("test: " << test.matrix());
+    CHECK(lgmath::common::nearEqual(testFailure.matrix(), test.matrix(), 1e-6));
   }
 
 } // TEST_CASE

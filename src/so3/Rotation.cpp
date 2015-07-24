@@ -8,9 +8,10 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <lgmath/so3/Rotation.hpp>
-#include <lgmath/so3/Operations.hpp>
 
-#include <glog/logging.h>
+#include <stdexcept>
+
+#include <lgmath/so3/Operations.hpp>
 
 namespace lgmath {
 namespace so3 {
@@ -54,8 +55,11 @@ Rotation::Rotation(const Eigen::Vector3d& aaxis_ab, unsigned int numTerms) {
 //////////////////////////////////////////////////////////////////////////////////////////////
 Rotation::Rotation(const Eigen::VectorXd& aaxis_ab) {
 
-  // Logic error
-  CHECK(aaxis_ab.rows() == 3);
+  // Throw logic error
+  if (aaxis_ab.rows() != 3) {
+    throw std::logic_error("Tried to initialize a rotation "
+                           "from a VectorXd that was not dimension 3");
+  }
 
   // Construct using exponential map
   C_ba_ = lgmath::so3::vec2rot(aaxis_ab);

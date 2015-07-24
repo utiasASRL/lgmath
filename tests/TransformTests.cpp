@@ -101,14 +101,24 @@ TEST_CASE("Transformation Constructors.", "[lgmath]" ) {
     INFO("tmat: " << tmat);
     INFO("test: " << test.matrix());
     CHECK(lgmath::common::nearEqual(tmat, test.matrix(), 1e-6));
+  }
 
-//    Eigen::VectorXd vec3 = Eigen::Matrix<double,3,1>::Random();
-//    try {
-//      lgmath::se3::Transformation testFailure(vec3);
-//      CHECK(*this doesn't happen*);
-//    } catch () {
-//      CHECK(*this happens*);
-//    }
+  // Transformation(const Eigen::VectorXd& vec);
+  SECTION("exponential map with bad VectorXd" ) {
+    Eigen::VectorXd vec = Eigen::Matrix<double,6,1>::Random();
+    lgmath::se3::Transformation test(vec);
+
+    // Wrong size vector
+    Eigen::VectorXd badvec = Eigen::Matrix<double,3,1>::Random();
+    lgmath::se3::Transformation testFailure;
+    try {
+      testFailure = lgmath::se3::Transformation(badvec);
+    } catch (const std::logic_error& e) {
+      testFailure = test;
+    }
+    INFO("tmat: " << testFailure.matrix());
+    INFO("test: " << test.matrix());
+    CHECK(lgmath::common::nearEqual(testFailure.matrix(), test.matrix(), 1e-6));
   }
 
   //Transformation(const Eigen::Matrix3d& C_ba,
