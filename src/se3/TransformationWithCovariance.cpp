@@ -37,8 +37,8 @@ TransformationWithCovariance::TransformationWithCovariance(const TransformationW
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Copy constructor from deterministic Transformation
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(const Transformation& T) :
-        Transformation(T), U_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(true) {
+TransformationWithCovariance::TransformationWithCovariance(const Transformation& T, bool covarianceSet) :
+        Transformation(T), U_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(covarianceSet) {
 
 //TODO: Decide whether explicitly calling TransformationWithCovariance(Transform) should set covarianceSet_ to TRUE
 }
@@ -229,7 +229,8 @@ TransformationWithCovariance operator*(TransformationWithCovariance T_lhs, const
 /// \brief Multiplication of Transform by TransformWithCovariance
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance operator*(const Transformation& T_lhs, const TransformationWithCovariance& T_rhs) {
-    TransformationWithCovariance temp(T_lhs);
+    // Convert the Transform to a TransformWithCovariance, with the covarianceSet_ flag as true
+    TransformationWithCovariance temp(T_lhs, true);
     temp *= T_rhs;
     return temp;
 }
@@ -255,7 +256,8 @@ TransformationWithCovariance operator/(TransformationWithCovariance T_lhs, const
 /// \brief Multiplication of Transform by inverse TransformWithCovariance
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance operator/(const Transformation& T_lhs, const TransformationWithCovariance& T_rhs) {
-    TransformationWithCovariance temp(T_lhs);
+    // Convert the Transform to a TransformWithCovariance, with the covarianceSet_ flag as true
+    TransformationWithCovariance temp(T_lhs, true);
     temp /= T_rhs;
     return temp;
 }
