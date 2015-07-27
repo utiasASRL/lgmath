@@ -172,8 +172,8 @@ TransformationWithCovariance& TransformationWithCovariance::operator*=(const Tra
 
   // If 'this' and T_rhs have set covariances, then compound them
   if (this->covarianceSet_ && T_rhs.covarianceSet_) {
-    Eigen::Matrix<double,6,6> Ad = Transformation::adjoint();
-    this->covariance_ = this->covariance_ + Ad * T_rhs.covariance_ * Ad.transpose();
+    Eigen::Matrix<double,6,6> Ad_lhs = Transformation::adjoint();
+    this->covariance_ = this->covariance_ + Ad_lhs * T_rhs.covariance_ * Ad_lhs.transpose();
   } else {
     // Otherwise, invalidate covariance
     this->covariance_ = Eigen::Matrix<double,6,6>::Zero();
@@ -199,9 +199,12 @@ TransformationWithCovariance& TransformationWithCovariance::operator*=(const Tra
 /// \brief In-place right-hand side multiply this matrix by the inverse of T_rhs
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance& TransformationWithCovariance::operator/=(const TransformationWithCovariance& T_rhs) {
-  Eigen::Matrix<double,6,6> Ad = Transformation::adjoint();
+
+  // Note very carefully that we modify the internal transform before taking the adjoint
+  // in order to avoid having to convert the rhs covariance explicitly
   Transformation::operator/=(T_rhs);
-  this->covariance_ = this->covariance_ + Ad * T_rhs.covariance_ * Ad.transpose();
+  Eigen::Matrix<double,6,6> Ad_lhs_rhs = Transformation::adjoint();
+  this->covariance_ = this->covariance_ + Ad_lhs_rhs * T_rhs.covariance_ * Ad_lhs_rhs.transpose();
   this->covarianceSet_ = (this->covarianceSet_ && T_rhs.covarianceSet_);
   return *this;
 }

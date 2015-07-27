@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
   double recorded;
 
   // Allocate test memory
-  lgmath::se3::Transformation transform;
+  lgmath::se3::TransformationWithCovariance transform;
   Eigen::Matrix<double,4,1> v4 = Eigen::Matrix<double,4,1>::Random();
   Eigen::Matrix<double,6,1> v6 = Eigen::Matrix<double,6,1>::Random();
   Eigen::Matrix<double,6,6> U6 = Eigen::Matrix<double,6,6>::Random();
@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     transform = lgmath::se3::TransformationWithCovariance(v6, U6);
   }
   time1 = timer.milliseconds();
-  recorded = NAN;
+  recorded = 0.155;
   std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
   std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
     v6 = transform.vec();
   }
   time1 = timer.milliseconds();
-  recorded = NAN;
+  recorded = 0.127;
   std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
   std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
     transform = transform*transform;
   }
   time1 = timer.milliseconds();
-  recorded = NAN;
+  recorded = 0.189;
   std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
   std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     transform = transform/transform;
   }
   time1 = timer.milliseconds();
-  recorded = NAN;
+  recorded = 0.204;
   std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
   std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     v4 = transform*v4;
   }
   time1 = timer.milliseconds();
-  recorded = NAN;
+  recorded = 0.0139;
   std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
   std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;

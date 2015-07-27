@@ -599,8 +599,10 @@ TEST_CASE("TransformationWithCovariance operations.", "[lgmath]" ) {
 
     INFO("Checking covarianceSet_ flag...");
     Eigen::Matrix<double, 6, 6> testU;
-    Eigen::Matrix<double, 6, 6> Ad = T1.adjoint();
-    Eigen::Matrix<double, 6, 6> tmatU = U1 + Ad * U2 * Ad.transpose();
+    Eigen::Matrix<double, 6, 6> Ad1 = T1.adjoint();
+    Eigen::Matrix<double, 6, 6> Ad2inv = T2.inverse().adjoint();
+    Eigen::Matrix<double, 6, 6> Ad12 = Ad1 * Ad2inv;
+    Eigen::Matrix<double, 6, 6> tmatU = U1 + Ad12 * U2 * Ad12.transpose();
 
     bool passed = true;
     try {
@@ -646,8 +648,10 @@ TEST_CASE("TransformationWithCovariance operations.", "[lgmath]" ) {
 
     INFO("Checking covarianceSet_ flag...");
     Eigen::Matrix<double, 6, 6> testU;
-    Eigen::Matrix<double, 6, 6> Ad = T4.adjoint();
-    Eigen::Matrix<double, 6, 6> tmatU = Ad * U1 * Ad.transpose();
+    Eigen::Matrix<double, 6, 6> Ad4 = T4.adjoint();
+    Eigen::Matrix<double, 6, 6> Ad1inv = T1.inverse().adjoint();
+    Eigen::Matrix<double, 6, 6> Ad41 = Ad4 * Ad1inv;
+    Eigen::Matrix<double, 6, 6> tmatU = Ad41 * U1 * Ad41.transpose();
 
     bool passed = true;
     try {
