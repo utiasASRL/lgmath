@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \file Transformation.cpp
-/// \brief Implementation file for a transformation matrix class.
+/// \file TransformationWithCovariance.cpp
+/// \brief Implementation file for a transformation matrix class with associated covariance.
 /// \details Light weight transformation class, intended to be fast, and not to provide
 ///          unnecessary functionality.
 ///
@@ -21,53 +21,52 @@ namespace se3 {
 /// \brief Default constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance() :
-  Transformation(), U_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+  Transformation(), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Copy constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const TransformationWithCovariance& T) :
-  Transformation(T), U_(T.U_), covarianceSet_(T.covarianceSet_) {
+  Transformation(T), covariance_(T.covariance_), covarianceSet_(T.covarianceSet_) {
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Copy constructor from deterministic Transformation
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(const Transformation& T, bool covarianceSet) :
-  Transformation(T), U_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(covarianceSet) {
+TransformationWithCovariance::TransformationWithCovariance(const Transformation& T, bool initCovarianceToZero) :
+  Transformation(T), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(initCovarianceToZero) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Copy constructor from deterministic Transformation, with covariance
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(const Transformation& T, const Eigen::Matrix<double,6,6>& U) :
-  Transformation(T), U_(U), covarianceSet_(true) {
+TransformationWithCovariance::TransformationWithCovariance(const Transformation& T,
+                                                           const Eigen::Matrix<double,6,6>& covariance) :
+  Transformation(T), covariance_(covariance), covarianceSet_(true) {
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix4d& T, bool reproj) :
-  Transformation(T, reproj), U_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+  Transformation(T, reproj), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor with covariance
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix4d& T, const Eigen::Matrix<double,6,6>& U, bool reproj) :
-  Transformation(T, reproj), U_(U), covarianceSet_(true) {
+TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix4d& T,
+                                                           const Eigen::Matrix<double,6,6>& covariance,
+                                                           bool reproj) :
+  Transformation(T, reproj), covariance_(covariance), covarianceSet_(true) {
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina, bool reproj) :
-  Transformation(C_ba, r_ba_ina, reproj), U_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+  Transformation(C_ba, r_ba_ina, reproj), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,116 +74,126 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix3d
 /// T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina,
-                             const Eigen::Matrix<double,6,6>& U, bool reproj) :
-  Transformation(C_ba, r_ba_ina, reproj), U_(U), covarianceSet_(true) {
+                             const Eigen::Matrix<double,6,6>& covariance, bool reproj) :
+  Transformation(C_ba, r_ba_ina, reproj), covariance_(covariance), covarianceSet_(true) {
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = vec2tran(xi_ab)
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix<double,6,1>& xi_ab, unsigned int numTerms) :
-  Transformation(xi_ab, numTerms), U_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+  Transformation(xi_ab, numTerms), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor with covariance. The transformation will be T_ba = vec2tran(xi_ab)
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix<double,6,1>& xi_ab,
-                                                           const Eigen::Matrix<double,6,6>& U, unsigned int numTerms) :
-  Transformation(xi_ab, numTerms), U_(U), covarianceSet_(true) {
+                                                           const Eigen::Matrix<double,6,6>& covariance,
+                                                           unsigned int numTerms) :
+  Transformation(xi_ab, numTerms), covariance_(covariance), covarianceSet_(true) {
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = vec2tran(xi_ab), xi_ab must be 6x1
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd& xi_ab) :
-  Transformation(xi_ab), U_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+  Transformation(xi_ab), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = vec2tran(xi_ab), xi_ab must be 6x1
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd& xi_ab, const Eigen::Matrix<double,6,6>& U) :
-  Transformation(xi_ab), U_(U), covarianceSet_(true) {
+TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd& xi_ab,
+                                                           const Eigen::Matrix<double,6,6>& covariance) :
+  Transformation(xi_ab), covariance_(covariance), covarianceSet_(true) {
 }
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Assignment operator. Note pass-by-value is intentional.
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance& TransformationWithCovariance::operator=(TransformationWithCovariance T) {
-  // Call the assignment operator on the super class, as the internal members are not acessible here
+
+  // Call the assignment operator on the super class, as the internal members are not accessible here
   Transformation::operator=(T);
 
   // Swap (this)'s parameters with the temporary object passed by value
   // The temporary object is then destroyed at end of scope
-  std::swap( this->U_, T.U_ );
+  std::swap( this->covariance_, T.covariance_ );
   std::swap( this->covarianceSet_, T.covarianceSet_ );
   return (*this);
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Gets the underlying covariance matrix
 //////////////////////////////////////////////////////////////////////////////////////////////
-const Eigen::Matrix<double,6,6>& TransformationWithCovariance::U() const {
+const Eigen::Matrix<double,6,6>& TransformationWithCovariance::cov() const {
+
   if (!covarianceSet_) {
     throw std::logic_error("Covariance accessed before being set.  "
                            "Use setCovariance or initialize with a covariance.");
   }
-  return U_;
+  return covariance_;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Sets the underlying covariance matrix
 //////////////////////////////////////////////////////////////////////////////////////////////
-void TransformationWithCovariance::setCovariance(const Eigen::Matrix<double,6,6>& U) {
-  U_ = U;
+void TransformationWithCovariance::setCovariance(const Eigen::Matrix<double,6,6>& covariance) {
+  covariance_ = covariance;
   covarianceSet_ = true;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Sets the underlying covariance matrix to the 6x6 zero matrix
+/// \brief Sets the underlying covariance matrix to the 6x6 zero matrix (perfect certainty)
 //////////////////////////////////////////////////////////////////////////////////////////////
-void TransformationWithCovariance::zeroCovariance() {
-  U_ = Eigen::Matrix<double,6,6>::Zero();
+void TransformationWithCovariance::setZeroCovariance() {
+  covariance_ = Eigen::Matrix<double,6,6>::Zero();
   covarianceSet_ = true;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Get the inverse matrix
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance TransformationWithCovariance::inverse() const {
-  return TransformationWithCovariance(Transformation::inverse(), U_);
-}
 
+  //return TransformationWithCovariance(Transformation::inverse(), covariance_);
+  TransformationWithCovariance temp(Transformation::inverse(), false);
+  Eigen::Matrix<double,6,6> adjointOfInverse = temp.adjoint();
+  // todo, verify that this is correct .. swa
+  temp.setCovariance(adjointOfInverse * covariance_ * adjointOfInverse.transpose());
+  return temp;
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief In-place right-hand side multiply T_rhs
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance& TransformationWithCovariance::operator*=(const TransformationWithCovariance& T_rhs) {
-  Eigen::Matrix<double,6,6> Ad = Transformation::adjoint();
+
+  // If 'this' and T_rhs have set covariances, then compound them
+  if (this->covarianceSet_ && T_rhs.covarianceSet_) {
+    Eigen::Matrix<double,6,6> Ad = Transformation::adjoint();
+    this->covariance_ = this->covariance_ + Ad * T_rhs.covariance_ * Ad.transpose();
+  } else {
+    // Otherwise, invalidate covariance
+    this->covariance_ = Eigen::Matrix<double,6,6>::Zero();
+    this->covarianceSet_ = false;
+  }
+
+  // Compound mean transform
   Transformation::operator*=(T_rhs);
-  this->U_ = this->U_ + Ad * T_rhs.U_ * Ad.transpose();
-  this->covarianceSet_ = (this->covarianceSet_ && T_rhs.covarianceSet_);
   return *this;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief In-place right-hand side multiply deterministic T_rhs
+/// \brief In-place right-hand side multiply basic (certain) T_rhs
+///
+/// Note: Assumes that the Transformation matrix has perfect certainty
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance& TransformationWithCovariance::operator*=(const Transformation& T_rhs) {
   Transformation::operator*=(T_rhs);
   return *this;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief In-place right-hand side multiply this matrix by the inverse of T_rhs
@@ -192,19 +201,20 @@ TransformationWithCovariance& TransformationWithCovariance::operator*=(const Tra
 TransformationWithCovariance& TransformationWithCovariance::operator/=(const TransformationWithCovariance& T_rhs) {
   Eigen::Matrix<double,6,6> Ad = Transformation::adjoint();
   Transformation::operator/=(T_rhs);
-  this->U_ = this->U_ + Ad * T_rhs.U_ * Ad.transpose();
+  this->covariance_ = this->covariance_ + Ad * T_rhs.covariance_ * Ad.transpose();
   this->covarianceSet_ = (this->covarianceSet_ && T_rhs.covarianceSet_);
   return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief In-place right-hand side multiply this matrix by the inverse of deterministic T_rhs
+/// \brief In-place right-hand side multiply this matrix by the inverse of basic (certain) T_rhs
+///
+/// Note: Assumes that the Transformation matrix has perfect certainty
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance& TransformationWithCovariance::operator/=(const Transformation& T_rhs) {
   Transformation::operator/=(T_rhs);
   return *this;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Multiplication of TransformWithCovariance by TransformWithCovariance
@@ -216,6 +226,8 @@ TransformationWithCovariance operator*(TransformationWithCovariance T_lhs, const
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Multiplication of TransformWithCovariance by Transform
+///
+/// Note: Assumes that the Transformation matrix has perfect certainty
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance operator*(TransformationWithCovariance T_lhs, const Transformation& T_rhs) {
   T_lhs *= T_rhs;
@@ -224,14 +236,16 @@ TransformationWithCovariance operator*(TransformationWithCovariance T_lhs, const
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Multiplication of Transform by TransformWithCovariance
+///
+/// Note: Assumes that the Transformation matrix has perfect certainty
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance operator*(const Transformation& T_lhs, const TransformationWithCovariance& T_rhs) {
-  // Convert the Transform to a TransformWithCovariance, with the covarianceSet_ flag as true
+
+  // Convert the Transform to a TransformWithCovariance with perfect certainty
   TransformationWithCovariance temp(T_lhs, true);
   temp *= T_rhs;
   return temp;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Multiplication of TransformWithCovariance by inverse TransformWithCovariance
@@ -243,6 +257,8 @@ TransformationWithCovariance operator/(TransformationWithCovariance T_lhs, const
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Multiplication of TransformWithCovariance by inverse Transform
+///
+/// Note: Assumes that the Transformation matrix has perfect certainty
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance operator/(TransformationWithCovariance T_lhs, const Transformation& T_rhs) {
   T_lhs /= T_rhs;
@@ -253,7 +269,8 @@ TransformationWithCovariance operator/(TransformationWithCovariance T_lhs, const
 /// \brief Multiplication of Transform by inverse TransformWithCovariance
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance operator/(const Transformation& T_lhs, const TransformationWithCovariance& T_rhs) {
-  // Convert the Transform to a TransformWithCovariance, with the covarianceSet_ flag as true
+
+  // Convert the Transform to a TransformWithCovariance with perfect certainty
   TransformationWithCovariance temp(T_lhs, true);
   temp /= T_rhs;
   return temp;
@@ -262,11 +279,11 @@ TransformationWithCovariance operator/(const Transformation& T_lhs, const Transf
 } // se3
 } // lgmath
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief print transformation
 //////////////////////////////////////////////////////////////////////////////////////////////
 std::ostream& operator<<(std::ostream& out, const lgmath::se3::TransformationWithCovariance& T) {
   out << std::endl << T.matrix() << std::endl;
+  out << std::endl << T.cov() << std::endl;
   return out;
 }
