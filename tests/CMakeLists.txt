@@ -3,7 +3,10 @@
 ################################################################################
 
 cmake_minimum_required(VERSION 2.8)
-cmake_policy(SET CMP0048 OLD)       # Supresses warnings in newer versions of CMake
+if(VERSION VERSION_GREATER 3.0)
+  cmake_policy(SET CMP0048 OLD)       # Supresses warnings in newer versions of CMake
+endif(VERSION VERSION_GREATER 3.0)
+
 project(catch_tests)
 
 ################################################################################
