@@ -186,19 +186,52 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
 
   // TransformationWithCovariance& operator=(TransformationWithCovariance T);
   SECTION("assignment operator" ) {
-    lgmath::se3::TransformationWithCovariance test = rand;
+    lgmath::se3::TransformationWithCovariance test;
+    test = rand;
 
     CHECK_EQ(rand.matrix(), test.matrix());
     CHECK_HAS_COVARIANCE(test);
     CHECK_EQ_COVARIANCE(test, covSafe(rand));
+    CHECK(typeid(test) == typeid(lgmath::se3::TransformationWithCovariance));
   }
 
   // TransformationWithCovariance& operator=(TransformationWithCovariance T);
   SECTION("assignment operator with unset covariance" ) {
-    lgmath::se3::TransformationWithCovariance test = lgmath::se3::TransformationWithCovariance();
+    lgmath::se3::TransformationWithCovariance test;
+    test = lgmath::se3::TransformationWithCovariance();
 
     CHECK_EQ(Eigen::Matrix4d::Identity(), test.matrix());
     CHECK_NO_COVARIANCE(test);
+    CHECK(typeid(test) == typeid(lgmath::se3::TransformationWithCovariance));
+  }
+
+  // TransformationWithCovariance& operator=(Transformation T);
+  SECTION("assignment operator to base transform" ) {
+    lgmath::se3::TransformationWithCovariance test;
+    test = randBase;
+
+    CHECK_EQ(randBase.matrix(), test.matrix());
+    CHECK_NO_COVARIANCE(test);
+    CHECK(typeid(test) == typeid(lgmath::se3::TransformationWithCovariance));
+  }
+
+  // TransformationWithCovariance& operator=(Transformation T);
+  SECTION("assignment operator of base transform to subclass" ) {
+    lgmath::se3::Transformation test;
+    test = rand;
+
+    CHECK_EQ(rand.matrix(), test.matrix());
+    CHECK(typeid(test) == typeid(lgmath::se3::Transformation));
+  }
+
+  // TransformationWithCovariance& operator=(Transformation T);
+  SECTION("assignment operator to base transform, when covariance is previously set" ) {
+    lgmath::se3::TransformationWithCovariance test(rand);
+    test = randBase;
+
+    CHECK_EQ(randBase.matrix(), test.matrix());
+    CHECK_NO_COVARIANCE(test);
+    CHECK(typeid(test) == typeid(lgmath::se3::TransformationWithCovariance));
   }
 
   // TransformationWithCovariance(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms = 0);

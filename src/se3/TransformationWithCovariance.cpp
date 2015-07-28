@@ -127,6 +127,24 @@ TransformationWithCovariance& TransformationWithCovariance::operator=(Transforma
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Assignment operator to base Transform.
+/// \description This assignment sets covarianceSet_ to false.  You must manually call
+///              setZeroCovariance() or use the constructor variant with initCovarianceToZero
+///              set to true.  Note: pass-by-value is intentional.
+//////////////////////////////////////////////////////////////////////////////////////////////
+TransformationWithCovariance& TransformationWithCovariance::operator=(Transformation T) {
+
+  // Call the assignment operator on the super class, as the internal members are not accessible here
+  Transformation::operator=(T);
+
+  // The covarianceSet_ flag is set to false to prevent unintentional bad covariance propagation
+  this->covariance_ = Eigen::Matrix<double,6,6>::Zero();
+  this->covarianceSet_ = false;
+
+  return (*this);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Gets the underlying covariance matrix
 //////////////////////////////////////////////////////////////////////////////////////////////
 const Eigen::Matrix<double,6,6>& TransformationWithCovariance::cov() const {

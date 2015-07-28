@@ -122,6 +122,14 @@ class TransformationWithCovariance: public Transformation
   TransformationWithCovariance& operator=(TransformationWithCovariance T);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
+  /// \brief Assignment operator to base Transform.
+  /// \description This assignment sets covarianceSet_ to false.  You must manually call
+  ///              setZeroCovariance() or use the constructor variant with initCovarianceToZero
+  ///              set to true.  Note: pass-by-value is intentional.
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  TransformationWithCovariance& operator=(Transformation T);
+
+  //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Gets the underlying covariance matrix
   //////////////////////////////////////////////////////////////////////////////////////////////
   const Eigen::Matrix<double,6,6>& cov() const;
