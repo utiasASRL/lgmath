@@ -14,9 +14,13 @@ int main(int argc, char **argv) {
 
   // Allocate test memory
   lgmath::se3::TransformationWithCovariance transform;
+  lgmath::se3::TransformationWithCovariance transform_unset;
   Eigen::Matrix<double,4,1> v4 = Eigen::Matrix<double,4,1>::Random();
   Eigen::Matrix<double,6,1> v6 = Eigen::Matrix<double,6,1>::Random();
   Eigen::Matrix<double,6,6> U6 = Eigen::Matrix<double,6,6>::Random();
+
+  // This is a TransformWithCovariance with intentionally unset covariance
+  transform_unset = lgmath::se3::TransformationWithCovariance(v6);
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   /// Transformation Testing
@@ -52,7 +56,7 @@ int main(int argc, char **argv) {
   std::cout << " " << std::endl;
 
   // test
-  std::cout << "Test product over " << N << " iterations." << std::endl;
+  std::cout << "Test TransformWithCovariance*TransformWithCovariance over " << N << " iterations." << std::endl;
   timer.reset();
   for (unsigned int i = 0; i < N; i++) {
     transform = transform*transform;
@@ -64,10 +68,58 @@ int main(int argc, char **argv) {
   std::cout << " " << std::endl;
 
   // test
-  std::cout << "Test product with inverse over " << N << " iterations." << std::endl;
+  std::cout << "Test TransformWithCovariance * Unset Transform over " << N << " iterations." << std::endl;
+  timer.reset();
+  for (unsigned int i = 0; i < N; i++) {
+    transform = transform*transform_unset;
+  }
+  time1 = timer.milliseconds();
+  recorded = 0.189;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << " " << std::endl;
+
+  // test
+  std::cout << "Test Unset Transform * TransformWithCovariance over " << N << " iterations." << std::endl;
+  timer.reset();
+  for (unsigned int i = 0; i < N; i++) {
+    transform = transform_unset*transform;
+  }
+  time1 = timer.milliseconds();
+  recorded = 0.189;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << " " << std::endl;
+
+  // test
+  std::cout << "Test TransformWithCovariance/TransformWithCovariance over " << N << " iterations." << std::endl;
   timer.reset();
   for (unsigned int i = 0; i < N; i++) {
     transform = transform/transform;
+  }
+  time1 = timer.milliseconds();
+  recorded = 0.204;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << " " << std::endl;
+
+  // test
+  std::cout << "Test TransformWithCovariance / Unset Transform over " << N << " iterations." << std::endl;
+  timer.reset();
+  for (unsigned int i = 0; i < N; i++) {
+    transform = transform/transform_unset;
+  }
+  time1 = timer.milliseconds();
+  recorded = 0.204;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << " " << std::endl;
+
+  // test
+  std::cout << "Test Unset Transform / TransformWithCovariance over " << N << " iterations." << std::endl;
+  timer.reset();
+  for (unsigned int i = 0; i < N; i++) {
+    transform = transform_unset/transform;
   }
   time1 = timer.milliseconds();
   recorded = 0.204;

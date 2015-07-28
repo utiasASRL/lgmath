@@ -1,11 +1,13 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \file TransformationWithCovariance.cpp
-/// \brief Implementation file for a transformation matrix class with associated covariance.
-/// \details Light weight transformation class, intended to be fast, and not to provide
-///          unnecessary functionality.
+/// \details Light weight transformation class with added covariance propagation, intended to
+///          be fast, and not to provide unnecessary functionality, but still much slower than
+///          the base Transformation class due to extra matrix multiplications associated with
+///          covariance propagation.  Only use this class if you need covariance.
 ///
-/// \author Sean Anderson
+/// \author Kai van Es
 //////////////////////////////////////////////////////////////////////////////////////////////
+
 
 #include <lgmath/se3/TransformationWithCovariance.hpp>
 
@@ -137,6 +139,13 @@ const Eigen::Matrix<double,6,6>& TransformationWithCovariance::cov() const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Gets the covarianceSet_ flag
+//////////////////////////////////////////////////////////////////////////////////////////////
+const bool TransformationWithCovariance::covarianceSet() const {
+  return covarianceSet_;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Sets the underlying covariance matrix
 //////////////////////////////////////////////////////////////////////////////////////////////
 void TransformationWithCovariance::setCovariance(const Eigen::Matrix<double,6,6>& covariance) {
@@ -157,10 +166,9 @@ void TransformationWithCovariance::setZeroCovariance() {
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance TransformationWithCovariance::inverse() const {
 
-  //return TransformationWithCovariance(Transformation::inverse(), covariance_);
+  // Note: we take the adjoint AFTER inverting
   TransformationWithCovariance temp(Transformation::inverse(), false);
   Eigen::Matrix<double,6,6> adjointOfInverse = temp.adjoint();
-  // todo, verify that this is correct .. swa
   temp.setCovariance(adjointOfInverse * covariance_ * adjointOfInverse.transpose());
   return temp;
 }
@@ -170,15 +178,11 @@ TransformationWithCovariance TransformationWithCovariance::inverse() const {
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance& TransformationWithCovariance::operator*=(const TransformationWithCovariance& T_rhs) {
 
-  // If 'this' and T_rhs have set covariances, then compound them
-  if (this->covarianceSet_ && T_rhs.covarianceSet_) {
-    Eigen::Matrix<double,6,6> Ad_lhs = Transformation::adjoint();
-    this->covariance_ = this->covariance_ + Ad_lhs * T_rhs.covariance_ * Ad_lhs.transpose();
-  } else {
-    // Otherwise, invalidate covariance
-    this->covariance_ = Eigen::Matrix<double,6,6>::Zero();
-    this->covarianceSet_ = false;
-  }
+  // The covarianceSet_ flag is only set to true if BOTH transforms have a properly set covariance
+  // NOTE: we take the adjoint AFTER inverting to save an inverse operation
+  Eigen::Matrix<double,6,6> Ad_lhs = Transformation::adjoint();
+  this->covariance_ = this->covariance_ + Ad_lhs * T_rhs.covariance_ * Ad_lhs.transpose();
+  this->covarianceSet_ = (this->covarianceSet_ && T_rhs.covarianceSet_);
 
   // Compound mean transform
   Transformation::operator*=(T_rhs);

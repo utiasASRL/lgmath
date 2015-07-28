@@ -1,8 +1,10 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \file TransformationWithCovariance.hpp
 /// \brief Header file for a transformation matrix class with associated covariance.
-/// \details Light weight transformation class, intended to be fast, and not to provide
-///          unnecessary functionality.
+/// \details Light weight transformation class with added covariance propagation, intended to
+///          be fast, and not to provide unnecessary functionality, but still much slower than
+///          the base Transformation class due to extra matrix multiplications associated with
+///          covariance propagation.  Only use this class if you need covariance.
 ///
 /// \author Kai van Es
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,6 +125,11 @@ class TransformationWithCovariance: public Transformation
   /// \brief Gets the underlying covariance matrix
   //////////////////////////////////////////////////////////////////////////////////////////////
   const Eigen::Matrix<double,6,6>& cov() const;
+
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  /// \brief Gets the covarianceSet_ flag.  More pleasant way to check than catching an error.
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  const bool covarianceSet() const;
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Sets the underlying rotation matrix

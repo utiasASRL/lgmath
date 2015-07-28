@@ -1,16 +1,17 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \file TransformTests.cpp
-/// \brief Unit tests for the implementation of the transformation matrix class.
-/// \details Unit tests for the various Lie Group functions will test both special cases,
-///          and randomly generated cases.
+/// \file TransformWithCovarianceTests.cpp
+/// \brief Unit tests for the implementation of the transformation with covariance class.
+/// \details Unit tests for the various TransformWithCovariance class operations, that test
+///          both functionality and correct interoperation with the Transform class.
 ///
-/// \author Sean Anderson
+/// \author Kai van Es
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <math.h>
 #include <iostream>
 #include <iomanip>
 #include <ios>
+#include <typeinfo>
 
 #include <Eigen/Dense>
 #include <lgmath/CommonMath.hpp>
@@ -30,6 +31,67 @@
 ///
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+/// Convenience functions and macros
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+// Convenience function to convert the presence/absense of an exception into a boolean test value
+bool covAccessDidRaise(lgmath::se3::TransformationWithCovariance& T) {
+  bool raised = false;
+
+  try {
+    // We don't need the value, we just want to know if it works
+    (void)T.cov();
+  }
+  catch (const std::logic_error& e) {
+    raised = true;
+  }
+
+  return raised;
+}
+
+// Convenience function to wrap retreiving the covariance in an exception handler and return an
+// impossible value on failure.  This prevents the test cases from crashing in the event that
+// something was implemented poorly.
+Eigen::Matrix<double,6,6> covSafe(lgmath::se3::TransformationWithCovariance& T) {
+  Eigen::Matrix<double,6,6> U;
+
+  try {
+    U = T.cov();
+  }
+  catch (const std::logic_error& err) {
+    // This should safely fail any comparison test, as a covariance can't be all negative
+    // and we test using uniform matrices on [0,1]
+    U = Eigen::Matrix<double,6,6>::Ones()*-100;
+  }
+
+  return U;
+}
+
+// Convenience macro: test that accessing covariance doesn't raise an error, and that covarianceSet_ is true
+#define CHECK_HAS_COVARIANCE(T) \
+  INFO("Checking for covarianceSet_(true): " << std::boolalpha << T.covarianceSet() <<"\n"); \
+  CHECK(!covAccessDidRaise(T)); \
+  CHECK(T.covarianceSet());
+
+// Convenience macro: test that accessing covariance raises an error, and that covarianceSet_ is false
+#define CHECK_NO_COVARIANCE(T) \
+  INFO("Checking for covarianceSet_(false): " << std::boolalpha << T.covarianceSet() <<"\n");\
+  CHECK(covAccessDidRaise(T));  \
+  CHECK(!T.covarianceSet());
+
+// Checks that a covariance is present, as well as that it is equal to something
+#define CHECK_EQ_COVARIANCE(T,U) \
+  INFO("true cov: \n" << U <<"\n\ntest cov: \n" << covSafe(T) <<"\n");  \
+  CHECK(lgmath::common::nearEqual(U, covSafe(T), 1e-6));
+
+// Checks that two matrices are equal
+#define CHECK_EQ(A,B) \
+  INFO("true mat: \n" << A <<"\n\ntest mat: \n" << B <<"\n");  \
+  CHECK(lgmath::common::nearEqual(A, B, 1e-6));
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief General test of transformation constructors
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,6 +101,7 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
   Eigen::Matrix<double,3,3> C_ba = lgmath::so3::vec2rot(Eigen::Matrix<double,3,1>::Random());
   Eigen::Matrix<double,3,1> r_ba_ina = Eigen::Matrix<double,3,1>::Random();
   Eigen::Matrix<double,6,6> U = Eigen::Matrix<double,6,6>::Random();
+  Eigen::Matrix<double,6,6> Z = Eigen::Matrix<double,6,6>::Zero();
   lgmath::se3::Transformation randBase(C_ba, r_ba_ina);
   lgmath::se3::TransformationWithCovariance rand(C_ba, r_ba_ina, U);
 
@@ -46,88 +109,49 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
   SECTION("default" ) {
     lgmath::se3::TransformationWithCovariance tmatrix;
     Eigen::Matrix4d test = Eigen::Matrix4d::Identity();
-    INFO("tmat: " << tmatrix.matrix());
-    INFO("test: " << test);
-    CHECK(lgmath::common::nearEqual(tmatrix.matrix(), test, 1e-6));
 
-    // We should not be able to query the covariance
-    INFO("Checking covarianceSet_ flag...");
-    bool passed = false;
-    Eigen::Matrix<double,6,6> testU;
-    try {
-      testU = tmatrix.cov();
-    }
-    catch (const std::logic_error& e) {
-      passed = true;
-    }
-    CHECK(passed);
+    CHECK_EQ(test, tmatrix.matrix())
+    CHECK_NO_COVARIANCE(tmatrix);
   }
 
   // TransformationWithCovariance(const TransformationWithCovariance& T);
   SECTION("copy constructor" ) {
     lgmath::se3::TransformationWithCovariance test(rand);
-    INFO("tmat: " << rand.matrix());
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
-
-    INFO("tmat: " << rand.cov());
-    INFO("test: " << test.cov());
-    CHECK(lgmath::common::nearEqual(rand.cov(), test.cov(), 1e-6));
+    CHECK_EQ(rand.matrix(), test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, covSafe(rand));
   }
 
 
   // TransformationWithCovariance(const Transformation& T);
   SECTION("copy constructor (from base)" ) {
+    // With no flag set, we shouldn't have a covariance
     lgmath::se3::TransformationWithCovariance test(randBase);
-    INFO("tmat: " << randBase.matrix());
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(randBase.matrix(), test.matrix(), 1e-6));
+    CHECK_EQ(randBase.matrix(), test.matrix());
+    CHECK_NO_COVARIANCE(test);
 
-    // We should NOT be able to query the covariance
-    INFO("Checking covarianceSet_ flag...");
-    bool passed = false;
-    Eigen::Matrix<double,6,6> testU;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-      testU = Eigen::Matrix<double,6,6>::Zero();
-    }
-    CHECK(passed);
-    CHECK(lgmath::common::nearEqual(Eigen::Matrix<double,6,6>::Zero(), testU, 1e-6));
+    // With the flag set, we should have a zero covariance
+    lgmath::se3::TransformationWithCovariance test2(randBase, true);
+    CHECK_EQ(randBase.matrix(), test2.matrix());
+    CHECK_HAS_COVARIANCE(test2);
+    CHECK_EQ_COVARIANCE(test2, Z);
   }
 
   // TransformationWithCovariance(const Transformation& T, Eigen::Matrix6d& U);
   SECTION("copy constructor (from base, with covariance)" ) {
-    lgmath::se3::TransformationWithCovariance test2(randBase, U);
-    INFO("tmat: " << randBase.matrix());
-    INFO("test: " << test2.matrix());
-    CHECK(lgmath::common::nearEqual(randBase.matrix(), test2.matrix(), 1e-6));
+    lgmath::se3::TransformationWithCovariance test(randBase, U);
 
-    INFO("tmat: " << U);
-    INFO("test: " << test2.cov());
-    CHECK(lgmath::common::nearEqual(U, test2.cov(), 1e-6));
+    CHECK_EQ(randBase.matrix(), test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, U);
   }
 
   // Transformation(const Eigen::Matrix4d& T, bool reproj = true);
   SECTION("matrix constructor" ) {
     lgmath::se3::TransformationWithCovariance test(rand.matrix());
-    INFO("tmat: " << rand.matrix());
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
 
-    // We should not be able to query the covariance
-    INFO("Checking covarianceSet_ flag...");
-    bool passed = false;
-    Eigen::Matrix<double,6,6> testU;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-    }
-    CHECK(passed);
+    CHECK_EQ(rand.matrix(), test.matrix());
+    CHECK_NO_COVARIANCE(test);
 
     // Test manual with no reprojection
     Eigen::Matrix3d notRotation = Eigen::Matrix3d::Random();
@@ -135,32 +159,18 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     notTransform.topLeftCorner<3,3>() = notRotation;
     notTransform.topRightCorner<3,1>() = -notRotation*r_ba_ina;
     lgmath::se3::TransformationWithCovariance test_bad(notTransform, false); // don't project
-    INFO("cmat: " << test_bad.matrix());
-    INFO("test: " << notTransform.matrix());
-    CHECK(lgmath::common::nearEqual(test_bad.matrix(), notTransform.matrix(), 1e-6));
 
-    // We should not be able to query the covariance
-    INFO("Checking covarianceSet_ flag...");
-    bool passed2 = false;
-    try {
-      testU = test_bad.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed2 = true;
-    }
-    CHECK(passed2);
+    CHECK_EQ(notTransform, test_bad.matrix());
+    CHECK_NO_COVARIANCE(test_bad);
   }
 
   // Transformation(const Eigen::Matrix4d& T, const Eigen::Matrix6d& U, bool reproj = true);
   SECTION("matrix constructor with covariance" ) {
-    lgmath::se3::TransformationWithCovariance test(rand.matrix(), rand.cov());
-    INFO("tmat: " << rand.matrix());
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
+    lgmath::se3::TransformationWithCovariance test(rand.matrix(), covSafe(rand));
 
-    INFO("tmat: " << rand.cov());
-    INFO("test: " << test.cov());
-    CHECK(lgmath::common::nearEqual(rand.cov(), test.cov(), 1e-6));
+    CHECK_EQ(rand.matrix(), test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, covSafe(rand));
 
     // Test manual with no reprojection
     Eigen::Matrix3d notRotation = Eigen::Matrix3d::Random();
@@ -168,45 +178,27 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     notTransform.topLeftCorner<3,3>() = notRotation;
     notTransform.topRightCorner<3,1>() = -notRotation*r_ba_ina;
     lgmath::se3::TransformationWithCovariance test_bad(notTransform, U, false); // don't project
-    INFO("cmat: " << test_bad.matrix());
-    INFO("test: " << notTransform.matrix());
-    CHECK(lgmath::common::nearEqual(test_bad.matrix(), notTransform.matrix(), 1e-6));
 
-    INFO("cmat: " << test_bad.cov());
-    INFO("test: " << U);
-    CHECK(lgmath::common::nearEqual(test_bad.cov(), U, 1e-6));
+    CHECK_EQ(notTransform, test_bad.matrix());
+    CHECK_HAS_COVARIANCE(test_bad);
+    CHECK_EQ_COVARIANCE(test_bad, U);
   }
 
   // TransformationWithCovariance& operator=(TransformationWithCovariance T);
   SECTION("assignment operator" ) {
     lgmath::se3::TransformationWithCovariance test = rand;
-    INFO("tmat: " << rand.matrix());
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
 
-    INFO("tmat: " << rand.cov());
-    INFO("test: " << test.cov());
-    CHECK(lgmath::common::nearEqual(rand.cov(), test.cov(), 1e-6));
+    CHECK_EQ(rand.matrix(), test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, covSafe(rand));
   }
 
   // TransformationWithCovariance& operator=(TransformationWithCovariance T);
   SECTION("assignment operator with unset covariance" ) {
     lgmath::se3::TransformationWithCovariance test = lgmath::se3::TransformationWithCovariance();
-    INFO("tmat: " << Eigen::Matrix4d::Identity());
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(Eigen::Matrix4d::Identity(), test.matrix(), 1e-6));
 
-    // We should not be able to query the covariance
-    INFO("Checking covarianceSet_ flag...");
-    bool passed = false;
-    Eigen::Matrix<double,6,6> testU;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-    }
-    CHECK(passed);
+    CHECK_EQ(Eigen::Matrix4d::Identity(), test.matrix());
+    CHECK_NO_COVARIANCE(test);
   }
 
   // TransformationWithCovariance(const Eigen::Matrix<double,6,1>& vec, unsigned int numTerms = 0);
@@ -215,29 +207,14 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     Eigen::Matrix4d tmat = lgmath::se3::vec2tran(vec);
     lgmath::se3::TransformationWithCovariance testAnalytical(vec);
     lgmath::se3::TransformationWithCovariance testNumerical(vec, 15);
-    INFO("tmat: " << tmat);
-    INFO("testAnalytical: " << testAnalytical.matrix());
-    INFO("testNumerical: " << testNumerical.matrix());
-    CHECK(lgmath::common::nearEqual(tmat, testAnalytical.matrix(), 1e-6));
-    CHECK(lgmath::common::nearEqual(tmat, testNumerical.matrix(), 1e-6));
 
-    // We should not be able to query the covariance
-    INFO("Checking covarianceSet_ flag...");
-    bool passed = false;
-    Eigen::Matrix<double,6,6> testU;
-    try {
-      testU = testAnalytical.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-    }
-    try {
-      testU = testNumerical.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-    }
-    CHECK(passed);
+    INFO("Analytical Test: \n\n");
+    CHECK_EQ(tmat, testAnalytical.matrix());
+    CHECK_NO_COVARIANCE(testAnalytical);
+
+    INFO("Numerical Test: \n\n");
+    CHECK_EQ(tmat, testNumerical.matrix());
+    CHECK_NO_COVARIANCE(testNumerical);
   }
 
   // TransformationWithCovariance(const Eigen::Matrix<double,6,1>& vec, Eigen::Matrix6d& U, unsigned int numTerms = 0);
@@ -246,17 +223,16 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     Eigen::Matrix4d tmat = lgmath::se3::vec2tran(vec);
     lgmath::se3::TransformationWithCovariance testAnalytical(vec, U);
     lgmath::se3::TransformationWithCovariance testNumerical(vec, U, 15);
-    INFO("tmat: " << tmat);
-    INFO("testAnalytical: " << testAnalytical.matrix());
-    INFO("testNumerical: " << testNumerical.matrix());
-    CHECK(lgmath::common::nearEqual(tmat, testAnalytical.matrix(), 1e-6));
-    CHECK(lgmath::common::nearEqual(tmat, testNumerical.matrix(), 1e-6));
 
-    INFO("tmat: " << U);
-    INFO("testAnalytical: " << testAnalytical.cov());
-    INFO("testNumerical: " << testNumerical.cov());
-    CHECK(lgmath::common::nearEqual(U, testAnalytical.cov(), 1e-6));
-    CHECK(lgmath::common::nearEqual(U, testNumerical.cov(), 1e-6));
+    INFO("Analytical Test: \n\n");
+    CHECK_EQ(tmat, testAnalytical.matrix());
+    CHECK_HAS_COVARIANCE(testAnalytical);
+    CHECK_EQ_COVARIANCE(testAnalytical, U);
+
+    INFO("Numerical Test: \n\n");
+    CHECK_EQ(tmat, testNumerical.matrix());
+    CHECK_HAS_COVARIANCE(testNumerical);
+    CHECK_EQ_COVARIANCE(testNumerical, U);
   }
 
   // TransformationWithCovariance(const Eigen::VectorXd& vec);
@@ -264,21 +240,9 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     Eigen::VectorXd vec = Eigen::Matrix<double,6,1>::Random();
     Eigen::Matrix4d tmat = lgmath::se3::vec2tran(vec);
     lgmath::se3::TransformationWithCovariance test(vec);
-    INFO("tmat: " << tmat);
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(tmat, test.matrix(), 1e-6));
 
-    // We should not be able to query the covariance
-    INFO("Checking covarianceSet_ flag...");
-    bool passed = false;
-    Eigen::Matrix<double,6,6> testU;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-    }
-    CHECK(passed);
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
   }
 
   // TransformationWithCovariance(const Eigen::VectorXd& vec, Eigen::Matrix6d& U);
@@ -286,13 +250,10 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     Eigen::VectorXd vec = Eigen::Matrix<double,6,1>::Random();
     Eigen::Matrix4d tmat = lgmath::se3::vec2tran(vec);
     lgmath::se3::TransformationWithCovariance test(vec, U);
-    INFO("tmat: " << tmat);
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(tmat, test.matrix(), 1e-6));
 
-    INFO("tmat: " << U);
-    INFO("test: " << test.cov());
-    CHECK(lgmath::common::nearEqual(U, test.cov(), 1e-6));
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, U);
   }
 
   // TransformationWithCovariance(const Eigen::VectorXd& vec);
@@ -308,21 +269,11 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     } catch (const std::invalid_argument& e) {
       testFailure = test;
     }
-    INFO("tmat: " << testFailure.matrix());
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(testFailure.matrix(), test.matrix(), 1e-6));
 
-    // We should not be able to query the covariance
-    INFO("Checking covarianceSet_ flag...");
-    bool passed = false;
-    Eigen::Matrix<double,6,6> testU;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-    }
-    CHECK(passed);
+    CHECK_EQ(test.matrix(), testFailure.matrix());
+    CHECK_NO_COVARIANCE(test);
+    CHECK_NO_COVARIANCE(testFailure);
+
   }
 
   // TransformationWithCovariance(const Eigen::VectorXd& vec, Eigen::Matrix6d& U);
@@ -338,37 +289,24 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     } catch (const std::invalid_argument& e) {
       testFailure = test;
     }
-    INFO("tmat: " << testFailure.matrix());
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(testFailure.matrix(), test.matrix(), 1e-6));
 
-    INFO("tmat: " << testFailure.cov());
-    INFO("test: " << test.cov());
-    CHECK(lgmath::common::nearEqual(testFailure.cov(), test.cov(), 1e-6));
+    CHECK_EQ(test.matrix(), testFailure.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, U);
+    CHECK_HAS_COVARIANCE(testFailure);
+    CHECK_EQ_COVARIANCE(testFailure, U);
   }
 
   //TransformationWithCovariance(const Eigen::Matrix3d& C_ba,
   //                             const Eigen::Vector3d& r_ba_ina, bool reproj = true);
   SECTION("test C/r constructor" ) {
-    lgmath::se3::TransformationWithCovariance tmat(C_ba, r_ba_ina);
-    Eigen::Matrix4d test = Eigen::Matrix4d::Identity();
-    test.topLeftCorner<3,3>() = C_ba;
-    test.topRightCorner<3,1>() = -C_ba*r_ba_ina;
-    INFO("tmat: " << tmat.matrix());
-    INFO("test: " << test);
-    CHECK(lgmath::common::nearEqual(tmat.matrix(), test, 1e-6));
+    lgmath::se3::TransformationWithCovariance test(C_ba, r_ba_ina);
+    Eigen::Matrix4d tmat = Eigen::Matrix4d::Identity();
+    tmat.topLeftCorner<3,3>() = C_ba;
+    tmat.topRightCorner<3,1>() = -C_ba*r_ba_ina;
 
-    // We should not be able to query the covariance
-    INFO("Checking covarianceSet_ flag...");
-    Eigen::Matrix<double,6,6> testU;
-    bool passed = false;
-    try {
-      testU = tmat.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-    }
-    CHECK(passed);
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
 
     // Test manual with no reprojection
     Eigen::Matrix3d notRotation = Eigen::Matrix3d::Random();
@@ -376,36 +314,22 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     notTransform.topLeftCorner<3,3>() = notRotation;
     notTransform.topRightCorner<3,1>() = -notRotation*r_ba_ina;
     lgmath::se3::TransformationWithCovariance test_bad(notRotation, r_ba_ina, false); // don't project
-    INFO("cmat: " << test_bad.matrix());
-    INFO("test: " << notTransform.matrix());
-    CHECK(lgmath::common::nearEqual(test_bad.matrix(), notTransform.matrix(), 1e-6));
 
-    // We should not be able to query the covariance
-    INFO("Checking covarianceSet_ flag...");
-    passed = false;
-    try {
-      testU = test_bad.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-    }
-    CHECK(passed);
+    CHECK_EQ(notTransform, test_bad.matrix());
+    CHECK_NO_COVARIANCE(test_bad);
   }
 
   //TransformationWithCovariance(const Eigen::Matrix3d& C_ba,
   //                             const Eigen::Vector3d& r_ba_ina, Eigen::Matrix6d& U, bool reproj = true);
   SECTION("test C/r constructor with covariance" ) {
-    lgmath::se3::TransformationWithCovariance tmat(C_ba, r_ba_ina, U);
-    Eigen::Matrix4d test = Eigen::Matrix4d::Identity();
-    test.topLeftCorner<3,3>() = C_ba;
-    test.topRightCorner<3,1>() = -C_ba*r_ba_ina;
-    INFO("tmat: " << tmat.matrix());
-    INFO("test: " << test);
-    CHECK(lgmath::common::nearEqual(tmat.matrix(), test, 1e-6));
+    lgmath::se3::TransformationWithCovariance test(C_ba, r_ba_ina, U);
+    Eigen::Matrix4d tmat = Eigen::Matrix4d::Identity();
+    tmat.topLeftCorner<3,3>() = C_ba;
+    tmat.topRightCorner<3,1>() = -C_ba*r_ba_ina;
 
-    INFO("tmat: " << tmat.cov());
-    INFO("test: " << U);
-    CHECK(lgmath::common::nearEqual(tmat.cov(), U, 1e-6));
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, U);
 
     // Test manual with no reprojection
     Eigen::Matrix3d notRotation = Eigen::Matrix3d::Random();
@@ -413,13 +337,10 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     notTransform.topLeftCorner<3,3>() = notRotation;
     notTransform.topRightCorner<3,1>() = -notRotation*r_ba_ina;
     lgmath::se3::TransformationWithCovariance test_bad(notRotation, r_ba_ina, U, false); // don't project
-    INFO("cmat: " << test_bad.matrix());
-    INFO("test: " << notTransform.matrix());
-    CHECK(lgmath::common::nearEqual(test_bad.matrix(), notTransform.matrix(), 1e-6));
 
-    INFO("cmat: " << test_bad.matrix());
-    INFO("test: " << notTransform.matrix());
-    CHECK(lgmath::common::nearEqual(test_bad.cov(), U, 1e-6));
+    CHECK_EQ(notTransform, test_bad.matrix());
+    CHECK_HAS_COVARIANCE(test_bad);
+    CHECK_EQ_COVARIANCE(test_bad, U);
   }
 
 } // TEST_CASE
@@ -465,7 +386,7 @@ TEST_CASE("TransformationWithCovariance get methods.", "[lgmath]" ) {
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Test some get methods
+/// \brief Test math operations and flag propagation
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST_CASE("TransformationWithCovariance operations.", "[lgmath]" ) {
 
@@ -489,268 +410,359 @@ TEST_CASE("TransformationWithCovariance operations.", "[lgmath]" ) {
   lgmath::se3::Transformation T4(C4, r4);
 
 
-  SECTION("test TWC * TWC") {
-    lgmath::se3::TransformationWithCovariance test = T1*T2;
-    Eigen::Matrix4d tmat = T1.matrix()*T2.matrix();
-    INFO("T: " << test.matrix());
-    INFO("tmat: " << tmat);
-    CHECK(lgmath::common::nearEqual(test.matrix(), tmat, 1e-6));
+  /// Operator: *=
 
-    INFO("Checking covarianceSet_ flag...");
-    Eigen::Matrix<double, 6, 6> testU;
+  SECTION("test TWC *= TWC") {
+    lgmath::se3::TransformationWithCovariance test(T1);
+    test *= T2;
+    Eigen::Matrix4d tmat = T1.matrix()*T2.matrix();
+
     Eigen::Matrix<double, 6, 6> Ad = T1.adjoint();
     Eigen::Matrix<double, 6, 6> tmatU = U1 + Ad * U2 * Ad.transpose();
 
-    bool passed = true;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = false;
-      testU = tmatU;
-    }
-    CHECK(passed);
-    CHECK(lgmath::common::nearEqual(testU, tmatU, 1e-6));
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, tmatU);
   }
 
-  SECTION("test TWC * T") {
-    lgmath::se3::TransformationWithCovariance test = T1*T4;
+  SECTION("test TWC *= T") {
+    lgmath::se3::TransformationWithCovariance test(T1);
+    test *= T4;
     Eigen::Matrix4d tmat = T1.matrix()*T4.matrix();
-    INFO("T: " << test.matrix());
-    INFO("tmat: " << tmat);
-    CHECK(lgmath::common::nearEqual(test.matrix(), tmat, 1e-6));
 
-    INFO("Checking covarianceSet_ flag...");
-    Eigen::Matrix<double, 6, 6> testU;
     Eigen::Matrix<double, 6, 6> tmatU = U1;
 
-    bool passed = true;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = false;
-      testU = tmatU;
-    }
-    CHECK(passed);
-    CHECK(lgmath::common::nearEqual(testU, tmatU, 1e-6));
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, tmatU);
   }
 
-  SECTION("test T * TWC") {
-    lgmath::se3::TransformationWithCovariance test = T4*T1;
+  SECTION("test T *= TWC") {
+    lgmath::se3::Transformation test(T4);
+    test *= T1;
     Eigen::Matrix4d tmat = T4.matrix()*T1.matrix();
-    INFO("T: " << test.matrix());
-    INFO("tmat: " << tmat);
-    CHECK(lgmath::common::nearEqual(test.matrix(), tmat, 1e-6));
 
-    INFO("Checking covarianceSet_ flag...");
-    Eigen::Matrix<double, 6, 6> testU;
-    Eigen::Matrix<double, 6, 6> Ad = T4.adjoint();
-    Eigen::Matrix<double, 6, 6> tmatU = Ad * U1 * Ad.transpose();
-
-    bool passed = true;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = false;
-      testU = tmatU;
-    }
-    CHECK(passed);
-    CHECK(lgmath::common::nearEqual(testU, tmatU, 1e-6));
+    CHECK_EQ(tmat, test.matrix());
+    CHECK(typeid(test) == typeid(lgmath::se3::Transformation));  //Make sure nothing weird happened
   }
 
-  SECTION("test TWC * TWC with unset covariance") {
-    lgmath::se3::TransformationWithCovariance test = T1*T3;
+  SECTION("test TWC *= TWC(unset)") {
+    lgmath::se3::TransformationWithCovariance test(T1);
+    test *= T3;
+    Eigen::Matrix4d tmat = T1.matrix()*T3.matrix();
 
-    bool passed = false;
-    Eigen::Matrix<double,6,6> testU;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-    }
-    CHECK(passed);
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
   }
 
-  SECTION("test TWC * T with unset covariance") {
-    lgmath::se3::TransformationWithCovariance test = T3*T4;
+  SECTION("test TWC(unset) *= TWC") {
+    lgmath::se3::TransformationWithCovariance test(T3);
+    test *= T1;
+    Eigen::Matrix4d tmat = T3.matrix()*T1.matrix();
 
-    bool passed = false;
-    Eigen::Matrix<double,6,6> testU;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-    }
-    CHECK(passed);
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  SECTION("test TWC(unset) *= TWC(unset)") {
+    lgmath::se3::TransformationWithCovariance test(T3);
+    test *= T3;
+    Eigen::Matrix4d tmat = T3.matrix()*T3.matrix();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  SECTION("test T *= TWC(unset)") {
+    lgmath::se3::Transformation test(T4);
+    test *= T3;
+    Eigen::Matrix4d tmat = T4.matrix()*T3.matrix();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK(typeid(test) == typeid(lgmath::se3::Transformation));  //Make sure nothing weird happened
+  }
+
+  SECTION("test TWC(unset) *= T") {
+    lgmath::se3::TransformationWithCovariance test(T3);
+    test *= T4;
+    Eigen::Matrix4d tmat = T3.matrix()*T4.matrix();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
   }
 
 
+  /// Operator: /=
 
-  SECTION("test TWC / TWC") {
-    lgmath::se3::TransformationWithCovariance test = T1 / T2;
-    Eigen::Matrix4d tmat = T1.matrix() * T2.matrix().inverse();
-    INFO("T: " << test.matrix());
-    INFO("tmat: " << tmat);
-    CHECK(lgmath::common::nearEqual(test.matrix(), tmat, 1e-6));
+  SECTION("test TWC /= TWC") {
+    lgmath::se3::TransformationWithCovariance test(T1);
+    test /= T2;
+    Eigen::Matrix4d tmat = T1.matrix()*T2.matrix().inverse();
 
-    INFO("Checking covarianceSet_ flag...");
-    Eigen::Matrix<double, 6, 6> testU;
     Eigen::Matrix<double, 6, 6> Ad1 = T1.adjoint();
     Eigen::Matrix<double, 6, 6> Ad2inv = T2.inverse().adjoint();
     Eigen::Matrix<double, 6, 6> Ad12 = Ad1 * Ad2inv;
     Eigen::Matrix<double, 6, 6> tmatU = U1 + Ad12 * U2 * Ad12.transpose();
 
-    bool passed = true;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = false;
-      testU = tmatU;
-    }
-    CHECK(passed);
-    CHECK(lgmath::common::nearEqual(testU, tmatU, 1e-6));
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, tmatU);
+  }
+
+  SECTION("test TWC /= T") {
+    lgmath::se3::TransformationWithCovariance test(T1);
+    test /= T4;
+    Eigen::Matrix4d tmat = T1.matrix()*T4.matrix().inverse();
+
+    Eigen::Matrix<double, 6, 6> tmatU = U1;
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, tmatU);
+  }
+
+  SECTION("test T /= TWC") {
+    lgmath::se3::Transformation test(T4);
+    test /= T1;
+    Eigen::Matrix4d tmat = T4.matrix()*T1.matrix().inverse();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK(typeid(test) == typeid(lgmath::se3::Transformation));  //Make sure nothing weird happened
+  }
+
+  SECTION("test TWC /= TWC(unset)") {
+    lgmath::se3::TransformationWithCovariance test(T1);
+    test /= T3;
+    Eigen::Matrix4d tmat = T1.matrix()*T3.matrix().inverse();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  SECTION("test TWC(unset) /= TWC") {
+    lgmath::se3::TransformationWithCovariance test(T3);
+    test /= T1;
+    Eigen::Matrix4d tmat = T3.matrix()*T1.matrix().inverse();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  SECTION("test TWC(unset) /= TWC(unset)") {
+    lgmath::se3::TransformationWithCovariance test(T3);
+    test /= T3;
+    Eigen::Matrix4d tmat = T3.matrix()*T3.matrix().inverse();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  SECTION("test T /= TWC(unset)") {
+    lgmath::se3::Transformation test(T4);
+    test /= T3;
+    Eigen::Matrix4d tmat = T4.matrix()*T3.matrix().inverse();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK(typeid(test) == typeid(lgmath::se3::Transformation));  //Make sure nothing weird happened
+  }
+
+  SECTION("test TWC(unset) /= T") {
+    lgmath::se3::TransformationWithCovariance test(T3);
+    test /= T4;
+    Eigen::Matrix4d tmat = T3.matrix()*T4.matrix().inverse();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+
+  /// Operator: *
+
+  SECTION("test TWC * TWC") {
+    lgmath::se3::TransformationWithCovariance test = T1*T2;
+    Eigen::Matrix4d tmat = T1.matrix()*T2.matrix();
+
+    Eigen::Matrix<double, 6, 6> Ad = T1.adjoint();
+    Eigen::Matrix<double, 6, 6> tmatU = U1 + Ad * U2 * Ad.transpose();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, tmatU);
+  }
+
+  SECTION("test TWC * T") {
+    lgmath::se3::TransformationWithCovariance test = T1*T4;
+    Eigen::Matrix4d tmat = T1.matrix()*T4.matrix();
+
+    Eigen::Matrix<double, 6, 6> testU;
+    Eigen::Matrix<double, 6, 6> tmatU = U1;
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, tmatU);
+  }
+
+  SECTION("test T * TWC") {
+    lgmath::se3::TransformationWithCovariance test = T4*T1;
+    Eigen::Matrix4d tmat = T4.matrix()*T1.matrix();
+
+    Eigen::Matrix<double, 6, 6> Ad = T4.adjoint();
+    Eigen::Matrix<double, 6, 6> tmatU = Ad * U1 * Ad.transpose();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, tmatU);
+  }
+
+  SECTION("test TWC * TWC(unset)") {
+    lgmath::se3::TransformationWithCovariance test = T1*T3;
+    Eigen::Matrix4d tmat = T1.matrix()*T3.matrix();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  SECTION("test TWC(unset) * TWC") {
+    lgmath::se3::TransformationWithCovariance test = T3*T1;
+    Eigen::Matrix4d tmat = T3.matrix()*T1.matrix();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  SECTION("test TWC(unset) * TWC(unset)") {
+    lgmath::se3::TransformationWithCovariance test = T3*T3;
+    Eigen::Matrix4d tmat = T3.matrix()*T3.matrix();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  SECTION("test TWC(unset) * T") {
+    lgmath::se3::TransformationWithCovariance test = T3*T4;
+    Eigen::Matrix4d tmat = T3.matrix()*T4.matrix();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  SECTION("test T * TWC(unset)") {
+    lgmath::se3::TransformationWithCovariance test = T4*T3;
+    Eigen::Matrix4d tmat = T4.matrix()*T3.matrix();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+
+  /// Operator: /
+
+  SECTION("test TWC / TWC") {
+    lgmath::se3::TransformationWithCovariance test = T1 / T2;
+    Eigen::Matrix4d tmat = T1.matrix() * T2.matrix().inverse();
+
+    Eigen::Matrix<double, 6, 6> Ad1 = T1.adjoint();
+    Eigen::Matrix<double, 6, 6> Ad2inv = T2.inverse().adjoint();
+    Eigen::Matrix<double, 6, 6> Ad12 = Ad1 * Ad2inv;
+    Eigen::Matrix<double, 6, 6> tmatU = U1 + Ad12 * U2 * Ad12.transpose();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, tmatU);
   }
 
   SECTION("test TWC / T") {
     lgmath::se3::TransformationWithCovariance test = T1/T4;
     Eigen::Matrix4d tmat = T1.matrix()*T4.matrix().inverse();
-    INFO("T: " << test.matrix());
-    INFO("tmat: " << tmat);
-    CHECK(lgmath::common::nearEqual(test.matrix(), tmat, 1e-6));
 
-    INFO("Checking covarianceSet_ flag...");
-    Eigen::Matrix<double, 6, 6> testU;
     Eigen::Matrix<double, 6, 6> tmatU = U1;
 
-    bool passed = true;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = false;
-      testU = tmatU;
-    }
-    CHECK(passed);
-    CHECK(lgmath::common::nearEqual(testU, tmatU, 1e-6));
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, tmatU);
   }
 
   SECTION("test T / TWC") {
     lgmath::se3::TransformationWithCovariance test = T4/T1;
     Eigen::Matrix4d tmat = T4.matrix()*T1.matrix().inverse();
-    INFO("T: " << test.matrix());
-    INFO("tmat: " << tmat);
-    CHECK(lgmath::common::nearEqual(test.matrix(), tmat, 1e-6));
 
-    INFO("Checking covarianceSet_ flag...");
-    Eigen::Matrix<double, 6, 6> testU;
     Eigen::Matrix<double, 6, 6> Ad4 = T4.adjoint();
     Eigen::Matrix<double, 6, 6> Ad1inv = T1.inverse().adjoint();
     Eigen::Matrix<double, 6, 6> Ad41 = Ad4 * Ad1inv;
     Eigen::Matrix<double, 6, 6> tmatU = Ad41 * U1 * Ad41.transpose();
 
-    bool passed = true;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = false;
-      testU = tmatU;
-    }
-    CHECK(passed);
-    CHECK(lgmath::common::nearEqual(testU, tmatU, 1e-6));
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, tmatU);
   }
 
-  SECTION("test TWC / TWC with unset covariance") {
+  SECTION("test TWC / TWC(unset)") {
     lgmath::se3::TransformationWithCovariance test = T1/T3;
+    Eigen::Matrix4d tmat = T1.matrix()*T3.matrix().inverse();
 
-    bool passed = false;
-    Eigen::Matrix<double,6,6> testU;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-    }
-    CHECK(passed);
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
   }
 
-  SECTION("test TWC * T with unset covariance") {
+  SECTION("test TWC(unset) / TWC") {
+    lgmath::se3::TransformationWithCovariance test = T3/T1;
+    Eigen::Matrix4d tmat = T3.matrix()*T1.matrix().inverse();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  SECTION("test TWC(unset) / TWC(unset)") {
+    lgmath::se3::TransformationWithCovariance test = T3/T3;
+    Eigen::Matrix4d tmat = T3.matrix()*T3.matrix().inverse();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  SECTION("test TWC(unset) / T") {
     lgmath::se3::TransformationWithCovariance test = T3/T4;
+    Eigen::Matrix4d tmat = T3.matrix()*T4.matrix().inverse();
 
-    bool passed = false;
-    Eigen::Matrix<double,6,6> testU;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = true;
-    }
-    CHECK(passed);
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
   }
+
+  SECTION("test T / TWC(unset)") {
+    lgmath::se3::TransformationWithCovariance test = T4/T3;
+    Eigen::Matrix4d tmat = T4.matrix()*T3.matrix().inverse();
+
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_NO_COVARIANCE(test);
+  }
+
+
+  /// Misc
 
   SECTION("test TWC inverse") {
     lgmath::se3::TransformationWithCovariance test = T1.inverse();
     Eigen::Matrix4d tmat = T1.matrix().inverse();
-    INFO("T: " << test.matrix());
-    INFO("tmat: " << tmat);
-    CHECK(lgmath::common::nearEqual(test.matrix(), tmat, 1e-6));
 
-    INFO("Checking covarianceSet_ flag...");
-    Eigen::Matrix<double, 6, 6> testU;
     Eigen::Matrix<double, 6, 6> tmatU = test.adjoint() * U1 * test.adjoint().transpose();
 
-    bool passed = true;
-    try {
-      testU = test.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = false;
-      testU = tmatU;
-    }
-    CHECK(passed);
-    CHECK(lgmath::common::nearEqual(testU, tmatU, 1e-6));
+    CHECK_EQ(tmat, test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, tmatU);
   }
 
   SECTION("test setting covariance") {
     lgmath::se3::TransformationWithCovariance T5(C3, r3);
     T5.setCovariance(U2);
-
-    INFO("Checking covarianceSet_ flag...");
-    Eigen::Matrix<double, 6, 6> testU;
     Eigen::Matrix<double, 6, 6> tmatU = U2;
 
-    bool passed = true;
-    try {
-      testU = T5.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = false;
-      testU = tmatU;
-    }
-    CHECK(passed);
-    CHECK(lgmath::common::nearEqual(testU, tmatU, 1e-6));
-
+    CHECK_HAS_COVARIANCE(T5);
+    CHECK_EQ_COVARIANCE(T5, tmatU);
 
     T3.setZeroCovariance();
-
-    INFO("Checking covarianceSet_ flag...");
     tmatU = Eigen::Matrix<double, 6, 6>::Zero();
 
-    passed = true;
-    try {
-      testU = T3.cov();
-    }
-    catch (const std::logic_error &e) {
-      passed = false;
-      testU = tmatU;
-    }
-    CHECK(passed);
-    CHECK(lgmath::common::nearEqual(testU, tmatU, 1e-6));
+    CHECK_HAS_COVARIANCE(T3);
+    CHECK_EQ_COVARIANCE(T3, tmatU);
 
   }
 
