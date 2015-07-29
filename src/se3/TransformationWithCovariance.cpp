@@ -128,9 +128,10 @@ TransformationWithCovariance& TransformationWithCovariance::operator=(Transforma
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Assignment operator to base Transform.
-/// \description This assignment sets covarianceSet_ to false.  You must manually call
-///              setZeroCovariance() or use the constructor variant with initCovarianceToZero
-///              set to true.  Note: pass-by-value is intentional.
+/// \description This assignment resets the covariance to the uninitialized state.  You must
+///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
+///              before querying it with the public method cov(), or an exception will be
+///              thrown.  Note: pass-by-value is intentional.
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance& TransformationWithCovariance::operator=(Transformation T) {
 
@@ -157,7 +158,8 @@ const Eigen::Matrix<double,6,6>& TransformationWithCovariance::cov() const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Gets the covarianceSet_ flag
+/// \brief Returns whether or not a covariance has been set. If it is unset, then querying it
+///        with the public method cov() will throw an exception.
 //////////////////////////////////////////////////////////////////////////////////////////////
 const bool TransformationWithCovariance::covarianceSet() const {
   return covarianceSet_;
@@ -183,8 +185,6 @@ void TransformationWithCovariance::setZeroCovariance() {
 /// \brief Get the inverse matrix
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance TransformationWithCovariance::inverse() const {
-
-  // Note: we take the adjoint AFTER inverting
   TransformationWithCovariance temp(Transformation::inverse(), false);
   Eigen::Matrix<double,6,6> adjointOfInverse = temp.adjoint();
   temp.setCovariance(adjointOfInverse * covariance_ * adjointOfInverse.transpose());
@@ -197,7 +197,6 @@ TransformationWithCovariance TransformationWithCovariance::inverse() const {
 TransformationWithCovariance& TransformationWithCovariance::operator*=(const TransformationWithCovariance& T_rhs) {
 
   // The covarianceSet_ flag is only set to true if BOTH transforms have a properly set covariance
-  // NOTE: we take the adjoint AFTER inverting to save an inverse operation
   Eigen::Matrix<double,6,6> Ad_lhs = Transformation::adjoint();
   this->covariance_ = this->covariance_ + Ad_lhs * T_rhs.covariance_ * Ad_lhs.transpose();
   this->covarianceSet_ = (this->covarianceSet_ && T_rhs.covarianceSet_);

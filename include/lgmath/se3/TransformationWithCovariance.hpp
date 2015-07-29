@@ -123,9 +123,10 @@ class TransformationWithCovariance: public Transformation
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Assignment operator to base Transform.
-  /// \description This assignment sets covarianceSet_ to false.  You must manually call
-  ///              setZeroCovariance() or use the constructor variant with initCovarianceToZero
-  ///              set to true.  Note: pass-by-value is intentional.
+  /// \description This assignment resets the covariance to the uninitialized state.  You must
+  ///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
+  ///              before querying it with the public method cov(), or an exception will be
+  ///              thrown.  Note: pass-by-value is intentional.
   //////////////////////////////////////////////////////////////////////////////////////////////
   TransformationWithCovariance& operator=(Transformation T);
 
@@ -135,7 +136,8 @@ class TransformationWithCovariance: public Transformation
   const Eigen::Matrix<double,6,6>& cov() const;
 
   //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Gets the covarianceSet_ flag.  More pleasant way to check than catching an error.
+  /// \brief Returns whether or not a covariance has been set. If it is unset, then querying it
+  ///        with the public method cov() will throw an exception.
   //////////////////////////////////////////////////////////////////////////////////////////////
   const bool covarianceSet() const;
 
