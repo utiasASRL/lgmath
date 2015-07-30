@@ -15,3 +15,7 @@ target_link_libraries(RotationSpeedTest lgmath ${DEPEND_LIBS})
 add_executable(TransformSpeedTest ${CMAKE_CURRENT_SOURCE_DIR}/TransformSpeedTest.cpp)
 target_link_libraries(TransformSpeedTest lgmath ${DEPEND_LIBS})
 
+# speed_test script with covariance
+add_executable(TransformWithCovarianceSpeedTest ${CMAKE_CURRENT_SOURCE_DIR}/TransformWithCovarianceSpeedTest.cpp)
+target_link_libraries(TransformWithCovarianceSpeedTest lgmath ${DEPEND_LIBS})
+

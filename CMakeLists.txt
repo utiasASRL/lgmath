@@ -135,6 +135,11 @@ endif(TESTS_ON)
 
 ### local build-tree
 
+# Supresses warnings in newer versions of CMake
+if(VERSION VERSION_GREATER 3.0)
+  cmake_policy(SET CMP0026 OLD)
+endif(VERSION VERSION_GREATER 3.0)
+
 # Export the package for use from the build-tree
 # (registers the build-tree with a global CMake-registry)
 export(PACKAGE LGMath)
