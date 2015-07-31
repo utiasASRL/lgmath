@@ -7,8 +7,8 @@ project(lgmath)
 ################################################################################
 ### Misc
 ################################################################################
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x") # c++0x support
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native -mno-avx")
 
 # if it does not exist, add a cmake directory
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
