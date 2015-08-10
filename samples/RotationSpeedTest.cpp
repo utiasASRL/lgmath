@@ -37,6 +37,28 @@ int main(int argc, char **argv) {
   std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, July 2015" << std::endl;
   std::cout << " " << std::endl;
 
+  
+  // test
+  std::cout << "Test lval vs rval assignment, over " << N << " iterations." << std::endl;
+  lgmath::so3::Rotation tmp(rotation);
+
+  timer.reset();
+  for (unsigned int i = 0; i < N; i++) {
+    rotation = tmp;
+  }
+  time1 = timer.milliseconds();
+
+  timer.reset();
+  for (unsigned int i = 0; i < N; i++) {
+    rotation = std::move(tmp);
+  }
+  double time2 = timer.milliseconds();
+
+  std::cout << "Lval assignment time: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "Rval assignment time: " << 1000.0*time2/double(N) << "usec per call." << std::endl;
+  std::cout << "Difference: " << (time1-time2)/time1*100 << "%" << std::endl;
+  std::cout << " " << std::endl;
+
   // test
   std::cout << "Test rotation rot2vec, over " << N << " iterations." << std::endl;
   timer.reset();

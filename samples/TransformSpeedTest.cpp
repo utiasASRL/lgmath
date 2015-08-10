@@ -51,6 +51,39 @@ int main(int argc, char **argv) {
   std::cout << " " << std::endl;
 
   // test
+  std::cout << "Test lval vs rval assignment, over " << N << " iterations." << std::endl;
+  lgmath::se3::Transformation tmp(transform);
+
+  timer.reset();
+  for (unsigned int i = 0; i < N; i++) {
+    transform = tmp;
+  }
+  time1 = timer.milliseconds();
+
+  timer.reset();
+  for (unsigned int i = 0; i < N; i++) {
+    transform = std::move(tmp);
+  }
+  double time2 = timer.milliseconds();
+
+  std::cout << "Lval assignment time: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "Rval assignment time: " << 1000.0*time2/double(N) << "usec per call." << std::endl;
+  std::cout << "Difference: " << (time1-time2)/time1*100 << "%" << std::endl;
+  std::cout << " " << std::endl;
+
+  // test
+  std::cout << "Test transform vec2tran, over " << N << " iterations." << std::endl;
+  timer.reset();
+  for (unsigned int i = 0; i < N; i++) {
+    transform = lgmath::se3::Transformation(v6);
+  }
+  time1 = timer.milliseconds();
+  recorded = 0.122;
+  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
+  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << " " << std::endl;
+
+  // test
   std::cout << "Test product over " << N << " iterations." << std::endl;
   timer.reset();
   for (unsigned int i = 0; i < N; i++) {

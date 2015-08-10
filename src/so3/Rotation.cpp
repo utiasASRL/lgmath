@@ -24,10 +24,11 @@ Rotation::Rotation() :
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Copy constructor
+/// \brief Move constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
-Rotation::Rotation(const Rotation& C) :
-  C_ba_(C.C_ba_) {
+Rotation::Rotation(Rotation&& C) :
+  C_ba_(std::move(C.C_ba_)) {
+  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,12 +62,12 @@ Rotation::Rotation(const Eigen::VectorXd& aaxis_ab) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Assignment operator. Note pass-by-value is intentional.
+/// \brief Move assignment operator.  Manually implemented as Eigen doesn't support moving.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Rotation& Rotation::operator=(Rotation C) {
-  // Swap (this)'s parameters with the temporary object passed by value
-  // The temporary object is then destroyed at end of scope
-  std::swap( this->C_ba_, C.C_ba_ );
+Rotation& Rotation::operator=(Rotation&& C) {
+  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
+  this->C_ba_ = std::move(C.C_ba_);
+
   return (*this);
 }
 

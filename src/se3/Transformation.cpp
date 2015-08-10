@@ -25,10 +25,11 @@ Transformation::Transformation() :
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Copy constructor
+/// \brief Move constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
-Transformation::Transformation(const Transformation& T) :
-  C_ba_(T.C_ba_), r_ab_inb_(T.r_ab_inb_) {
+Transformation::Transformation(Transformation&& T) :
+  C_ba_(std::move(T.C_ba_)), r_ab_inb_(std::move(T.r_ab_inb_)){
+  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,13 +72,18 @@ Transformation::Transformation(const Eigen::VectorXd& xi_ab) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Assignment operator. Note pass-by-value is intentional.
+/// \brief Copy assignment operator. Default implementation.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Transformation& Transformation::operator=(Transformation T) {
-  // Swap (this)'s parameters with the temporary object passed by value
-  // The temporary object is then destroyed at end of scope
-  std::swap( this->C_ba_, T.C_ba_ );
-  std::swap( this->r_ab_inb_, T.r_ab_inb_ );
+Transformation& Transformation::operator=(const Transformation& T) = default;
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Move assignment operator. Manually implemented as Eigen doesn't support moving.
+//////////////////////////////////////////////////////////////////////////////////////////////
+Transformation& Transformation::operator=(Transformation&& T) {
+  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
+  this->C_ba_ = std::move(T.C_ba_);
+  this->r_ab_inb_ = std::move(T.r_ab_inb_);
+
   return (*this);
 }
 
