@@ -88,6 +88,19 @@ Transformation& Transformation::operator=(Transformation&& T) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Swap operator
+/// \details This is implemented as a custom function as the default c++11 swap operator uses
+///          three calls to std::move, which results in copying for Eigen members
+//////////////////////////////////////////////////////////////////////////////////////////////
+void swap(Transformation& lhs, Transformation& rhs) {
+  // TODO: This should be removed when Eigen supports moving
+  using std::swap;
+
+  swap(lhs.C_ba_, rhs.C_ba_);
+  swap(lhs.r_ab_inb_, rhs.r_ab_inb_);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Gets basic matrix representation of the transformation
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix4d Transformation::matrix() const {

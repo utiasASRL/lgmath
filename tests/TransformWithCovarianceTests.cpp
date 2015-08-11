@@ -378,6 +378,23 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     CHECK_EQ_COVARIANCE(test_bad, U);
   }
 
+  // swap(TransformationWithCovariance&, TransformationWithCovariance&);
+  SECTION("swap" ) {
+    lgmath::se3::TransformationWithCovariance test = lgmath::se3::TransformationWithCovariance();
+    lgmath::se3::TransformationWithCovariance testCopy(test);
+    lgmath::se3::TransformationWithCovariance randCopy(rand);
+
+    using std::swap;
+    swap(rand, test);
+
+    CHECK_EQ(testCopy.matrix(), rand.matrix());
+    CHECK_NO_COVARIANCE(rand);
+
+    CHECK_EQ(randCopy.matrix(), test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, U);
+  }
+
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////

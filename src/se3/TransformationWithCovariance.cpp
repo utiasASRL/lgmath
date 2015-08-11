@@ -171,6 +171,21 @@ TransformationWithCovariance& TransformationWithCovariance::operator=(Transforma
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Swap operator
+/// \details This is implemented as a custom function as the default c++11 swap operator uses
+///          three calls to std::move, which results in copying for Eigen members
+//////////////////////////////////////////////////////////////////////////////////////////////
+void swap(TransformationWithCovariance& lhs, TransformationWithCovariance&  rhs) {
+  // TODO: This should be removed when Eigen supports moving
+  using std::swap;
+
+  swap(lhs.covariance_, rhs.covariance_);
+  swap(lhs.covarianceSet_, rhs.covarianceSet_);
+
+  swap(static_cast<Transformation&>(lhs), static_cast<Transformation&>(rhs));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Gets the underlying covariance matrix
 //////////////////////////////////////////////////////////////////////////////////////////////
 const Eigen::Matrix<double,6,6>& TransformationWithCovariance::cov() const {

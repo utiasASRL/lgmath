@@ -1,0 +1,8 @@
+//
+// Created by kai on 11/08/15.
+//
+
+#ifndef LGMATH_PRECISIONTIMER_HPP
+#define LGMATH_PRECISIONTIMER_HPP
+
+#endif //LGMATH_PRECISIONTIMER_HPP

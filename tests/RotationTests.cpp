@@ -116,6 +116,24 @@ TEST_CASE("Rotation Constructors.", "[lgmath]" ) {
     CHECK(lgmath::common::nearEqual(testFailure.matrix(), test.matrix(), 1e-6));
   }
 
+  // swap(Transformation&, Transformation&);
+  SECTION("swap" ) {
+    lgmath::so3::Rotation test = lgmath::so3::Rotation();
+    lgmath::so3::Rotation testCopy(test);
+    lgmath::so3::Rotation randCopy(rand);
+
+    using std::swap;
+    swap(rand, test);
+
+    INFO("tmat: " << test.matrix());
+    INFO("test: " << randCopy.matrix());
+    CHECK(lgmath::common::nearEqual(test.matrix(),randCopy.matrix(), 1e-6));
+
+    INFO("tmat: " << rand.matrix());
+    INFO("test: " << testCopy.matrix());
+    CHECK(lgmath::common::nearEqual(rand.matrix(),testCopy.matrix(), 1e-6));
+  }
+
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////
