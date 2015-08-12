@@ -34,30 +34,26 @@ Transformation::Transformation(const Transformation& T) :
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
-Transformation::Transformation(const Eigen::Matrix4d& T, bool reproj) :
-  r_ab_inb_(T.block<3,1>(0,3)) {
+Transformation::Transformation(const Eigen::Matrix4d& T) :
+  C_ba_(T.block<3,3>(0,0)), r_ab_inb_(T.block<3,1>(0,3)) {
 
-  // Reproject rotation matrix to ensure it is valid
-  if (reproj) {
-    C_ba_ = so3::vec2rot(so3::rot2vec(T.block<3,3>(0,0)));
-  } else {
-    C_ba_ = T.block<3,3>(0,0);
+  // Check determinant to see if reprojection is required
+  if (1.0 - C_ba_.determinant() > 1e-6) {
+    this->reproject();
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
-Transformation::Transformation(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina,
-                               bool reproj) {
+Transformation::Transformation(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina) {
 
-  // Reproject rotation matrix to ensure it is valid
-  if (reproj) {
-    C_ba_ = so3::vec2rot(so3::rot2vec(C_ba));
-  } else {
-    C_ba_ = C_ba;
+  // Check determinant to see if reprojection is required
+  C_ba_ = C_ba;
+  if (1.0 - C_ba_.determinant() > 1e-6) {
+    this->reproject();
   }
-  r_ab_inb_ = -C_ba_*r_ba_ina;
+  r_ab_inb_ = (-1.0)*C_ba_*r_ba_ina;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,7 +110,7 @@ const Eigen::Matrix3d& Transformation::C_ba() const {
 /// \brief Gets the "forward" translation r_ba_ina = -C_ba.transpose()*r_ab_inb
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Vector3d Transformation::r_ba_ina() const {
-  return -C_ba_.transpose()*r_ab_inb_;
+  return (-1.0)*C_ba_.transpose()*r_ab_inb_;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

@@ -51,24 +51,23 @@ TransformationWithCovariance::TransformationWithCovariance(const Transformation&
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix4d& T, bool reproj) :
-  Transformation(T, reproj), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix4d& T) :
+  Transformation(T), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor with covariance
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix4d& T,
-                                                           const Eigen::Matrix<double,6,6>& covariance,
-                                                           bool reproj) :
-  Transformation(T, reproj), covariance_(covariance), covarianceSet_(true) {
+                                                           const Eigen::Matrix<double,6,6>& covariance) :
+  Transformation(T), covariance_(covariance), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina, bool reproj) :
-  Transformation(C_ba, r_ba_ina, reproj), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina) :
+  Transformation(C_ba, r_ba_ina), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,8 +75,8 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix3d
 /// T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina,
-                             const Eigen::Matrix<double,6,6>& covariance, bool reproj) :
-  Transformation(C_ba, r_ba_ina, reproj), covariance_(covariance), covarianceSet_(true) {
+                             const Eigen::Matrix<double,6,6>& covariance) :
+  Transformation(C_ba, r_ba_ina), covariance_(covariance), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

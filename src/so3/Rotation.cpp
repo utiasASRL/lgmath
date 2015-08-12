@@ -33,13 +33,11 @@ Rotation::Rotation(const Rotation& C) :
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
-Rotation::Rotation(const Eigen::Matrix3d& C, bool reproj) {
+Rotation::Rotation(const Eigen::Matrix3d& C) : C_ba_(C) {
 
   // Reproject rotation matrix to ensure it is valid
-  if (reproj) {
-    C_ba_ = so3::vec2rot(so3::rot2vec(C));
-  } else {
-    C_ba_ = C;
+  if (1.0 - this->C_ba_.determinant() > 1e-6) {
+    this->reproject();
   }
 }
 
@@ -95,6 +93,12 @@ Eigen::Vector3d Rotation::vec() const {
 Rotation Rotation::inverse() const {
   Rotation temp;
   temp.C_ba_ = C_ba_.transpose();
+
+  // Reproject rotation matrix to ensure it is valid
+  if (1.0 - temp.C_ba_.determinant() > 1e-6) {
+    temp.reproject();
+  }
+
   return temp;
 }
 

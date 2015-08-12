@@ -146,25 +146,27 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     CHECK_EQ_COVARIANCE(test, U);
   }
 
-  // Transformation(const Eigen::Matrix4d& T, bool reproj = true);
+  // Transformation(const Eigen::Matrix4d& T);
   SECTION("matrix constructor" ) {
     lgmath::se3::TransformationWithCovariance test(rand.matrix());
 
     CHECK_EQ(rand.matrix(), test.matrix());
     CHECK_NO_COVARIANCE(test);
 
-    // Test manual with no reprojection
-    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Random();
+    // Test forced reprojection (ones to identity)
+    Eigen::Matrix4d proj_test = Eigen::Matrix4d::Identity();
+    proj_test.topRightCorner<3,1>() = -r_ba_ina;
+    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Ones();
     Eigen::Matrix4d notTransform = Eigen::Matrix4d::Identity();
     notTransform.topLeftCorner<3,3>() = notRotation;
-    notTransform.topRightCorner<3,1>() = -notRotation*r_ba_ina;
-    lgmath::se3::TransformationWithCovariance test_bad(notTransform, false); // don't project
+    notTransform.topRightCorner<3,1>() = -r_ba_ina;
+    lgmath::se3::TransformationWithCovariance test_bad(notTransform); // force reproj
 
-    CHECK_EQ(notTransform, test_bad.matrix());
+    CHECK_EQ(proj_test, test_bad.matrix());
     CHECK_NO_COVARIANCE(test_bad);
   }
 
-  // Transformation(const Eigen::Matrix4d& T, const Eigen::Matrix6d& U, bool reproj = true);
+  // Transformation(const Eigen::Matrix4d& T, const Eigen::Matrix6d& U);
   SECTION("matrix constructor with covariance" ) {
     lgmath::se3::TransformationWithCovariance test(rand.matrix(), covSafe(rand));
 
@@ -172,14 +174,16 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     CHECK_HAS_COVARIANCE(test);
     CHECK_EQ_COVARIANCE(test, covSafe(rand));
 
-    // Test manual with no reprojection
-    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Random();
+    // Test forced reprojection (ones to identity)
+    Eigen::Matrix4d proj_test = Eigen::Matrix4d::Identity();
+    proj_test.topRightCorner<3,1>() = -r_ba_ina;
+    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Ones();
     Eigen::Matrix4d notTransform = Eigen::Matrix4d::Identity();
     notTransform.topLeftCorner<3,3>() = notRotation;
-    notTransform.topRightCorner<3,1>() = -notRotation*r_ba_ina;
-    lgmath::se3::TransformationWithCovariance test_bad(notTransform, U, false); // don't project
+    notTransform.topRightCorner<3,1>() = -r_ba_ina;
+    lgmath::se3::TransformationWithCovariance test_bad(notTransform, U); // force reproj
 
-    CHECK_EQ(notTransform, test_bad.matrix());
+    CHECK_EQ(proj_test, test_bad.matrix());
     CHECK_HAS_COVARIANCE(test_bad);
     CHECK_EQ_COVARIANCE(test_bad, U);
   }
@@ -331,7 +335,7 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
   }
 
   //TransformationWithCovariance(const Eigen::Matrix3d& C_ba,
-  //                             const Eigen::Vector3d& r_ba_ina, bool reproj = true);
+  //                             const Eigen::Vector3d& r_ba_ina);
   SECTION("test C/r constructor" ) {
     lgmath::se3::TransformationWithCovariance test(C_ba, r_ba_ina);
     Eigen::Matrix4d tmat = Eigen::Matrix4d::Identity();
@@ -341,19 +345,18 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     CHECK_EQ(tmat, test.matrix());
     CHECK_NO_COVARIANCE(test);
 
-    // Test manual with no reprojection
-    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Random();
-    Eigen::Matrix4d notTransform = Eigen::Matrix4d::Identity();
-    notTransform.topLeftCorner<3,3>() = notRotation;
-    notTransform.topRightCorner<3,1>() = -notRotation*r_ba_ina;
-    lgmath::se3::TransformationWithCovariance test_bad(notRotation, r_ba_ina, false); // don't project
+    // Test forced reprojection (ones to identity)
+    Eigen::Matrix4d proj_test = Eigen::Matrix4d::Identity();
+    proj_test.topRightCorner<3,1>() = -r_ba_ina;
+    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Ones();
+    lgmath::se3::TransformationWithCovariance test_bad(notRotation, r_ba_ina); // forces reprojection
 
-    CHECK_EQ(notTransform, test_bad.matrix());
+    CHECK_EQ(proj_test, test_bad.matrix());
     CHECK_NO_COVARIANCE(test_bad);
   }
 
   //TransformationWithCovariance(const Eigen::Matrix3d& C_ba,
-  //                             const Eigen::Vector3d& r_ba_ina, Eigen::Matrix6d& U, bool reproj = true);
+  //                             const Eigen::Vector3d& r_ba_ina, Eigen::Matrix6d& U);
   SECTION("test C/r constructor with covariance" ) {
     lgmath::se3::TransformationWithCovariance test(C_ba, r_ba_ina, U);
     Eigen::Matrix4d tmat = Eigen::Matrix4d::Identity();
@@ -364,14 +367,13 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     CHECK_HAS_COVARIANCE(test);
     CHECK_EQ_COVARIANCE(test, U);
 
-    // Test manual with no reprojection
-    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Random();
-    Eigen::Matrix4d notTransform = Eigen::Matrix4d::Identity();
-    notTransform.topLeftCorner<3,3>() = notRotation;
-    notTransform.topRightCorner<3,1>() = -notRotation*r_ba_ina;
-    lgmath::se3::TransformationWithCovariance test_bad(notRotation, r_ba_ina, U, false); // don't project
+    // Test forced reprojection (ones to identity)
+    Eigen::Matrix4d proj_test = Eigen::Matrix4d::Identity();
+    proj_test.topRightCorner<3,1>() = -r_ba_ina;
+    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Ones();
+    lgmath::se3::TransformationWithCovariance test_bad(notRotation, r_ba_ina, U); // forces reprojection
 
-    CHECK_EQ(notTransform, test_bad.matrix());
+    CHECK_EQ(proj_test, test_bad.matrix());
     CHECK_HAS_COVARIANCE(test_bad);
     CHECK_EQ_COVARIANCE(test_bad, U);
   }
