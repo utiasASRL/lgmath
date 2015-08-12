@@ -99,10 +99,25 @@ Rotation Rotation::inverse() const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Reproject the rotation matrix back onto SO(3)
+//////////////////////////////////////////////////////////////////////////////////////////////
+void Rotation::reproject() {
+  C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief In-place right-hand side multiply C_rhs
 //////////////////////////////////////////////////////////////////////////////////////////////
 Rotation& Rotation::operator*=(const Rotation& C_rhs) {
-  C_ba_ = C_ba_*C_rhs.C_ba_;
+
+  // Perform operation
+  this->C_ba_ = this->C_ba_ * C_rhs.C_ba_;
+
+  // Check determinant to see if reprojection is required
+  if (1.0 - this->C_ba_.determinant() > 1e-6) {
+    this->reproject();
+  }
+
   return *this;
 }
 
@@ -119,7 +134,15 @@ Rotation Rotation::operator*(const Rotation& C_rhs) const {
 /// \brief In-place right-hand side multiply this matrix by the inverse of C_rhs
 //////////////////////////////////////////////////////////////////////////////////////////////
 Rotation& Rotation::operator/=(const Rotation& C_rhs) {
+
+  // Perform operation
   this->C_ba_ = this->C_ba_*C_rhs.C_ba_.transpose();
+
+  // Check determinant to see if reprojection is required
+  if (1.0 - this->C_ba_.determinant() > 1e-6) {
+    this->reproject();
+  }
+
   return *this;
 }
 

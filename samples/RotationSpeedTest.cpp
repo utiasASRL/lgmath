@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
     rotation = rotation*rotation;
   }
   time1 = timer.milliseconds();
-  recorded = 0.021;
+  recorded = 0.027;
   std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
   std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, July 2015" << std::endl;
   std::cout << " " << std::endl;
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     rotation = rotation/rotation;
   }
   time1 = timer.milliseconds();
-  recorded = 0.022;
+  recorded = 0.027;
   std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
   std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, July 2015" << std::endl;
   std::cout << " " << std::endl;

@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
     transform = transform*transform;
   }
   time1 = timer.milliseconds();
-  recorded = 0.025;
+  recorded = 0.033;
   std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
   std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;

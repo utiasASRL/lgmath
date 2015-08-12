@@ -149,11 +149,28 @@ Eigen::Matrix<double,6,6> Transformation::adjoint() const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Reproject the transformation matrix back onto SE(3)
+//////////////////////////////////////////////////////////////////////////////////////////////
+void Transformation::reproject() {
+  // Note that the translation parameter always belongs to SE(3), but the rotation
+  // can incur numerical error that accumulates.
+  C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief In-place right-hand side multiply T_rhs
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation& Transformation::operator*=(const Transformation& T_rhs) {
-  r_ab_inb_ = C_ba_*T_rhs.r_ab_inb_ + r_ab_inb_;
-  C_ba_ = C_ba_*T_rhs.C_ba_;
+
+  // Perform operation
+  this->r_ab_inb_ += this->C_ba_ * T_rhs.r_ab_inb_;
+  this->C_ba_ = this->C_ba_ * T_rhs.C_ba_;
+
+  // Check determinant to see if reprojection is required
+  if (1.0 - C_ba_.determinant() > 1e-6) {
+    this->reproject();
+  }
+
   return *this;
 }
 
@@ -170,8 +187,16 @@ Transformation Transformation::operator*(const Transformation& T_rhs) const {
 /// \brief In-place right-hand side multiply this matrix by the inverse of T_rhs
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation& Transformation::operator/=(const Transformation& T_rhs) {
-  this->r_ab_inb_ = this->C_ba_ * -T_rhs.C_ba_.transpose()*T_rhs.r_ab_inb_ + this->r_ab_inb_;
-  this->C_ba_ = this->C_ba_*T_rhs.C_ba_.transpose();
+
+  // Perform operation
+  this->C_ba_ = this->C_ba_ * T_rhs.C_ba_.transpose();
+  this->r_ab_inb_ += (-1) * this->C_ba_ * T_rhs.r_ab_inb_;
+
+  // Check determinant to see if reprojection is required
+  if (1.0 - this->C_ba_.determinant() > 1e-6) {
+    this->reproject();
+  }
+
   return *this;
 }
 
@@ -189,7 +214,7 @@ Transformation Transformation::operator/(const Transformation& T_rhs) const {
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Vector4d Transformation::operator*(const Eigen::Vector4d& p_a) const {
   Eigen::Vector4d p_b;
-  p_b.head<3>() = C_ba_*p_a.head<3>() + r_ab_inb_*p_a[3];
+  p_b.head<3>() = C_ba_ * p_a.head<3>() + r_ab_inb_ * p_a[3];
   p_b[3] = p_a[3];
   return p_b;
 }
