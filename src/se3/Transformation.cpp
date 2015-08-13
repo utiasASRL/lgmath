@@ -35,24 +35,16 @@ Transformation::Transformation(const Transformation& T) :
 /// \brief Constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation(const Eigen::Matrix4d& T) :
-  C_ba_(T.block<3,3>(0,0)), r_ab_inb_(T.block<3,1>(0,3)) {
-
-  // Check determinant to see if reprojection is required
-  if (1.0 - C_ba_.determinant() > 1e-6) {
-    this->reproject();
-  }
+    C_ba_(T.block<3,3>(0,0)), r_ab_inb_(T.block<3,1>(0,3)) {
+  this->reproject(false); // Trigger a conditional reprojection, depending on determinant
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina) {
-
-  // Check determinant to see if reprojection is required
-  C_ba_ = C_ba;
-  if (1.0 - C_ba_.determinant() > 1e-6) {
-    this->reproject();
-  }
+  C_ba_ = C_ba;  
+  this->reproject(false); // Trigger a conditional reprojection, depending on determinant
   r_ab_inb_ = (-1.0)*C_ba_*r_ba_ina;
 }
 
@@ -133,7 +125,8 @@ Eigen::Matrix<double,6,1> Transformation::vec() const {
 Transformation Transformation::inverse() const {
   Transformation temp;
   temp.C_ba_ = C_ba_.transpose();
-  temp.r_ab_inb_ = -C_ba_.transpose()*r_ab_inb_;
+  temp.reproject(false); // Trigger a conditional reprojection, depending on determinant
+  temp.r_ab_inb_ = (-1.0)*temp.C_ba_*r_ab_inb_;
   return temp;
 }
 
@@ -145,12 +138,16 @@ Eigen::Matrix<double,6,6> Transformation::adjoint() const {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Reproject the transformation matrix back onto SE(3)
+/// \brief Reproject the transformation matrix back onto SE(3). Setting force to false
+///        triggers a conditional reproject that only happens if the determinant is of the
+///        rotation matrix is poor; this is more efficient than always performing it.
 //////////////////////////////////////////////////////////////////////////////////////////////
-void Transformation::reproject() {
+void Transformation::reproject(bool force) {
   // Note that the translation parameter always belongs to SE(3), but the rotation
   // can incur numerical error that accumulates.
-  C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
+  if (force || fabs(1.0 - this->C_ba_.determinant() > 1e-6)) {
+    C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,10 +159,8 @@ Transformation& Transformation::operator*=(const Transformation& T_rhs) {
   this->r_ab_inb_ += this->C_ba_ * T_rhs.r_ab_inb_;
   this->C_ba_ = this->C_ba_ * T_rhs.C_ba_;
 
-  // Check determinant to see if reprojection is required
-  if (1.0 - C_ba_.determinant() > 1e-6) {
-    this->reproject();
-  }
+  // Trigger a conditional reprojection, depending on determinant
+  this->reproject(false);
 
   return *this;
 }
@@ -188,10 +183,8 @@ Transformation& Transformation::operator/=(const Transformation& T_rhs) {
   this->C_ba_ = this->C_ba_ * T_rhs.C_ba_.transpose();
   this->r_ab_inb_ += (-1) * this->C_ba_ * T_rhs.r_ab_inb_;
 
-  // Check determinant to see if reprojection is required
-  if (1.0 - this->C_ba_.determinant() > 1e-6) {
-    this->reproject();
-  }
+  // Trigger a conditional reprojection, depending on determinant
+  this->reproject(false);
 
   return *this;
 }

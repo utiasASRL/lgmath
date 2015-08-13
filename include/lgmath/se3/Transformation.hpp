@@ -27,7 +27,6 @@
 #ifndef LGM_TRANSFORMATION_HPP
 #define LGM_TRANSFORMATION_HPP
 
-//#include <Eigen/Core>
 #include <Eigen/Dense>
 
 namespace lgmath {
@@ -113,9 +112,11 @@ class Transformation
   Eigen::Matrix<double,6,6> adjoint() const;
 
   //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Reproject the transformation matrix back onto SE(3)
+  /// \brief Reproject the transformation matrix back onto SE(3). Setting force to false
+  ///        triggers a conditional reproject that only happens if the determinant is of the
+  ///        rotation matrix is poor; this is more efficient than always performing it.
   //////////////////////////////////////////////////////////////////////////////////////////////
-  void reproject();
+  void reproject(bool force = true);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief In-place right-hand side multiply T_rhs

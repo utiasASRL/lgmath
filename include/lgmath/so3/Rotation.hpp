@@ -87,9 +87,11 @@ class Rotation
   Rotation inverse() const;
 
   //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Reproject the rotation matrix back onto SO(3)
+  /// \brief Reproject the rotation matrix back onto SO(3). Setting force to false triggers
+  ///        a conditional reproject that only happens if the determinant is of the rotation
+  ///        matrix is poor; this is more efficient than always performing it.
   //////////////////////////////////////////////////////////////////////////////////////////////
-  void reproject();
+  void reproject(bool force = true);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief In-place right-hand side multiply C_rhs

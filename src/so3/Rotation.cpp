@@ -34,11 +34,8 @@ Rotation::Rotation(const Rotation& C) :
 /// \brief Constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 Rotation::Rotation(const Eigen::Matrix3d& C) : C_ba_(C) {
-
-  // Reproject rotation matrix to ensure it is valid
-  if (1.0 - this->C_ba_.determinant() > 1e-6) {
-    this->reproject();
-  }
+  // Trigger a conditional reprojection, depending on determinant
+  this->reproject(false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,20 +90,19 @@ Eigen::Vector3d Rotation::vec() const {
 Rotation Rotation::inverse() const {
   Rotation temp;
   temp.C_ba_ = C_ba_.transpose();
-
-  // Reproject rotation matrix to ensure it is valid
-  if (1.0 - temp.C_ba_.determinant() > 1e-6) {
-    temp.reproject();
-  }
-
+  temp.reproject(false); // Trigger a conditional reprojection, depending on determinant
   return temp;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Reproject the rotation matrix back onto SO(3)
+/// \brief Reproject the rotation matrix back onto SO(3). Setting force to false triggers
+///        a conditional reproject that only happens if the determinant is of the rotation
+///        matrix is poor; this is more efficient than always performing it.
 //////////////////////////////////////////////////////////////////////////////////////////////
-void Rotation::reproject() {
-  C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
+void Rotation::reproject(bool force) {
+  if (force || fabs(1.0 - this->C_ba_.determinant() > 1e-6)) {
+    C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,10 +113,8 @@ Rotation& Rotation::operator*=(const Rotation& C_rhs) {
   // Perform operation
   this->C_ba_ = this->C_ba_ * C_rhs.C_ba_;
 
-  // Check determinant to see if reprojection is required
-  if (1.0 - this->C_ba_.determinant() > 1e-6) {
-    this->reproject();
-  }
+  // Trigger a conditional reprojection, depending on determinant
+  this->reproject(false);
 
   return *this;
 }
@@ -142,10 +136,8 @@ Rotation& Rotation::operator/=(const Rotation& C_rhs) {
   // Perform operation
   this->C_ba_ = this->C_ba_*C_rhs.C_ba_.transpose();
 
-  // Check determinant to see if reprojection is required
-  if (1.0 - this->C_ba_.determinant() > 1e-6) {
-    this->reproject();
-  }
+  // Trigger a conditional reprojection, depending on determinant
+  this->reproject(false);
 
   return *this;
 }
