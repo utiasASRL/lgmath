@@ -33,14 +33,9 @@ Rotation::Rotation(const Rotation& C) :
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
-Rotation::Rotation(const Eigen::Matrix3d& C, bool reproj) {
-
-  // Reproject rotation matrix to ensure it is valid
-  if (reproj) {
-    C_ba_ = so3::vec2rot(so3::rot2vec(C));
-  } else {
-    C_ba_ = C;
-  }
+Rotation::Rotation(const Eigen::Matrix3d& C) : C_ba_(C) {
+  // Trigger a conditional reprojection, depending on determinant
+  this->reproject(false);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,14 +90,32 @@ Eigen::Vector3d Rotation::vec() const {
 Rotation Rotation::inverse() const {
   Rotation temp;
   temp.C_ba_ = C_ba_.transpose();
+  temp.reproject(false); // Trigger a conditional reprojection, depending on determinant
   return temp;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Reproject the rotation matrix back onto SO(3). Setting force to false triggers
+///        a conditional reproject that only happens if the determinant is of the rotation
+///        matrix is poor; this is more efficient than always performing it.
+//////////////////////////////////////////////////////////////////////////////////////////////
+void Rotation::reproject(bool force) {
+  if (force || fabs(1.0 - this->C_ba_.determinant() > 1e-6)) {
+    C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief In-place right-hand side multiply C_rhs
 //////////////////////////////////////////////////////////////////////////////////////////////
 Rotation& Rotation::operator*=(const Rotation& C_rhs) {
-  C_ba_ = C_ba_*C_rhs.C_ba_;
+
+  // Perform operation
+  this->C_ba_ = this->C_ba_ * C_rhs.C_ba_;
+
+  // Trigger a conditional reprojection, depending on determinant
+  this->reproject(false);
+
   return *this;
 }
 
@@ -119,7 +132,13 @@ Rotation Rotation::operator*(const Rotation& C_rhs) const {
 /// \brief In-place right-hand side multiply this matrix by the inverse of C_rhs
 //////////////////////////////////////////////////////////////////////////////////////////////
 Rotation& Rotation::operator/=(const Rotation& C_rhs) {
+
+  // Perform operation
   this->C_ba_ = this->C_ba_*C_rhs.C_ba_.transpose();
+
+  // Trigger a conditional reprojection, depending on determinant
+  this->reproject(false);
+
   return *this;
 }
 

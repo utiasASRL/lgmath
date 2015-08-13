@@ -54,22 +54,24 @@ TEST_CASE("Transformation Constructors.", "[lgmath]" ) {
     CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
   }
 
-  // Transformation(const Eigen::Matrix4d& T, bool reproj = true);
+  // Transformation(const Eigen::Matrix4d& T);
   SECTION("matrix constructor" ) {
     lgmath::se3::Transformation test(rand.matrix());
     INFO("tmat: " << rand.matrix());
     INFO("test: " << test.matrix());
     CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
 
-    // Test manual with no reprojection
-    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Random();
+    // Test forced reprojection (ones to identity)
+    Eigen::Matrix4d proj_test = Eigen::Matrix4d::Identity();
+    proj_test.topRightCorner<3,1>() = -r_ba_ina;
+    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Ones();
     Eigen::Matrix4d notTransform = Eigen::Matrix4d::Identity();
     notTransform.topLeftCorner<3,3>() = notRotation;
-    notTransform.topRightCorner<3,1>() = -notRotation*r_ba_ina;
-    lgmath::se3::Transformation test_bad(notTransform, false); // don't project
-    INFO("cmat: " << test_bad.matrix());
-    INFO("test: " << notTransform.matrix());
-    CHECK(lgmath::common::nearEqual(test_bad.matrix(), notTransform.matrix(), 1e-6));
+    notTransform.topRightCorner<3,1>() = -r_ba_ina;
+    lgmath::se3::Transformation test_bad(notTransform); // force reproj
+    INFO("cmat: " << proj_test.matrix());
+    INFO("test: " << test_bad.matrix());
+    CHECK(lgmath::common::nearEqual(proj_test.matrix(), test_bad.matrix(), 1e-6));
   }
 
   // Transformation& operator=(Transformation T);
@@ -122,7 +124,7 @@ TEST_CASE("Transformation Constructors.", "[lgmath]" ) {
   }
 
   //Transformation(const Eigen::Matrix3d& C_ba,
-  //               const Eigen::Vector3d& r_ba_ina, bool reproj = true);
+  //               const Eigen::Vector3d& r_ba_ina);
   SECTION("test C/r constructor" ) {
     lgmath::se3::Transformation tmat(C_ba, r_ba_ina);
     Eigen::Matrix4d test = Eigen::Matrix4d::Identity();
@@ -132,15 +134,14 @@ TEST_CASE("Transformation Constructors.", "[lgmath]" ) {
     INFO("test: " << test);
     CHECK(lgmath::common::nearEqual(tmat.matrix(), test, 1e-6));
 
-    // Test manual with no reprojection
-    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Random();
-    Eigen::Matrix4d notTransform = Eigen::Matrix4d::Identity();
-    notTransform.topLeftCorner<3,3>() = notRotation;
-    notTransform.topRightCorner<3,1>() = -notRotation*r_ba_ina;
-    lgmath::se3::Transformation test_bad(notRotation, r_ba_ina, false); // don't project
-    INFO("cmat: " << test_bad.matrix());
-    INFO("test: " << notTransform.matrix());
-    CHECK(lgmath::common::nearEqual(test_bad.matrix(), notTransform.matrix(), 1e-6));
+    // Test forced reprojection (ones to identity)
+    Eigen::Matrix4d proj_test = Eigen::Matrix4d::Identity();
+    proj_test.topRightCorner<3,1>() = -Eigen::Matrix3d::Identity()*r_ba_ina;
+    Eigen::Matrix3d notRotation = Eigen::Matrix3d::Ones();
+    lgmath::se3::Transformation test_bad(notRotation, r_ba_ina); // forces reprojection
+    INFO("cmat: " << proj_test.matrix());
+    INFO("test: " << test_bad.matrix());
+    CHECK(lgmath::common::nearEqual(proj_test.matrix(), test_bad.matrix(), 1e-6));
   }
 
 } // TEST_CASE
