@@ -100,7 +100,7 @@ Rotation Rotation::inverse() const {
 ///        matrix is poor; this is more efficient than always performing it.
 //////////////////////////////////////////////////////////////////////////////////////////////
 void Rotation::reproject(bool force) {
-  if (force || fabs(1.0 - this->C_ba_.determinant() > 1e-6)) {
+  if (force || fabs(1.0 - this->C_ba_.determinant()) > 1e-6) {
     C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
   }
 }
