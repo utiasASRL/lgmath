@@ -85,7 +85,7 @@ template<uint64_t HZ>
 struct RtdscClock
 {
   typedef unsigned long long                 rep;
-  typedef std::ratio<1, HZ>                  period; // My machine is 2.8 GHz
+  typedef std::ratio<1, HZ>                  period; // This timer must be templated on the CPU clock frequency
   typedef std::chrono::duration<rep, period> duration;
   typedef std::chrono::time_point<RtdscClock>     time_point;
   static const bool is_steady =              true;

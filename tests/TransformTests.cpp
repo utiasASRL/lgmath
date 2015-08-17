@@ -144,22 +144,23 @@ TEST_CASE("Transformation Constructors.", "[lgmath]" ) {
     CHECK(lgmath::common::nearEqual(proj_test.matrix(), test_bad.matrix(), 1e-6));
   }
 
-  // swap(Transformation&, Transformation&);
-  SECTION("swap" ) {
-    lgmath::se3::Transformation test = lgmath::se3::Transformation();
-    lgmath::se3::Transformation testCopy(test);
-    lgmath::se3::Transformation randCopy(rand);
-
-    using std::swap;
-    swap(rand, test);
+  // Transformation(Transformation&&);
+  SECTION("move constructor" ) {
+    lgmath::se3::Transformation test(std::move(rand));
 
     INFO("tmat: " << test.matrix());
-    INFO("test: " << randCopy.matrix());
-    CHECK(lgmath::common::nearEqual(test.matrix(),randCopy.matrix(), 1e-6));
+    INFO("test: " << rand.matrix());
+    CHECK(lgmath::common::nearEqual(test.matrix(),rand.matrix(), 1e-6));
+  }
 
-    INFO("tmat: " << rand.matrix());
-    INFO("test: " << testCopy.matrix());
-    CHECK(lgmath::common::nearEqual(rand.matrix(),testCopy.matrix(), 1e-6));
+  // Transformation = Transformation&&;
+  SECTION("move assignment" ) {
+    lgmath::se3::Transformation test;
+    test = std::move(rand);
+
+    INFO("tmat: " << test.matrix());
+    INFO("test: " << rand.matrix());
+    CHECK(lgmath::common::nearEqual(test.matrix(),rand.matrix(), 1e-6));
   }
 
 } // TEST_CASE
