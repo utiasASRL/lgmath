@@ -13,6 +13,7 @@
 
 #include <lgmath/so3/Operations.hpp>
 #include <lgmath/se3/Operations.hpp>
+#include <iostream>
 
 namespace lgmath {
 namespace se3 {
@@ -85,19 +86,6 @@ Transformation& Transformation::operator=(Transformation&& T) {
   this->r_ab_inb_ = std::move(T.r_ab_inb_);
 
   return (*this);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Swap operator
-/// \details This is implemented as a custom function as the default c++11 swap operator uses
-///          three calls to std::move, which results in copying for Eigen members
-//////////////////////////////////////////////////////////////////////////////////////////////
-void swap(Transformation& lhs, Transformation& rhs) {
-  // TODO: This should be removed when Eigen supports moving
-  using std::swap;
-
-  swap(lhs.C_ba_, rhs.C_ba_);
-  swap(lhs.r_ab_inb_, rhs.r_ab_inb_);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

@@ -131,12 +131,12 @@ class TransformationWithCovariance: public Transformation
   TransformationWithCovariance& operator=(const TransformationWithCovariance& T) = default;
 
   //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Copy assignment operator. Manually implemented as Eigen doesn't support moving.
+  /// \brief Move assignment operator. Manually implemented as Eigen doesn't support moving.
   //////////////////////////////////////////////////////////////////////////////////////////////
   TransformationWithCovariance& operator=(TransformationWithCovariance&& T);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Copy assignment operator to base Transform.
+  /// \brief Copy assignment operator from basic Transform.
   /// \description This assignment resets the covariance to the uninitialized state.  You must
   ///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
   ///              before querying it with the public method cov(), or an exception will be
@@ -145,20 +145,13 @@ class TransformationWithCovariance: public Transformation
   virtual TransformationWithCovariance& operator=(const Transformation& T);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Move assignment operator to base Transform.
+  /// \brief Move assignment operator from basic Transform.
   /// \description This assignment resets the covariance to the uninitialized state.  You must
   ///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
   ///              before querying it with the public method cov(), or an exception will be
   ///              thrown.
   //////////////////////////////////////////////////////////////////////////////////////////////
   virtual TransformationWithCovariance& operator=(Transformation&& T);
-
-  //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Swap operator
-  /// \details This is implemented as a custom function as the default c++11 swap operator uses
-  ///          three calls to std::move, which results in copying for Eigen members
-  //////////////////////////////////////////////////////////////////////////////////////////////
-  friend void swap(TransformationWithCovariance& lhs, TransformationWithCovariance&  rhs);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Gets the underlying covariance matrix

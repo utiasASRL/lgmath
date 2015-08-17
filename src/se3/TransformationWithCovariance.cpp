@@ -133,7 +133,7 @@ TransformationWithCovariance& TransformationWithCovariance::operator=(Transforma
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Copy assignment operator to base Transform.
+/// \brief Copy assignment operator from basic Transform.
 /// \description This assignment resets the covariance to the uninitialized state.  You must
 ///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
 ///              before querying it with the public method cov(), or an exception will be
@@ -152,7 +152,7 @@ TransformationWithCovariance& TransformationWithCovariance::operator=(const Tran
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Move assignment operator to base Transform.
+/// \brief Move assignment operator from basic Transform.
 /// \description This assignment resets the covariance to the uninitialized state.  You must
 ///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
 ///              before querying it with the public method cov(), or an exception will be
@@ -168,21 +168,6 @@ TransformationWithCovariance& TransformationWithCovariance::operator=(Transforma
   this->covarianceSet_ = false;
 
   return (*this);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Swap operator
-/// \details This is implemented as a custom function as the default c++11 swap operator uses
-///          three calls to std::move, which results in copying for Eigen members
-//////////////////////////////////////////////////////////////////////////////////////////////
-void swap(TransformationWithCovariance& lhs, TransformationWithCovariance&  rhs) {
-  // TODO: This should be removed when Eigen supports moving
-  using std::swap;
-
-  swap(lhs.covariance_, rhs.covariance_);
-  swap(lhs.covarianceSet_, rhs.covarianceSet_);
-
-  swap(static_cast<Transformation&>(lhs), static_cast<Transformation&>(rhs));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

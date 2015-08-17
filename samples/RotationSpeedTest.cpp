@@ -4,12 +4,17 @@
 #include <lgmath/so3/Operations.hpp>
 #include <lgmath/so3/Rotation.hpp>
 
+#include "PrecisionTimer.hpp"
+
 int main(int argc, char **argv) {
 
   // Init variables
   unsigned int N = 1000000;
+  unsigned int L = 1000;
+  unsigned int M = 10000;
   lgmath::common::Timer timer;
-  double time1;
+  ChronoTimer::HighResolutionTimer htimer;
+  double time1, time2;
   double recorded;
 
   // Allocate test memory
@@ -27,84 +32,97 @@ int main(int argc, char **argv) {
 
   // test
   std::cout << "Test rotation vec2rot, over " << N << " iterations." << std::endl;
-  timer.reset();
+  htimer.reset();
   for (unsigned int i = 0; i < N; i++) {
     rotation = lgmath::so3::Rotation(v3);
   }
-  time1 = timer.milliseconds();
+  time1 = htimer.nanoseconds();
   recorded = 0.091;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, July 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, July 2015" << std::endl;
   std::cout << " " << std::endl;
 
-  
+
   // test
   std::cout << "Test lval vs rval assignment, over " << N << " iterations." << std::endl;
   lgmath::so3::Rotation tmp(rotation);
+  lgmath::so3::Rotation tmp2(rotation);
+  double build_time;
+  build_time = time1 = time2 = 0;
 
-  timer.reset();
-  for (unsigned int i = 0; i < N; i++) {
-    rotation = tmp;
+  for (unsigned int j = 0; j < L; ++j) {
+    htimer.reset();
+    for (unsigned int i = 0; i < M; i++) {
+      tmp = lgmath::so3::Rotation(rotation);
+    }
+    build_time += htimer.nanoseconds();
+
+    htimer.reset();
+    for (unsigned int i = 0; i < M; i++) {
+      tmp = lgmath::so3::Rotation(rotation);
+      tmp2 = tmp;
+    }
+    time1 += htimer.nanoseconds();
+
+    htimer.reset();
+    for (unsigned int i = 0; i < M; i++) {
+      tmp = lgmath::so3::Rotation(rotation);
+      tmp2 = std::move(tmp);
+    }
+    time2 += htimer.nanoseconds();
   }
-  time1 = timer.milliseconds();
 
-  timer.reset();
-  for (unsigned int i = 0; i < N; i++) {
-    rotation = std::move(tmp);
-  }
-  double time2 = timer.milliseconds();
-
-  std::cout << "Lval assignment time: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "Rval assignment time: " << 1000.0*time2/double(N) << "usec per call." << std::endl;
-  std::cout << "Difference: " << (time1-time2)/time1*100 << "%" << std::endl;
+  std::cout << "Lval assignment time: " << (time1-build_time)/double(M*L) << "nsec per call." << std::endl;
+  std::cout << "Rval assignment time: " << (time2-build_time)/double(M*L) << "nsec per call." << std::endl;
+  std::cout << "Difference: " << (time1-time2)/(time1-build_time)*100 << "%" << std::endl;
   std::cout << " " << std::endl;
 
   // test
   std::cout << "Test rotation rot2vec, over " << N << " iterations." << std::endl;
-  timer.reset();
+  htimer.reset();
   for (unsigned int i = 0; i < N; i++) {
     v3 = rotation.vec();
   }
-  time1 = timer.milliseconds();
+  time1 = htimer.nanoseconds();
   recorded = 0.051;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, July 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, July 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
   std::cout << "Test product over " << N << " iterations." << std::endl;
-  timer.reset();
+  htimer.reset();
   for (unsigned int i = 0; i < N; i++) {
     rotation = rotation*rotation;
   }
-  time1 = timer.milliseconds();
+  time1 = htimer.nanoseconds();
   recorded = 0.027;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, July 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, July 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
   std::cout << "Test product with inverse over " << N << " iterations." << std::endl;
-  timer.reset();
+  htimer.reset();
   for (unsigned int i = 0; i < N; i++) {
     rotation = rotation/rotation;
   }
-  time1 = timer.milliseconds();
+  time1 = htimer.nanoseconds();
   recorded = 0.027;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, July 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, July 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
   std::cout << "Test product with landmark over " << N << " iterations." << std::endl;
-  timer.reset();
+  htimer.reset();
   for (unsigned int i = 0; i < N; i++) {
     v3 = rotation*v3;
   }
-  time1 = timer.milliseconds();
+  time1 = htimer.nanoseconds();
   recorded = 0.008;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, July 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, July 2015" << std::endl;
   std::cout << " " << std::endl;
 
   return 0;
