@@ -378,6 +378,61 @@ TEST_CASE("TransformationWithCovariance Constructors.", "[lgmath]" ) {
     CHECK_EQ_COVARIANCE(test_bad, U);
   }
 
+  // TransformationWithCovariance(TransformationWithCovariance&&);
+  SECTION("move constructor" ) {
+    lgmath::se3::TransformationWithCovariance test(std::move(rand));
+
+    CHECK_EQ(rand.matrix(), test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, covSafe(rand));
+  }
+
+  // TransformationWithCovariance = TransformationWithCovariance&&;
+  SECTION("move assignment" ) {
+    lgmath::se3::TransformationWithCovariance test;
+    test = std::move(rand);
+
+    CHECK_EQ(rand.matrix(), test.matrix());
+    CHECK_HAS_COVARIANCE(test);
+    CHECK_EQ_COVARIANCE(test, covSafe(rand));
+  }
+
+  // TransformationWithCovariance(Transformation&&);
+  SECTION("move constructor (subclass from base)" ) {
+    lgmath::se3::TransformationWithCovariance test(std::move(randBase));
+
+    CHECK_EQ(randBase.matrix(), test.matrix());
+    CHECK(typeid(test) == typeid(lgmath::se3::TransformationWithCovariance));
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  // TransformationWithCovariance = Transformation&&;
+  SECTION("move assignment (subclass from base)" ) {
+    lgmath::se3::TransformationWithCovariance test;
+    test = std::move(randBase);
+
+    CHECK_EQ(randBase.matrix(), test.matrix());
+    CHECK(typeid(test) == typeid(lgmath::se3::TransformationWithCovariance));
+    CHECK_NO_COVARIANCE(test);
+  }
+
+  // Transformation(TransformationWithCovariance&&);
+  SECTION("move constructor (base from subclass)" ) {
+    lgmath::se3::Transformation test(std::move(rand));
+
+    CHECK_EQ(rand.matrix(), test.matrix());
+    CHECK(typeid(test) == typeid(lgmath::se3::Transformation));
+  }
+
+  // Transformation = TransformationWithCovariance&&;
+  SECTION("base move assignment (base from subclass)" ) {
+    lgmath::se3::Transformation test;
+    test = std::move(rand);
+
+    CHECK_EQ(rand.matrix(), test.matrix());
+    CHECK(typeid(test) == typeid(lgmath::se3::Transformation));
+  }
+
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////

@@ -27,10 +27,11 @@ TransformationWithCovariance::TransformationWithCovariance() :
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Copy constructor
+/// \brief Move constructor. Manually implemented as Eigen doesn't support moving.
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(const TransformationWithCovariance& T) :
-  Transformation(T), covariance_(T.covariance_), covarianceSet_(T.covarianceSet_) {
+TransformationWithCovariance::TransformationWithCovariance(TransformationWithCovariance&& T) :
+    Transformation(T), covariance_(std::move(T.covariance_)), covarianceSet_(std::move(T.covarianceSet_)) {
+  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +39,13 @@ TransformationWithCovariance::TransformationWithCovariance(const TransformationW
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Transformation& T, bool initCovarianceToZero) :
   Transformation(T), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(initCovarianceToZero) {
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Move constructor from deterministic Transformation
+//////////////////////////////////////////////////////////////////////////////////////////////
+TransformationWithCovariance::TransformationWithCovariance(Transformation&& T, bool initCovarianceToZero) :
+    Transformation(T), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(initCovarianceToZero) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,34 +119,52 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Assignment operator. Note pass-by-value is intentional.
+/// \brief Move assignment operator. Manually implemented as Eigen doesn't support moving.
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance& TransformationWithCovariance::operator=(TransformationWithCovariance T) {
-
+TransformationWithCovariance& TransformationWithCovariance::operator=(TransformationWithCovariance&& T) {
   // Call the assignment operator on the super class, as the internal members are not accessible here
   Transformation::operator=(T);
 
-  // Swap (this)'s parameters with the temporary object passed by value
-  // The temporary object is then destroyed at end of scope
-  std::swap( this->covariance_, T.covariance_ );
-  std::swap( this->covarianceSet_, T.covarianceSet_ );
+  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
+  this->covariance_ = std::move(T.covariance_);
+  this->covarianceSet_ = std::move(T.covarianceSet_);
+
   return (*this);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Assignment operator to base Transform.
+/// \brief Copy assignment operator from basic Transform.
 /// \description This assignment resets the covariance to the uninitialized state.  You must
 ///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
 ///              before querying it with the public method cov(), or an exception will be
-///              thrown.  Note: pass-by-value is intentional.
+///              thrown.
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance& TransformationWithCovariance::operator=(Transformation T) {
+TransformationWithCovariance& TransformationWithCovariance::operator=(const Transformation& T) {
 
   // Call the assignment operator on the super class, as the internal members are not accessible here
   Transformation::operator=(T);
 
   // The covarianceSet_ flag is set to false to prevent unintentional bad covariance propagation
-  this->covariance_ = Eigen::Matrix<double,6,6>::Zero();
+  this->covariance_.setZero();
+  this->covarianceSet_ = false;
+
+  return (*this);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Move assignment operator from basic Transform.
+/// \description This assignment resets the covariance to the uninitialized state.  You must
+///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
+///              before querying it with the public method cov(), or an exception will be
+///              thrown.
+//////////////////////////////////////////////////////////////////////////////////////////////
+TransformationWithCovariance& TransformationWithCovariance::operator=(Transformation&& T) {
+
+  // Call the assignment operator on the super class, as the internal members are not accessible here
+  Transformation::operator=(T);
+
+  // The covarianceSet_ flag is set to false to prevent unintentional bad covariance propagation
+  this->covariance_.setZero();
   this->covarianceSet_ = false;
 
   return (*this);
@@ -176,7 +202,7 @@ void TransformationWithCovariance::setCovariance(const Eigen::Matrix<double,6,6>
 /// \brief Sets the underlying covariance matrix to the 6x6 zero matrix (perfect certainty)
 //////////////////////////////////////////////////////////////////////////////////////////////
 void TransformationWithCovariance::setZeroCovariance() {
-  covariance_ = Eigen::Matrix<double,6,6>::Zero();
+  covariance_.setZero();
   covarianceSet_ = true;
 }
 

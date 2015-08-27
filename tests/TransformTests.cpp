@@ -144,6 +144,25 @@ TEST_CASE("Transformation Constructors.", "[lgmath]" ) {
     CHECK(lgmath::common::nearEqual(proj_test.matrix(), test_bad.matrix(), 1e-6));
   }
 
+  // Transformation(Transformation&&);
+  SECTION("move constructor" ) {
+    lgmath::se3::Transformation test(std::move(rand));
+
+    INFO("tmat: " << test.matrix());
+    INFO("test: " << rand.matrix());
+    CHECK(lgmath::common::nearEqual(test.matrix(),rand.matrix(), 1e-6));
+  }
+
+  // Transformation = Transformation&&;
+  SECTION("move assignment" ) {
+    lgmath::se3::Transformation test;
+    test = std::move(rand);
+
+    INFO("tmat: " << test.matrix());
+    INFO("test: " << rand.matrix());
+    CHECK(lgmath::common::nearEqual(test.matrix(),rand.matrix(), 1e-6));
+  }
+
 } // TEST_CASE
 
 /////////////////////////////////////////////////////////////////////////////////////////////

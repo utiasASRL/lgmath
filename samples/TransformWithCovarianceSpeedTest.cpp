@@ -8,8 +8,10 @@ int main(int argc, char **argv) {
 
   // Init variables
   unsigned int N = 1000000;
+  unsigned int L = 1000;
+  unsigned int M = 10000;
   lgmath::common::Timer timer;
-  double time1;
+  double time1, time2;
   double recorded;
 
   // Allocate test memory
@@ -37,10 +39,10 @@ int main(int argc, char **argv) {
   for (unsigned int i = 0; i < N; i++) {
     transform = lgmath::se3::TransformationWithCovariance(v6, U6);
   }
-  time1 = timer.milliseconds();
+  time1 = timer.nanoseconds();
   recorded = 0.155;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -49,10 +51,44 @@ int main(int argc, char **argv) {
   for (unsigned int i = 0; i < N; i++) {
     v6 = transform.vec();
   }
-  time1 = timer.milliseconds();
+  time1 = timer.nanoseconds();
   recorded = 0.127;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << " " << std::endl;
+
+  // test
+  std::cout << "Test lval vs rval assignment, over " << N << " iterations." << std::endl;
+  lgmath::se3::TransformationWithCovariance tmp(transform);
+  lgmath::se3::TransformationWithCovariance tmp2(transform);
+  double build_time;
+  build_time = time1 = time2 = 0;
+
+  for (unsigned int j = 0; j < L; ++j) {
+    timer.reset();
+    for (unsigned int i = 0; i < M; i++) {
+      tmp = lgmath::se3::TransformationWithCovariance(transform);
+    }
+    build_time += timer.nanoseconds();
+
+    timer.reset();
+    for (unsigned int i = 0; i < M; i++) {
+      tmp = lgmath::se3::TransformationWithCovariance(transform);
+      tmp2 = tmp;
+    }
+    time1 += timer.nanoseconds();
+
+    timer.reset();
+    for (unsigned int i = 0; i < M; i++) {
+      tmp = lgmath::se3::TransformationWithCovariance(transform);
+      tmp2 = std::move(tmp);
+    }
+    time2 += timer.nanoseconds();
+  }
+
+  std::cout << "Lval assignment time: " << (time1-build_time)/double(M*L) << "nsec per call." << std::endl;
+  std::cout << "Rval assignment time: " << (time2-build_time)/double(M*L) << "nsec per call." << std::endl;
+  std::cout << "Difference: " << (time1-time2)/(time1-build_time)*100 << "%" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -61,10 +97,10 @@ int main(int argc, char **argv) {
   for (unsigned int i = 0; i < N; i++) {
     transform = transform*transform;
   }
-  time1 = timer.milliseconds();
+  time1 = timer.nanoseconds();
   recorded = 0.189;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -73,10 +109,10 @@ int main(int argc, char **argv) {
   for (unsigned int i = 0; i < N; i++) {
     transform = transform*transform_unset;
   }
-  time1 = timer.milliseconds();
+  time1 = timer.nanoseconds();
   recorded = 0.189;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -85,10 +121,10 @@ int main(int argc, char **argv) {
   for (unsigned int i = 0; i < N; i++) {
     transform = transform_unset*transform;
   }
-  time1 = timer.milliseconds();
+  time1 = timer.nanoseconds();
   recorded = 0.189;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -97,10 +133,10 @@ int main(int argc, char **argv) {
   for (unsigned int i = 0; i < N; i++) {
     transform = transform/transform;
   }
-  time1 = timer.milliseconds();
+  time1 = timer.nanoseconds();
   recorded = 0.204;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -109,10 +145,10 @@ int main(int argc, char **argv) {
   for (unsigned int i = 0; i < N; i++) {
     transform = transform/transform_unset;
   }
-  time1 = timer.milliseconds();
+  time1 = timer.nanoseconds();
   recorded = 0.204;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -121,10 +157,10 @@ int main(int argc, char **argv) {
   for (unsigned int i = 0; i < N; i++) {
     transform = transform_unset/transform;
   }
-  time1 = timer.milliseconds();
+  time1 = timer.nanoseconds();
   recorded = 0.204;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   // test
@@ -133,10 +169,10 @@ int main(int argc, char **argv) {
   for (unsigned int i = 0; i < N; i++) {
     v4 = transform*v4;
   }
-  time1 = timer.milliseconds();
+  time1 = timer.nanoseconds();
   recorded = 0.0139;
-  std::cout << "your speed: " << 1000.0*time1/double(N) << "usec per call." << std::endl;
-  std::cout << "recorded:   " <<        recorded        << "usec per call, 2.4 GHz processor, March 2015" << std::endl;
+  std::cout << "your speed: " << time1/double(N) << "nsec per call." << std::endl;
+  std::cout << "recorded:   " << 1000.0*recorded << "nsec per call, 2.4 GHz processor, March 2015" << std::endl;
   std::cout << " " << std::endl;
 
   return 0;
