@@ -162,7 +162,7 @@ class TransformationWithCovariance: public Transformation
   /// \brief Returns whether or not a covariance has been set. If it is unset, then querying it
   ///        with the public method cov() will throw an exception.
   //////////////////////////////////////////////////////////////////////////////////////////////
-  const bool covarianceSet() const;
+  bool covarianceSet() const;
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Sets the underlying rotation matrix
