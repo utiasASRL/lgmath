@@ -37,6 +37,7 @@ add_executable(lgmath_unit_tests
   ${CMAKE_CURRENT_SOURCE_DIR}/TransformTests.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/TransformWithCovarianceTests.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/RotationTests.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/CovarianceTests.cpp
 )
 target_link_libraries(lgmath_unit_tests lgmath ${DEPEND_LIBS})
 

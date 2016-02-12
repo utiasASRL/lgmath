@@ -155,7 +155,7 @@ Rotation Rotation::operator/(const Rotation& C_rhs) const {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Right-hand side multiply this matrix by the point vector p_a
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Vector3d Rotation::operator*(const Eigen::Vector3d& p_a) const {
+Eigen::Vector3d Rotation::operator*(const Eigen::Ref<const Eigen::Vector3d>& p_a) const {
   return this->C_ba_ * p_a;
 }
 

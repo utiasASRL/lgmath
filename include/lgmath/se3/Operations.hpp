@@ -75,14 +75,14 @@ Eigen::Matrix<double,6,6> curlyhat(const Eigen::Vector3d& rho, const Eigen::Vect
 Eigen::Matrix<double,6,6> curlyhat(const Eigen::Matrix<double,6,1>& xi);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Turns a homogeneous point into a special 4x6 matrix
+/// \brief Turns a homogeneous point into a special 4x6 matrix (circle-dot operator)
 ///
 /// See eq. 72 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
 Eigen::Matrix<double,4,6> point2fs(const Eigen::Vector3d& p, double scale = 1);
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Turns a homogeneous point into a special 6x4 matrix
+/// \brief Turns a homogeneous point into a special 6x4 matrix (double-circle operator)
 ///
 /// See eq. 72 in Barfoot-TRO-2014 for more information.
 //////////////////////////////////////////////////////////////////////////////////////////////
