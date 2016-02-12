@@ -80,8 +80,9 @@ template<bool THROW_IF_UNSET=COVARIANCE_REQUIRED>
 CovarianceMatrix transformCovariance(const se3::TransformationWithCovariance & T_ba,
                                      const CovarianceMatrixConstRef & cov_a,
                                      const HPointConstRef & p_b) {
-  if (THROW_IF_UNSET && !T_ba.covarianceSet())
+  if (THROW_IF_UNSET && !T_ba.covarianceSet()) {
     throw std::runtime_error("Error: TransformationWithCovariance does not have covariance set");
+  }
 
   // The component from the point noise (reuse the base Transform function)
   const auto & T_ba_base = static_cast<const se3::Transformation &>(T_ba);
