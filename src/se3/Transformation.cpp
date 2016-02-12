@@ -208,7 +208,7 @@ Transformation Transformation::operator/(const Transformation& T_rhs) const {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Right-hand side multiply this matrix by the homogeneous vector p_a
 //////////////////////////////////////////////////////////////////////////////////////////////
-Eigen::Vector4d Transformation::operator*(const Eigen::Vector4d& p_a) const {
+Eigen::Vector4d Transformation::operator*(const Eigen::Ref<const Eigen::Vector4d> & p_a) const {
   Eigen::Vector4d p_b;
   p_b.head<3>() = C_ba_ * p_a.head<3>() + r_ab_inb_ * p_a[3];
   p_b[3] = p_a[3];
