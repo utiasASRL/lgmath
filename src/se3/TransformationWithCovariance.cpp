@@ -22,8 +22,8 @@ namespace se3 {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Default constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance() :
-  Transformation(), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+TransformationWithCovariance::TransformationWithCovariance(bool initCovarianceToZero) :
+  Transformation(), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(initCovarianceToZero) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
