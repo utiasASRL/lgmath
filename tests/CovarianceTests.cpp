@@ -51,7 +51,7 @@ void check_approx(const Eigen::DenseBase<Derived> & a,
 
 SCENARIO("Point covariance can be transformed","[points]") {
   r3::CovarianceMatrix cov_a;
-  cov_a.diagonal() << 1., 2., 3.;
+  cov_a.setZero(); cov_a.diagonal() << 1., 2., 3.;
   r3::HPoint p_a = (r3::Point()<< 2., 3., 4.).finished().homogeneous();
 
   GIVEN("A 180 degree transform") {
