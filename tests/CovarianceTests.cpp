@@ -56,8 +56,6 @@ SCENARIO("Point covariance can be transformed","[points]") {
 
   GIVEN("A 180 degree transform") {
     se3::Transformation T_ba(C_z180, se3::TranslationVector::Zero());
-    INFO(T_ba.matrix());
-    INFO(cov_a);
     WHEN("We transform the covariance") {
       auto cov_b = r3::transformCovariance<r3::COVARIANCE_NOT_REQUIRED>(T_ba, cov_a);
       THEN("The covariance should be unchanged") {
