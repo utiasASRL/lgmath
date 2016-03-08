@@ -27,14 +27,6 @@ TransformationWithCovariance::TransformationWithCovariance(bool initCovarianceTo
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Move constructor. Manually implemented as Eigen doesn't support moving.
-//////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(TransformationWithCovariance&& T) :
-    Transformation(T), covariance_(std::move(T.covariance_)), covarianceSet_(std::move(T.covarianceSet_)) {
-  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Copy constructor from deterministic Transformation
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Transformation& T, bool initCovarianceToZero) :
@@ -57,10 +49,25 @@ TransformationWithCovariance::TransformationWithCovariance(const Transformation&
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Move constructor from basic Transformation, with covariance
+//////////////////////////////////////////////////////////////////////////////////////////////
+TransformationWithCovariance::TransformationWithCovariance(Transformation&& T,
+                                                           Eigen::Matrix<double,6,6>&& covariance) :
+    Transformation(T), covariance_(covariance), covarianceSet_(true) {
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix4d& T) :
   Transformation(T), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Move constructor
+//////////////////////////////////////////////////////////////////////////////////////////////
+TransformationWithCovariance::TransformationWithCovariance(Eigen::Matrix4d&& T) :
+    Transformation(T), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,6 +79,14 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix4d
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Move constructor with covariance
+//////////////////////////////////////////////////////////////////////////////////////////////
+TransformationWithCovariance::TransformationWithCovariance(Eigen::Matrix4d&& T,
+                                                           Eigen::Matrix<double,6,6>&& covariance) :
+    Transformation(T), covariance_(covariance), covarianceSet_(true) {
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina) :
@@ -79,12 +94,27 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix3d
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Move constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
+//////////////////////////////////////////////////////////////////////////////////////////////
+TransformationWithCovariance::TransformationWithCovariance(Eigen::Matrix3d&& C_ba, Eigen::Vector3d&& r_ba_ina) :
+    Transformation(C_ba, r_ba_ina), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor with covariance. The transformation will be
 /// T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina,
-                             const Eigen::Matrix<double,6,6>& covariance) :
+                                                           const Eigen::Matrix<double,6,6>& covariance) :
   Transformation(C_ba, r_ba_ina), covariance_(covariance), covarianceSet_(true) {
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Move constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
+//////////////////////////////////////////////////////////////////////////////////////////////
+TransformationWithCovariance::TransformationWithCovariance(Eigen::Matrix3d&& C_ba, Eigen::Vector3d&& r_ba_ina,
+                                                           Eigen::Matrix<double,6,6>&& covariance) :
+    Transformation(C_ba, r_ba_ina), covariance_(covariance), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,6 +134,15 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix<d
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Move constructor with covariance. The transformation will be T_ba = vec2tran(xi_ab)
+//////////////////////////////////////////////////////////////////////////////////////////////
+TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix<double,6,1>& xi_ab,
+                                                           Eigen::Matrix<double,6,6>&& covariance,
+                                                           unsigned int numTerms) :
+    Transformation(xi_ab, numTerms), covariance_(covariance), covarianceSet_(true) {
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = vec2tran(xi_ab), xi_ab must be 6x1
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd& xi_ab) :
@@ -119,17 +158,11 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Move assignment operator. Manually implemented as Eigen doesn't support moving.
+/// \brief Constructor. The transformation will be T_ba = vec2tran(xi_ab), xi_ab must be 6x1
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance& TransformationWithCovariance::operator=(TransformationWithCovariance&& T) {
-  // Call the assignment operator on the super class, as the internal members are not accessible here
-  Transformation::operator=(T);
-
-  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
-  this->covariance_ = std::move(T.covariance_);
-  this->covarianceSet_ = std::move(T.covarianceSet_);
-
-  return (*this);
+TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd& xi_ab,
+                                                           Eigen::Matrix<double,6,6>&& covariance) :
+    Transformation(xi_ab), covariance_(covariance), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
