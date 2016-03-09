@@ -23,21 +23,21 @@ namespace se3 {
 /// \brief Default constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(bool initCovarianceToZero) :
-  Transformation(), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(initCovarianceToZero) {
+    Transformation(), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(initCovarianceToZero) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Copy constructor from deterministic Transformation
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Transformation& T, bool initCovarianceToZero) :
-  Transformation(T), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(initCovarianceToZero) {
+    Transformation(T), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(initCovarianceToZero) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Move constructor from deterministic Transformation
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(Transformation&& T, bool initCovarianceToZero) :
-    Transformation(T), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(initCovarianceToZero) {
+    Transformation(std::move(T)), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(initCovarianceToZero) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ TransformationWithCovariance::TransformationWithCovariance(Transformation&& T, b
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Transformation& T,
                                                            const Eigen::Matrix<double,6,6>& covariance) :
-  Transformation(T), covariance_(covariance), covarianceSet_(true) {
+    Transformation(T), covariance_(covariance), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,21 +53,21 @@ TransformationWithCovariance::TransformationWithCovariance(const Transformation&
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(Transformation&& T,
                                                            Eigen::Matrix<double,6,6>&& covariance) :
-    Transformation(T), covariance_(covariance), covarianceSet_(true) {
+    Transformation(std::move(T)), covariance_(std::move(covariance)), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix4d& T) :
-  Transformation(T), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+    Transformation(T), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Move constructor
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(Eigen::Matrix4d&& T) :
-    Transformation(T), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+    Transformation(std::move(T)), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ TransformationWithCovariance::TransformationWithCovariance(Eigen::Matrix4d&& T) 
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix4d& T,
                                                            const Eigen::Matrix<double,6,6>& covariance) :
-  Transformation(T), covariance_(covariance), covarianceSet_(true) {
+    Transformation(T), covariance_(covariance), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix4d
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(Eigen::Matrix4d&& T,
                                                            Eigen::Matrix<double,6,6>&& covariance) :
-    Transformation(T), covariance_(covariance), covarianceSet_(true) {
+    Transformation(std::move(T)), covariance_(std::move(covariance)), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,8 +96,8 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix3d
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Move constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(Eigen::Matrix3d&& C_ba, Eigen::Vector3d&& r_ba_ina) :
-    Transformation(C_ba, r_ba_ina), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+TransformationWithCovariance::TransformationWithCovariance(Eigen::Matrix3d&& C_ba, const Eigen::Vector3d& r_ba_ina) :
+    Transformation(std::move(C_ba), r_ba_ina), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,16 +112,16 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix3d
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Move constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
 //////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(Eigen::Matrix3d&& C_ba, Eigen::Vector3d&& r_ba_ina,
+TransformationWithCovariance::TransformationWithCovariance(Eigen::Matrix3d&& C_ba, const Eigen::Vector3d& r_ba_ina,
                                                            Eigen::Matrix<double,6,6>&& covariance) :
-    Transformation(C_ba, r_ba_ina), covariance_(covariance), covarianceSet_(true) {
+    Transformation(std::move(C_ba), r_ba_ina), covariance_(std::move(covariance)), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = vec2tran(xi_ab)
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix<double,6,1>& xi_ab, unsigned int numTerms) :
-  Transformation(xi_ab, numTerms), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+    Transformation(xi_ab, numTerms), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,7 +130,7 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix<d
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix<double,6,1>& xi_ab,
                                                            const Eigen::Matrix<double,6,6>& covariance,
                                                            unsigned int numTerms) :
-  Transformation(xi_ab, numTerms), covariance_(covariance), covarianceSet_(true) {
+    Transformation(xi_ab, numTerms), covariance_(covariance), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -139,14 +139,14 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix<d
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::Matrix<double,6,1>& xi_ab,
                                                            Eigen::Matrix<double,6,6>&& covariance,
                                                            unsigned int numTerms) :
-    Transformation(xi_ab, numTerms), covariance_(covariance), covarianceSet_(true) {
+    Transformation(xi_ab, numTerms), covariance_(std::move(covariance)), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Constructor. The transformation will be T_ba = vec2tran(xi_ab), xi_ab must be 6x1
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd& xi_ab) :
-  Transformation(xi_ab), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
+    Transformation(xi_ab), covariance_(Eigen::Matrix<double,6,6>::Zero()), covarianceSet_(false) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd& xi_ab,
                                                            const Eigen::Matrix<double,6,6>& covariance) :
-  Transformation(xi_ab), covariance_(covariance), covarianceSet_(true) {
+    Transformation(xi_ab), covariance_(covariance), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -162,7 +162,7 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd& xi_ab,
                                                            Eigen::Matrix<double,6,6>&& covariance) :
-    Transformation(xi_ab), covariance_(covariance), covarianceSet_(true) {
+    Transformation(xi_ab), covariance_(std::move(covariance)), covarianceSet_(true) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -194,7 +194,7 @@ TransformationWithCovariance& TransformationWithCovariance::operator=(const Tran
 TransformationWithCovariance& TransformationWithCovariance::operator=(Transformation&& T) {
 
   // Call the assignment operator on the super class, as the internal members are not accessible here
-  Transformation::operator=(T);
+  Transformation::operator=(std::move(T));
 
   // The covarianceSet_ flag is set to false to prevent unintentional bad covariance propagation
   this->covariance_.setZero();
@@ -228,6 +228,14 @@ bool TransformationWithCovariance::covarianceSet() const {
 //////////////////////////////////////////////////////////////////////////////////////////////
 void TransformationWithCovariance::setCovariance(const Eigen::Matrix<double,6,6>& covariance) {
   covariance_ = covariance;
+  covarianceSet_ = true;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Sets the underlying rotation matrix (from rval)
+//////////////////////////////////////////////////////////////////////////////////////////////
+void TransformationWithCovariance::setCovariance(Eigen::Matrix<double,6,6>&& covariance) {
+  covariance_ = std::move(covariance);
   covarianceSet_ = true;
 }
 

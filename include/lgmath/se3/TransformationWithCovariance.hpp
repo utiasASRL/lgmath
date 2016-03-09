@@ -108,7 +108,7 @@ class TransformationWithCovariance: public Transformation
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Move constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
   //////////////////////////////////////////////////////////////////////////////////////////////
-  TransformationWithCovariance(Eigen::Matrix3d&& C_ba, Eigen::Vector3d&& r_ba_ina);
+  TransformationWithCovariance(Eigen::Matrix3d&& C_ba, const Eigen::Vector3d& r_ba_ina);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Constructor with covariance. The transformation will be
@@ -121,7 +121,7 @@ class TransformationWithCovariance: public Transformation
   /// \brief Move constructor with covariance. The transformation will be
   /// T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
   //////////////////////////////////////////////////////////////////////////////////////////////
-  TransformationWithCovariance(Eigen::Matrix3d&& C_ba, Eigen::Vector3d&& r_ba_ina,
+  TransformationWithCovariance(Eigen::Matrix3d&& C_ba, const Eigen::Vector3d& r_ba_ina,
                                Eigen::Matrix<double,6,6>&& covariance);
 
 
@@ -214,6 +214,11 @@ class TransformationWithCovariance: public Transformation
   /// \brief Sets the underlying rotation matrix
   //////////////////////////////////////////////////////////////////////////////////////////////
   void setCovariance(const Eigen::Matrix<double,6,6>& covariance);
+
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  /// \brief Sets the underlying rotation matrix (from rval)
+  //////////////////////////////////////////////////////////////////////////////////////////////
+  void setCovariance(Eigen::Matrix<double,6,6>&& covariance);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Sets the underlying rotation matrix to the 6x6 zero matrix (perfect certainty)
