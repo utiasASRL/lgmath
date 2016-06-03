@@ -8,6 +8,9 @@ tar zxvf 3.2.5.tar.gz
 cd eigen-eigen-bdd17ee3b1b3/
 mkdir build && cd build
 cmake ..
+
+If you see a warning eigen 3.2.5 not found, please continue with the doing : sudo make install.
+
 sudo make install
 ```
 
