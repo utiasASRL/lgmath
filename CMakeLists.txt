@@ -135,7 +135,7 @@ install(TARGETS lgmath
   LIBRARY DESTINATION ${INSTALL_LIB_DIR}
 )
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-  DESTINATION ${INSTALL_INCLUDE_DIR}/lgmath
+  DESTINATION ${INSTALL_INCLUDE_DIR}
 )
 
 ##### Sample Executables
@@ -192,7 +192,7 @@ if(NOT USE_CATKIN) # Catkin handles all of this in catkin_package()
   set(CONF_INCLUDE_DIRS ${INSTALL_INCLUDE_DIR} ${CONF_INCLUDE_DIRS} )
 
   # gather all the includes but remove ones in the source tree
-  list(REMOVE_ITEM CONF_INCLUDE_DIRS ${CMAKE_SOURCE_DIR})
+  list(REMOVE_ITEM CONF_INCLUDE_DIRS ${HEADER_DIR})
 
   # Change the library location for an install location
   get_filename_component(LGMATH_LIB_NAME ${LGMATH_LIB} NAME)
