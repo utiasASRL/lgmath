@@ -1,0 +1,22 @@
+<package>
+  <!--REQUIRED HEADER-->
+  <name>lgmath</name>
+  <description>
+    Lie group math library.
+  </description>
+  <version>0.1.0</version>
+  <maintainer email="sean.anderson@mail.utoronto.ca">Sean Anderson</maintainer>
+  <license>BSD</license>
+
+  <!--BUILD TOOL DEPENDENCIES-->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!--BUILD DEPENDENCIES-->
+  <build_depend>Eigen3</build_depend>
+
+  <!--RUNTIME DEPENDENCIES-->
+  <!-- run_depend></run_depend -->
+
+  <!--TEST DEPENDENCIES-->
+  <!-- test_depend></test_depend -->
+</package>
