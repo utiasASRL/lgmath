@@ -200,17 +200,17 @@ if(NOT USE_CATKIN) # Catkin handles all of this in catkin_package()
   set(LGMATH_LIB ${INSTALL_LIB_DIR}/${LGMATH_LIB_NAME})
 
   # Create the <name>Config.cmake for the installation tree
-  configure_file(LGMathConfig.cmake.in
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/LGMathConfig.cmake" @ONLY)
+  configure_file(lgmathConfig.cmake.in
+    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/lgmathConfig.cmake" @ONLY)
 
   # The same versioning file can be used for both local and instal trees
-  configure_file(LGMathConfigVersion.cmake.in
-    "${PROJECT_BINARY_DIR}/LGMathConfigVersion.cmake" @ONLY)
+  configure_file(lgmathConfigVersion.cmake.in
+    "${PROJECT_BINARY_DIR}/lgmathConfigVersion.cmake" @ONLY)
 
-  # Install the LGMathConfig.cmake and LGMathConfigVersion.cmake
+  # Install the PackageConfig.cmake and PackageConfigVersion.cmake
   install(FILES
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/LGMathConfig.cmake"
-    "${PROJECT_BINARY_DIR}/LGMathConfigVersion.cmake"
+    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/lgmathConfig.cmake"
+    "${PROJECT_BINARY_DIR}/lgmathConfigVersion.cmake"
     DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
   ################################################################################
