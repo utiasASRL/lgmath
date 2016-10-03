@@ -87,7 +87,7 @@ else()
   if(WIN32 AND NOT CYGWIN)
     set(DEF_INSTALL_CMAKE_DIR CMake)
   else()
-    set(DEF_INSTALL_CMAKE_DIR lib/cmake/LGMath)
+    set(DEF_INSTALL_CMAKE_DIR lib/cmake/lgmath)
   endif()
 endif()
 
@@ -164,7 +164,7 @@ endif()
 
 if(NOT USE_CATKIN) # Catkin handles all of this in catkin_package()
 
-  ##### Create the LGMathConfig.cmake and LGMathConfigVersion files
+  ##### Create the PackageConfig.cmake and PackageConfigVersion files
 
   ### local build-tree
 
@@ -175,7 +175,7 @@ if(NOT USE_CATKIN) # Catkin handles all of this in catkin_package()
 
   # Export the package for use from the build-tree
   # (registers the build-tree with a global CMake-registry)
-  export(PACKAGE LGMath)
+  export(PACKAGE lgmath)
 
   # Create variable for the local build tree
   get_property(CONF_INCLUDE_DIRS DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
@@ -184,8 +184,8 @@ if(NOT USE_CATKIN) # Catkin handles all of this in catkin_package()
   get_target_property(LGMATH_LIB lgmath LOCATION)
 
   # Create the <name>Config.cmake for local build tree
-  configure_file(LGMathConfig.cmake.in
-    "${PROJECT_BINARY_DIR}/LGMathConfig.cmake" @ONLY)
+  configure_file(lgmathConfig.cmake.in
+    "${PROJECT_BINARY_DIR}/lgmathConfig.cmake" @ONLY)
 
   ### install build-tree
 

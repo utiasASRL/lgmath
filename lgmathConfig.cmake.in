@@ -1,0 +1,9 @@
+# - Config file for the lgmath package
+# It defines the following variables
+#  lgmath_INCLUDE_DIRS - include directories for pointmatcher
+#  lgmath_LIBRARIES    - libraries to link against
+ 
+get_filename_component(LGMATH_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+set(lgmath_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+set(lgmath_LIBRARIES "@LGMATH_LIB@;@EXTERNAL_LIBS@")
