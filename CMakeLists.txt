@@ -32,6 +32,9 @@ set(PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
 # Add the search path for FindPackage.cmake files
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+# external libraries to link against
+set(EXTERNAL_LIBS "")
+
 # find catkin (optional)
 string(COMPARE EQUAL "${CATKIN_DEVEL_PREFIX}" "" CATKIN_DISABLED_DEF)
 set(CATKIN_DISABLED ${CATKIN_DISABLED_DEF} CACHE BOOL "Disable catkin, even if found")
@@ -54,9 +57,6 @@ else(EIGEN3_FOUND)
   message(STATUS "NOT FOUND: Eigen")
 endif(EIGEN3_FOUND)
 
-# external libraries to link against
-set(EXTERNAL_LIBS "")
-
 ################################################################################
 ### Catkin Package (optional)
 ################################################################################
@@ -71,7 +71,7 @@ endif()
 
 ################################################################################
 ### Installation Paths
-################################################################################
+###############################################################################
 
 # catkin provides install paths
 if(USE_CATKIN)
@@ -111,7 +111,7 @@ endforeach()
 
 # Tell CMake where the headers are
 set(HEADER_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${HEADER_DIR})
 
 # Find the header files
 file(GLOB_RECURSE HEADER_FILES "${HEADER_DIR}/*.hpp")
@@ -127,7 +127,7 @@ file(GLOB_RECURSE SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 # Tell cmake about the library
 add_library(lgmath SHARED ${SOURCE_FILES} ${HEADER_FILES})
 # Link against the required libraries
-#target_link_libraries(lgmath ${EXTERNAL_LIBS})
+target_link_libraries(lgmath ${EXTERNAL_LIBS})
 
 ## install targets
 set_target_properties(lgmath PROPERTIES VERSION "${PROJECT_VERSION}" SOVERSION 1)
@@ -141,7 +141,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
 ##### Sample Executables
 
 # samples
-set(SAMPLES_ON FALSE CACHE BOOL "Build sample executables (e.g. speed test)")
+set(SAMPLES_ON TRUE CACHE BOOL "Build sample executables (e.g. speed test)")
 if(${SAMPLES_ON})
   add_subdirectory(samples)
 endif()
@@ -149,9 +149,10 @@ endif()
 ################################################################################
 ### Unit Tests
 ################################################################################
+
 # Add 'Catch' test directory
 # Turn tests on and off using the CMake GUI
-set(TESTS_ON FALSE CACHE BOOL "Build unit tests (uses Catch)")
+set(TESTS_ON TRUE CACHE BOOL "Build unit tests (uses Catch)")
 if(${TESTS_ON})
   enable_testing(true)  # Enables cmake unit-testing.
   add_subdirectory(tests)
