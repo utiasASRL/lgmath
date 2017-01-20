@@ -5,7 +5,7 @@ cmake_args:
 - -DCMAKE_BUILD_TYPE=RelWithDebInfo
 devel_layout: linked
 devel_space: ../devel/repo
-extend_path: /home/kirk/charlie/depmodules/lgmath-ws/devel/deps
+extend_path: ../devel/deps
 install: false
 install_space: ../install/repo
 isolate_install: false
