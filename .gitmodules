@@ -1,0 +1,8 @@
+[submodule "deps/catkin/catkin_optional"]
+	path = deps/catkin/catkin_optional
+	url = https://github.com/utiasASRL/catkin_optional.git
+	branch = master
+[submodule "deps/catkin/catch"]
+	path = deps/catkin/catch
+	url = https://github.com/utiasASRL/catch.git
+	branch = catkin/feature/stl-container-approx
