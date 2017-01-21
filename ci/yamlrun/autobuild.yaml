@@ -1,0 +1,25 @@
+#- deps:
+#  - cd src/deps/catkin
+#  - source:
+#    - git submodule --quiet update --init --remote --jobs 2
+##      - git clone -q --recursive https://$GIT_USERNAME:$GIT_PASSWORD@github.com/utiasASRL/catch
+##      - git clone -q --recursive https://$GIT_USERNAME:$GIT_PASSWORD@github.com/utiasASRL/catkin_optional 
+#  - build:
+#    - catkin build --no-status
+
+- deps:
+  - cd src/deps/catkin
+  - build:
+    - catkin config --extend=/opt/ros/install
+    - catkin build catkin_optional --no-status
+    - catkin build catch --no-status
+    # TODO : Why doesn't this work
+    #- catkin build
+
+- lgmath:
+  - cd src
+  - build:
+    - catkin build --no-status
+  - test:
+    - cd ../devel/lgmath/lib/lgmath
+    - ./lgmath_unit_tests

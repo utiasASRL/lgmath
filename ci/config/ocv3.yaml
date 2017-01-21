@@ -1,0 +1,6 @@
+# general config
+config:
+  emails: [katarina.cujic@robotics.utias.utoronto.ca]
+  docker:
+    image : "jenkins/non_cuda:1.2.2"
+  message_prefix : non-cuda
