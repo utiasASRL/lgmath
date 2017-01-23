@@ -4,10 +4,9 @@
 // The config overlay starts with the first config, then updates field from consecutive configs
 // Modify this if your branch needs a custom container, or custom yamlrun steps, etc.
 import groovy.transform.Field
-//@Field def config_overlay = ["ci/config/default.yaml"]
 @Field def config_overlay = [
   "ci/config/default.yaml" : [],
-  "ci/config/ocv3.yaml" : ["ci/config/default.yaml"],
+  // "ci/config/ocv3.yaml" : ["ci/config/default.yaml"],
 ]
 
 // This is generic boilerplate used to bootstrap the jenkins scripts in the submodule
@@ -30,10 +29,6 @@ node("docker_plugin_node_2") {
       }
       main_ = fileLoader.load(jenkins_dir + "/jenkins/multi-pipeline-scripts/main")  
     }
-    /*workspace_dir = pwd() + "/repo-ws/"
-    repo_dir = workspace_dir + "/repo/"
-    jenkins_dir = repo_dir + "/src/ci/jenkins/"
-    main_ = fileLoader.load(jenkins_dir + "/jenkins/multi-pipeline-scripts/main")*/
     // This runs the main pipeline driver, we're done bootstrapping now
     main_.main_fn(config_overlay, repo_dir, jenkins_dir)
   } catch (any) {
