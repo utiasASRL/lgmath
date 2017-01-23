@@ -1,5 +1,6 @@
 /*
 !.gitignore
+!VERSION
 !CATKIN_IGNORE
 !/profiles/
 /profiles/*/*
