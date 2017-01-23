@@ -1,0 +1,6 @@
+/*
+!.gitignore
+!CATKIN_IGNORE
+!/profiles/
+/profiles/*/*
+!/profiles/*/config.yaml
