@@ -9,4 +9,4 @@
 [submodule "ci/jenkins"]
 	path = ci/jenkins
 	url = https://github.com/utiasASRL/jenkins.git
-	branch = feature/multi-pipeline-fix-update
+	branch = master

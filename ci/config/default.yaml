@@ -4,14 +4,14 @@
 config:
   emails: [katarina.cujic@robotics.utias.utoronto.ca]
   docker:
-    image: "jenkins/docker_plugin_dep:1.0.2"
+    image: "jenkins/build-default:0.0.1"
     destroy_on_error: false
     destroy_on_job_sucess: false
-    destroy_after_days: 5
+    destroy_after_days: 2
   slack:
-    started: false
-    success: false
-    failure: false
+    started: true
+    success: true
+    failure: true
   message_prefix : default
 
 # Yamlrun file for build to run
