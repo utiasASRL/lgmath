@@ -25,7 +25,7 @@ cmake ..
 sudo make install
 ```
 
-### Build
+## Build
 In your development folder
 ```bash
 mkdir lgmath-ws && cd $_
