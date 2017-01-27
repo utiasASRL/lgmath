@@ -87,3 +87,20 @@ Using CMake (manual)
 ```bash
 cd build/lgmath && sudo make uninstall
 ```
+
+## Generating Documentation
+
+Using catkin tool (recommended)
+In your catkin workspace
+```bash
+catkin build --make-arg
+```
+
+
+Using CMake (manual)
+In your build folder
+```bash
+make doc
+```
+
+The documentation will be found in the `doc` subdirectory of the build folder.
