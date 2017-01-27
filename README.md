@@ -3,7 +3,7 @@ lgmath is a C++ library for handling geometry in state estimation problems in ro
 used to manipulate the three-dimensional rotations and transformations of points and coordinate
 frames. This library uses concepts and mathematics found in Tim Barfoot's upcoming
 book [State Estimation for Robotics](asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser15.pdf). It is used
-in for robotics research at the Autonomous Space Robotics Lab; most notably in the STEAM Engine, a
+for robotics research at the Autonomous Space Robotics Lab; most notably in the STEAM Engine, a
 library for Simultaneous Trajectory Estimation and Mapping.
 
 # Getting Started
