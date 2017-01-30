@@ -6,3 +6,7 @@
 	path = deps/catkin/catch
 	url = https://github.com/utiasASRL/catch.git
 	branch = catkin/feature/stl-container-approx
+[submodule "ci/jenkins"]
+	path = ci/jenkins
+	url = https://github.com/utiasASRL/jenkins.git
+	branch = master

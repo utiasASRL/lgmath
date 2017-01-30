@@ -1,0 +1,29 @@
+##### default.yaml
+
+# general config
+config:
+  emails: [katarina.cujic@robotics.utias.utoronto.ca]
+  docker:
+    image: "jenkins/build-default:0.0.1"
+    destroy_on_error: false
+    destroy_on_job_sucess: false
+    destroy_after_days: 2
+  slack:
+    started: true
+    success: true
+    failure: true
+  message_prefix : default
+
+# Yamlrun file for build to run
+yaml: ci/yamlrun/autobuild.yaml
+
+# Stages to run
+stages: [build, test]
+build:
+  timeout: 600
+  message: build
+  sections: [source, build]
+test:
+  timeout: 600
+  message: test
+  sections: [test]
