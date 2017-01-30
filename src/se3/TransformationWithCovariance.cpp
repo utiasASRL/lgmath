@@ -333,6 +333,10 @@ TransformationWithCovariance operator/(const Transformation& T_lhs, const Transf
 //////////////////////////////////////////////////////////////////////////////////////////////
 std::ostream& operator<<(std::ostream& out, const lgmath::se3::TransformationWithCovariance& T) {
   out << std::endl << T.matrix() << std::endl;
-  out << std::endl << T.cov() << std::endl;
+  if (T.covarianceSet()) {
+    out << std::endl << T.cov() << std::endl;
+  } else {
+    out << std::endl << "unset covariance" << std::endl;
+  }
   return out;
 }
