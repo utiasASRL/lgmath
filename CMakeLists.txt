@@ -74,5 +74,5 @@ endif()
 # add benchmarks directory
 set(BENCHMARK_ON TRUE CACHE BOOL "Build benchmark executables")
 if(${BENCHMARK_ON})
-  add_subdirectory(benchmark)
+  add_subdirectory(benchmarks)
 endif()
