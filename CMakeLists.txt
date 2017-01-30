@@ -71,8 +71,8 @@ if(${TESTS_ON})
   add_subdirectory(tests)
 endif()
 
-# add samples directory
-set(SAMPLES_ON TRUE CACHE BOOL "Build sample executables (e.g. speed test)")
-if(${SAMPLES_ON})
-  add_subdirectory(samples)
+# add benchmarks directory
+set(BENCHMARK_ON TRUE CACHE BOOL "Build benchmark executables")
+if(${BENCHMARK_ON})
+  add_subdirectory(benchmark)
 endif()
