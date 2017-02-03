@@ -93,7 +93,7 @@ cd build/lgmath && sudo make uninstall
 Using catkin tool (recommended)
 In your catkin workspace
 ```bash
-catkin build --make-arg
+catkin build --make-arg doc
 ```
 
 
@@ -103,4 +103,4 @@ In your build folder
 make doc
 ```
 
-The documentation will be found in the `doc` subdirectory of the build folder.
+The documentation will be found in the `doc` subdirectory of the build folder. 
