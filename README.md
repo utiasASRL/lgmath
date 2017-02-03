@@ -103,4 +103,4 @@ In your build folder
 make doc
 ```
 
-The documentation will be found in the `doc` subdirectory of the build folder. 
+The documentation will be found in the `doc` subdirectory of the build folder.
