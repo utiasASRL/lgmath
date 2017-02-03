@@ -76,3 +76,17 @@ set(BENCHMARK_ON TRUE CACHE BOOL "Build benchmark executables")
 if(${BENCHMARK_ON})
   add_subdirectory(benchmarks)
 endif()
+
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in
+    ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+  add_custom_target(doc
+    ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Generating API documentation with Doxygen" VERBATIM)
+else(DOXYGEN_FOUND)
+  message("Doxygen not found.")
+  add_custom_target(doc
+    COMMENT "Doxygen was not found on this system so this target does not exist, please install it and re-run CMake." VERBATIM)
+endif(DOXYGEN_FOUND)
