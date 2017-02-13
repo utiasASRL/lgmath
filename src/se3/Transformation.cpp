@@ -26,18 +26,18 @@ Transformation::Transformation() :
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Move constructor
-//////////////////////////////////////////////////////////////////////////////////////////////
-Transformation::Transformation(Transformation&& T) :
-  C_ba_(std::move(T.C_ba_)), r_ab_inb_(std::move(T.r_ab_inb_)){
-  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Constructor
+/// \brief Constructor (from Eigen)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation(const Eigen::Matrix4d& T) :
     C_ba_(T.block<3,3>(0,0)), r_ab_inb_(T.block<3,1>(0,3)) {
+  this->reproject(false); // Trigger a conditional reprojection, depending on determinant
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Move constructor (from Eigen)
+//////////////////////////////////////////////////////////////////////////////////////////////
+Transformation::Transformation(Eigen::Matrix4d&& T) :
+    C_ba_(std::move(T.block<3,3>(0,0))), r_ab_inb_(std::move(T.block<3,1>(0,3))) {
   this->reproject(false); // Trigger a conditional reprojection, depending on determinant
 }
 
@@ -46,6 +46,14 @@ Transformation::Transformation(const Eigen::Matrix4d& T) :
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina) {
   C_ba_ = C_ba;  
+  this->reproject(false); // Trigger a conditional reprojection, depending on determinant
+  r_ab_inb_ = (-1.0)*C_ba_*r_ba_ina;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+/// \brief Constructor. The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
+//////////////////////////////////////////////////////////////////////////////////////////////
+Transformation::Transformation(Eigen::Matrix3d&& C_ba, const Eigen::Vector3d& r_ba_ina) : C_ba_(std::move(C_ba)) {
   this->reproject(false); // Trigger a conditional reprojection, depending on determinant
   r_ab_inb_ = (-1.0)*C_ba_*r_ba_ina;
 }
@@ -78,15 +86,9 @@ Transformation::Transformation(const Eigen::VectorXd& xi_ab) {
 Transformation& Transformation::operator=(const Transformation&) = default;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Move assignment operator. Manually implemented as Eigen doesn't support moving.
+/// \brief Move assignment operator. Default implementation.
 //////////////////////////////////////////////////////////////////////////////////////////////
-Transformation& Transformation::operator=(Transformation&& T) {
-  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
-  this->C_ba_ = std::move(T.C_ba_);
-  this->r_ab_inb_ = std::move(T.r_ab_inb_);
-
-  return (*this);
-}
+Transformation& Transformation::operator=(Transformation&& T) = default;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Gets basic matrix representation of the transformation
