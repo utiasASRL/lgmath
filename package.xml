@@ -13,6 +13,7 @@
   <buildtool_depend>catkin_optional</buildtool_depend>
 
   <!--BUILD DEPENDENCIES-->
+  <build_depend>catch</build_depend>
   <build_depend>Eigen3</build_depend>
 
   <!--RUNTIME DEPENDENCIES-->
