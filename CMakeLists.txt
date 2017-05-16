@@ -12,8 +12,22 @@ co_build_type() # cache the build type
 ### Compiler Setup
 ################################################################################
 
+# check architecture
+execute_process(COMMAND
+  dpkg-architecture
+    -qDEB_HOST_ARCH
+  OUTPUT_VARIABLE
+    CMAKE_DEB_HOST_ARCH # Store in CMAKE_DEB_HOST_ARCH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 # TODO: -std=c++11
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic -std=c++0x -O3 -march=native -mno-avx")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic -std=c++0x -O3 -march=native")
+
+# x86 specific flags
+if(${CMAKE_DEB_HOST_ARCH} MATCHES "i386")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-avx")
+endif()
 
 ################################################################################
 ### Configure Dependency Headers and Libraries
