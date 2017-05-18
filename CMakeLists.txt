@@ -25,7 +25,7 @@ execute_process(COMMAND
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic -std=c++0x -O3 -march=native")
 
 # x86 specific flags
-if(${CMAKE_DEB_HOST_ARCH} MATCHES "i386")
+if(${CMAKE_DEB_HOST_ARCH} MATCHES "amd64")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-avx")
 endif()
 
