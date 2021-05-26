@@ -5,10 +5,6 @@ project(lgmath)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-march=native -O3 -Wall -Wno-long-long -pedantic)
-# x86 specific flags
-if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
-  add_compile_options(-mno-avx)
-endif()
 
 # Find dependencies
 find_package(ament_cmake REQUIRED)
