@@ -7,6 +7,8 @@
 /// \author Sean Anderson
 //////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <gtest/gtest.h>
+
 #include <math.h>
 #include <iostream>
 #include <iomanip>
@@ -15,8 +17,6 @@
 #include <Eigen/Dense>
 #include <lgmath/CommonMath.hpp>
 #include <lgmath/so3/Operations.hpp>
-
-#include "catch.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 ///
@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief General test of SO(3) hat function
 /////////////////////////////////////////////////////////////////////////////////////////////
-TEST_CASE("Test 3x3 hat function.", "[lgmath]" ) {
+TEST(LGMath, test3x3HatFunction) {
 
   // Init
   std::vector<Eigen::Matrix<double,3,1> > trueVecs;
@@ -54,23 +54,22 @@ TEST_CASE("Test 3x3 hat function.", "[lgmath]" ) {
   // Test the function
   for (unsigned i = 0; i < numTests; i++) {
     Eigen::Matrix<double,3,3> testMat = lgmath::so3::hat(trueVecs.at(i));
-    INFO("true: " << trueMats.at(i));
-    INFO("func: " << testMat);
-    CHECK(lgmath::common::nearEqual(trueMats.at(i), testMat, 1e-6));
+    std::cout << "true: " << trueMats.at(i) << std::endl;
+    std::cout << "func: " << testMat << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(trueMats.at(i), testMat, 1e-6));
   }
 
   // Test identity,  hat(v)^T = -hat(v)
   for (unsigned i = 0; i < numTests; i++) {
     Eigen::Matrix<double,3,3> testMat = lgmath::so3::hat(trueVecs.at(i));
-    CHECK(lgmath::common::nearEqual(testMat.transpose(), -testMat, 1e-6));
+    EXPECT_TRUE(lgmath::common::nearEqual(testMat.transpose(), -testMat, 1e-6));
   }
-
-} // TEST_CASE
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Test special cases of exponential functions: vec2rot and rot2vec
 /////////////////////////////////////////////////////////////////////////////////////////////
-TEST_CASE("Special case tests of vec2rot.", "[lgmath]" ) {
+TEST(LGMath, testVec2RotSpecialCase) {
 
   // Init
   std::vector<Eigen::Matrix<double,3,1> > trueVecs;
@@ -148,31 +147,27 @@ TEST_CASE("Special case tests of vec2rot.", "[lgmath]" ) {
   const unsigned numTests = trueVecs.size();
 
   // Test vec2rot
-  SECTION("vec2rot" ) {
-    for (unsigned i = 0; i < numTests; i++) {
-      Eigen::Matrix<double,3,3> testMat = lgmath::so3::vec2rot(trueVecs.at(i));
-      INFO("true: " << trueMats.at(i));
-      INFO("func: " << testMat);
-      CHECK(lgmath::common::nearEqual(trueMats.at(i), testMat, 1e-6));
-    }
+  for (unsigned i = 0; i < numTests; i++) {
+    Eigen::Matrix<double,3,3> testMat = lgmath::so3::vec2rot(trueVecs.at(i));
+    std::cout << "true: " << trueMats.at(i) << std::endl;
+    std::cout << "func: " << testMat << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(trueMats.at(i), testMat, 1e-6));
   }
 
   // Test rot2vec
-  SECTION("rot2vec" ) {
-    for (unsigned i = 0; i < numTests; i++) {
-      Eigen::Matrix<double,3,1> testVec = lgmath::so3::rot2vec(trueMats.at(i));
-      INFO("true: " << trueVecs.at(i));
-      INFO("func: " << testVec);
-      CHECK(lgmath::common::nearEqualAxisAngle(trueVecs.at(i), testVec, 1e-6));
-    }
+  for (unsigned i = 0; i < numTests; i++) {
+    Eigen::Matrix<double,3,1> testVec = lgmath::so3::rot2vec(trueMats.at(i));
+    std::cout << "true: " << trueVecs.at(i) << std::endl;
+    std::cout << "func: " << testVec << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqualAxisAngle(trueVecs.at(i), testVec, 1e-6));
   }
 
-} // TEST_CASE
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief General test of exponential functions: vec2rot and rot2vec
 /////////////////////////////////////////////////////////////////////////////////////////////
-TEST_CASE("Compare analytical and numeric vec2rot.", "[lgmath]" ) {
+TEST(LGMath, CompareAnalyticalAndNumericVec2Rot) {
 
   // Add vectors to be tested
   std::vector<Eigen::Matrix<double,3,1> > trueVecs;
@@ -201,42 +196,36 @@ TEST_CASE("Compare analytical and numeric vec2rot.", "[lgmath]" ) {
   }
 
   // Compare analytical and numeric result
-  SECTION("analytic vs numeric vec2rot" ) {
-    for (unsigned i = 0; i < numTests; i++) {
-      Eigen::Matrix<double,3,3> numericRot = lgmath::so3::vec2rot(trueVecs.at(i), 20);
-      INFO("ana: " << analyticRots.at(i));
-      INFO("num: " << numericRot);
-      CHECK(lgmath::common::nearEqual(analyticRots.at(i), numericRot, 1e-6));
-    }
+  for (unsigned i = 0; i < numTests; i++) {
+    Eigen::Matrix<double,3,3> numericRot = lgmath::so3::vec2rot(trueVecs.at(i), 20);
+    std::cout << "ana: " << analyticRots.at(i) << std::endl;
+    std::cout << "num: " << numericRot << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(analyticRots.at(i), numericRot, 1e-6));
   }
 
   // Test identity, rot^T = rot^-1
-  SECTION("analytic vs numeric vec2rot" ) {
-    for (unsigned i = 0; i < numTests; i++) {
-      Eigen::Matrix<double,3,3> lhs = analyticRots.at(i).transpose();
-      Eigen::Matrix<double,3,3> rhs = analyticRots.at(i).inverse();
-      INFO("lhs: " << lhs);
-      INFO("rhs: " << rhs);
-      CHECK(lgmath::common::nearEqual(lhs, rhs, 1e-6));
-    }
+  for (unsigned i = 0; i < numTests; i++) {
+    Eigen::Matrix<double,3,3> lhs = analyticRots.at(i).transpose();
+    Eigen::Matrix<double,3,3> rhs = analyticRots.at(i).inverse();
+    std::cout << "lhs: " << lhs << std::endl;
+    std::cout << "rhs: " << rhs << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(lhs, rhs, 1e-6));
   }
 
   // Test rot2vec
-  SECTION("rot2vec" ) {
-    for (unsigned i = 0; i < numTests; i++) {
-      Eigen::Matrix<double,3,1> testVec = lgmath::so3::rot2vec(analyticRots.at(i));
-      INFO("true: " << trueVecs.at(i));
-      INFO("func: " << testVec);
-      CHECK(lgmath::common::nearEqualAxisAngle(trueVecs.at(i), testVec, 1e-6));
-    }
+  for (unsigned i = 0; i < numTests; i++) {
+    Eigen::Matrix<double,3,1> testVec = lgmath::so3::rot2vec(analyticRots.at(i));
+    std::cout << "true: " << trueVecs.at(i) << std::endl;
+    std::cout << "func: " << testVec << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqualAxisAngle(trueVecs.at(i), testVec, 1e-6));
   }
 
-} // TEST_CASE
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief General test of exponential jacobians: vec2jac and vec2jacinv
 /////////////////////////////////////////////////////////////////////////////////////////////
-TEST_CASE("Compare analytical jacobians, inverses and numeric counterparts.", "[lgmath]" ) {
+TEST(LGMath, CompareAnalyticalJacobiansInversesAndNumericCounterparts) {
 
   // Add vectors to be tested
   std::vector<Eigen::Matrix<double,3,1> > trueVecs;
@@ -268,25 +257,25 @@ TEST_CASE("Compare analytical jacobians, inverses and numeric counterparts.", "[
 
   // Compare inversed analytical and analytical inverse
   for (unsigned i = 0; i < numTests; i++) {
-    INFO("ana: " << analyticJacs.at(i));
-    INFO("num: " << analyticJacInvs.at(i));
-    CHECK(lgmath::common::nearEqual(analyticJacs.at(i).inverse(), analyticJacInvs.at(i), 1e-6));
+    std::cout << "ana: " << analyticJacs.at(i) << std::endl;
+    std::cout << "num: " << analyticJacInvs.at(i) << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(analyticJacs.at(i).inverse(), analyticJacInvs.at(i), 1e-6));
   }
 
   // Compare analytical and 'numerical' jacobian
   for (unsigned i = 0; i < numTests; i++) {
     Eigen::Matrix<double,3,3> numericJac = lgmath::so3::vec2jac(trueVecs.at(i), 20);
-    INFO("ana: " << analyticJacs.at(i));
-    INFO("num: " << numericJac);
-    CHECK(lgmath::common::nearEqual(analyticJacs.at(i), numericJac, 1e-6));
+    std::cout << "ana: " << analyticJacs.at(i) << std::endl;
+    std::cout << "num: " << numericJac << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(analyticJacs.at(i), numericJac, 1e-6));
   }
 
   // Compare analytical and 'numerical' jacobian inverses
   for (unsigned i = 0; i < numTests; i++) {
     Eigen::Matrix<double,3,3> numericJac = lgmath::so3::vec2jacinv(trueVecs.at(i), 20);
-    INFO("ana: " << analyticJacInvs.at(i));
-    INFO("num: " << numericJac);
-    CHECK(lgmath::common::nearEqual(analyticJacInvs.at(i), numericJac, 1e-6));
+    std::cout << "ana: " << analyticJacInvs.at(i) << std::endl;
+    std::cout << "num: " << numericJac << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(analyticJacInvs.at(i), numericJac, 1e-6));
   }
 
   // Test identity, rot(v) = eye(3) + hat(v)*jac(v), through the 'alternate' vec2rot method
@@ -295,12 +284,14 @@ TEST_CASE("Compare analytical jacobians, inverses and numeric counterparts.", "[
     Eigen::Matrix<double,3,3> rhs, jac;
     // the following vec2rot call uses the identity: rot(v) = eye(3) + hat(v)*jac(v)
     lgmath::so3::vec2rot(trueVecs.at(i), &rhs, &jac);
-    INFO("lhs: " << lhs);
-    INFO("rhs: " << rhs);
-    CHECK(lgmath::common::nearEqual(lhs, rhs, 1e-6));
+    std::cout << "lhs: " << lhs << std::endl;
+    std::cout << "rhs: " << rhs << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(lhs, rhs, 1e-6));
   }
+}
 
-} // TEST_CASE
-
-
+int main(int argc, char** argv) {
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
 

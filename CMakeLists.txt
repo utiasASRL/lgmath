@@ -1,97 +1,78 @@
-################################################################################
-### Header
-################################################################################
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.16)
 project(lgmath)
 
-# build tool
-find_package(catkin_optional REQUIRED)
-co_build_type() # cache the build type
-
-################################################################################
-### Compiler Setup
-################################################################################
-
-# TODO: -std=c++11
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic -std=c++0x -O3 -march=native")
-
+# Compiler setup
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_compile_options(-march=native -O3 -Wall -Wno-long-long -pedantic)
 # x86 specific flags
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-avx")
+  add_compile_options(-mno-avx)
 endif()
 
-################################################################################
-### Configure Dependency Headers and Libraries
-################################################################################
+# Find dependencies
+find_package(ament_cmake REQUIRED)
+find_package(eigen3_cmake_module REQUIRED)
+find_package(Eigen3 REQUIRED)
 
-# Add the search path for FindPackage.cmake files
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+# Libraries
+file(GLOB_RECURSE SOURCE src/*.cpp)
+add_library(${PROJECT_NAME} ${SOURCE})
+ament_target_dependencies(${PROJECT_NAME} Eigen3)
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
 
-# find Eigen
-find_package(Eigen3 3.2.2 REQUIRED)
-message(STATUS "FOUND: Eigen3 version ${EIGEN3_VERSION} found in ${EIGEN3_INCLUDE_DIR}")
-include_directories(${EIGEN3_INCLUDE_DIR})
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+# May need the following
+# ament_export_dependencies(eigen3_cmake_module)
+# ament_export_dependencies(Eigen3)
 
-################################################################################
-### Enable find_package()
-################################################################################
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
 
-# export the package (for package config)
-co_export(
-  VERSION 0.1.0
-  INCLUDE_DIRS include
-  LIBRARIES lgmath
-  DEPENDS Eigen3)
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT export_${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+  INCLUDES DESTINATION include
+)
 
-################################################################################
-### Specify Build Targets
-################################################################################
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  # Unit-tests
+  ament_add_gtest(so3_tests test/SO3Tests.cpp)
+  target_link_libraries(so3_tests ${PROJECT_NAME})
+  ament_add_gtest(se3_tests test/SE3Tests.cpp)
+  target_link_libraries(se3_tests ${PROJECT_NAME})
+  ament_add_gtest(covariance_tests test/CovarianceTests.cpp)
+  target_link_libraries(covariance_tests ${PROJECT_NAME})
+  ament_add_gtest(rotation_tests test/RotationTests.cpp)
+  target_link_libraries(rotation_tests ${PROJECT_NAME})
+  ament_add_gtest(transform_tests test/TransformTests.cpp)
+  target_link_libraries(transform_tests ${PROJECT_NAME})
+  ament_add_gtest(transform_with_covariance_tests test/TransformWithCovarianceTests.cpp)
+  target_link_libraries(transform_with_covariance_tests ${PROJECT_NAME})
+  # Benchmarks (yuchen: temporarily disabled unless we have performance issue later on)
+  # ament_add_gtest(so3_benchmarks benchmark/SO3SpeedTest.cpp)
+  # target_link_libraries(so3_benchmarks ${PROJECT_NAME})
+  # ament_add_gtest(se3_benchmarks benchmark/SE3SpeedTest.cpp)
+  # target_link_libraries(se3_benchmarks ${PROJECT_NAME})
+  # ament_add_gtest(rotation_benchmarks benchmark/RotationSpeedTest.cpp)
+  # target_link_libraries(rotation_benchmarks ${PROJECT_NAME})
+  # ament_add_gtest(transform_benchmarks benchmark/TransformSpeedTest.cpp)
+  # target_link_libraries(transform_benchmarks ${PROJECT_NAME})
+  # ament_add_gtest(transform_with_covariance_benchmarks benchmark/TransformWithCovarianceSpeedTest.cpp)
+  # target_link_libraries(transform_with_covariance_benchmarks ${PROJECT_NAME})
 
-##### Main Library 
-
-# Find the header and source files
-file(GLOB_RECURSE HEADER_FILES "include/*.hpp")
-file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
-
-# build and link the library
-add_library(lgmath SHARED ${SOURCE_FILES} ${HEADER_FILES})
-target_link_libraries(lgmath ${EXTERNAL_LIBS})
-set_target_properties(lgmath PROPERTIES VERSION "${PROJECT_VERSION}" SOVERSION 1)
-
-################################################################################
-### Set install targets
-################################################################################
-
-# install the exported items
-co_install()
-
-################################################################################
-### Samples and Tests
-################################################################################
-
-# add 'Catch' test directory
-set(TESTS_ON TRUE CACHE BOOL "Build unit tests (uses Catch)")
-if(${TESTS_ON})
-  enable_testing(true)  # Enables cmake unit-testing.
-  add_subdirectory(tests)
+  # Linting
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies() # Lint based on linter test_depend in package.xml
 endif()
 
-# add benchmarks directory
-set(BENCHMARK_ON TRUE CACHE BOOL "Build benchmark executables")
-if(${BENCHMARK_ON})
-  add_subdirectory(benchmarks)
-endif()
-
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in
-    ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
-  add_custom_target(doc
-    ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Generating API documentation with Doxygen" VERBATIM)
-else(DOXYGEN_FOUND)
-  message("Doxygen not found.")
-  add_custom_target(doc
-    COMMENT "Doxygen was not found on this system so this target does not exist, please install it and re-run CMake." VERBATIM)
-endif(DOXYGEN_FOUND)
+ament_package()
