@@ -39,7 +39,7 @@ class TransformationWithCovariance: public Transformation
 {
  public:
   // Eigen::Matrix<double,6,6> is 16-byte vectorizable
-  // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Default constructor
@@ -143,19 +143,19 @@ class TransformationWithCovariance: public Transformation
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Copy assignment operator from basic Transform.
-  /// \description This assignment resets the covariance to the uninitialized state.  You must
-  ///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
-  ///              before querying it with the public method cov(), or an exception will be
-  ///              thrown.
+  /// \details This assignment resets the covariance to the uninitialized state.  You must
+  ///          manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
+  ///          before querying it with the public method cov(), or an exception will be
+  ///          thrown.
   //////////////////////////////////////////////////////////////////////////////////////////////
   virtual TransformationWithCovariance& operator=(const Transformation& T);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Move assignment operator from basic Transform.
-  /// \description This assignment resets the covariance to the uninitialized state.  You must
-  ///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
-  ///              before querying it with the public method cov(), or an exception will be
-  ///              thrown.
+  /// \details This assignment resets the covariance to the uninitialized state.  You must
+  ///          manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
+  ///          before querying it with the public method cov(), or an exception will be
+  ///          thrown.
   //////////////////////////////////////////////////////////////////////////////////////////////
   virtual TransformationWithCovariance& operator=(Transformation&& T);
 

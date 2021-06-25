@@ -43,7 +43,7 @@ class Transformation
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Copy constructor. Default implementation causes functional failure.
-  /// \todo (yuchen) Figure out why default does not work.  
+  /// \todo (yuchen) Figure out why default does not work.
   //////////////////////////////////////////////////////////////////////////////////////////////
   Transformation(const Transformation&);
 
@@ -80,7 +80,7 @@ class Transformation
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Copy assignment operator. Default implementation causes functional failure.
-  /// \todo (yuchen) Figure out why default does not work.  
+  /// \todo (yuchen) Figure out why default does not work.
   //////////////////////////////////////////////////////////////////////////////////////////////
   virtual Transformation& operator=(const Transformation&);
 
