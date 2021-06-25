@@ -11,7 +11,7 @@ add_compile_options(-march=native -O3 -Wall -pedantic)
 ## cmake flow (default)
 if (NOT USE_AMENT)
 
-set(PROJECT_VERSION 0.1.0)
+set(PROJECT_VERSION 1.1.0)
 
 find_package(Eigen3 REQUIRED)
 
