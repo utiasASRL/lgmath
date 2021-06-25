@@ -156,10 +156,10 @@ TransformationWithCovariance& TransformationWithCovariance::operator=(Transforma
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Copy assignment operator from basic Transform.
-/// \description This assignment resets the covariance to the uninitialized state.  You must
-///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
-///              before querying it with the public method cov(), or an exception will be
-///              thrown.
+/// \details This assignment resets the covariance to the uninitialized state.  You must
+///          manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
+///          before querying it with the public method cov(), or an exception will be
+///          thrown.
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance& TransformationWithCovariance::operator=(const Transformation& T) {
 
@@ -175,10 +175,10 @@ TransformationWithCovariance& TransformationWithCovariance::operator=(const Tran
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Move assignment operator from basic Transform.
-/// \description This assignment resets the covariance to the uninitialized state.  You must
-///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
-///              before querying it with the public method cov(), or an exception will be
-///              thrown.
+/// \details This assignment resets the covariance to the uninitialized state.  You must
+///          manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
+///          before querying it with the public method cov(), or an exception will be
+///          thrown.
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance& TransformationWithCovariance::operator=(Transformation&& T) {
 
