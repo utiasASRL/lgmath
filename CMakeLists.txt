@@ -39,7 +39,6 @@ install(
 )
 
 # Export
-set(PROJECT_INCLUDE_DIR "")
 set(PROJECT_LIBRARY ${PROJECT_NAME})
 
 include(CMakePackageConfigHelpers)
