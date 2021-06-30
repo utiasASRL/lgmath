@@ -13,7 +13,8 @@ if (NOT USE_AMENT)
 
 set(PROJECT_VERSION 1.1.0)
 
-find_package(Eigen3 REQUIRED)
+# Find dependencies
+find_package(Eigen3 3.3.7 REQUIRED)
 
 # Build library
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
@@ -31,40 +32,47 @@ install(
   DESTINATION include
 )
 
-install(TARGETS ${PROJECT_NAME}
+install(
+  TARGETS ${PROJECT_NAME}
   DESTINATION lib
-  EXPORT export_${PROJECT_NAME}
-)
-
-install(EXPORT export_${PROJECT_NAME}
-  FILE export_${PROJECT_NAME}.cmake
-  DESTINATION lib/cmake/${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}Targets
 )
 
 # Export
+set(PROJECT_INCLUDE_DIR "")
+set(PROJECT_LIBRARY ${PROJECT_NAME})
+
 include(CMakePackageConfigHelpers)
-# generate the config file that is includes the exports
-configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-  INSTALL_DESTINATION "lib/cmake/example"
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
   NO_SET_AND_CHECK_MACRO
   NO_CHECK_REQUIRED_COMPONENTS_MACRO
 )
-# generate the version file for the config file
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-  VERSION "${Tutorial_VERSION_MAJOR}.${Tutorial_VERSION_MINOR}"
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  VERSION ${PROJECT_VERSION}
   COMPATIBILITY AnyNewerVersion
 )
-# install the configuration file
-install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+# export to build directory so no need to install in order to use find_package
+export(
+  EXPORT ${PROJECT_NAME}Targets
+  FILE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake
+)
+
+# install export cmake files
+install(
+  EXPORT ${PROJECT_NAME}Targets
+  FILE ${PROJECT_NAME}Targets.cmake
   DESTINATION lib/cmake/${PROJECT_NAME}
 )
-# export to build directory as well so no need to install in order to use find_package
-export(EXPORT export_${PROJECT_NAME}
-  FILE "${CMAKE_CURRENT_BINARY_DIR}/export_${PROJECT_NAME}.cmake"
+
+install(
+  FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
 ## ROS2 ament_cmake flow
@@ -72,7 +80,7 @@ else()
 
 find_package(ament_cmake REQUIRED)
 find_package(eigen3_cmake_module REQUIRED)
-find_package(Eigen3 REQUIRED)
+find_package(Eigen3 3.3.7 REQUIRED)
 
 file(GLOB_RECURSE SOURCE src/*.cpp)
 add_library(${PROJECT_NAME} ${SOURCE})
@@ -100,7 +108,7 @@ ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
-  
+
   # Unit-tests
   ament_add_gtest(so3_tests tests/SO3Tests.cpp)
   target_link_libraries(so3_tests ${PROJECT_NAME})

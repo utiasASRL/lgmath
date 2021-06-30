@@ -13,11 +13,12 @@ It is used for robotics research at the Autonomous Space Robotics Lab; most nota
 
 ## Installation
 
-### Hardware and Software Requirements
+### Dependencies
 
 - Compiler with C++17 support
+- CMake (>=3.16)
 - Eigen (>=3.3.7)
-- CMake or ROS2(colcon+ament_cmake)
+- (Optional) ROS2 Foxy or later (colcon+ament_cmake)
 
 ### Install c++ compiler and cmake
 
@@ -27,25 +28,28 @@ sudo apt -q -y install build-essential cmake
 
 ### Install Eigen (>=3.3.7)
 
-Eigen can be installed using APT
-
 ```bash
+# using APT
 sudo apt -q -y install libeigen3-dev
+
+# OR from source
+WORKSPACE=~/workspace  # choose your own workspace directory
+mkdir -p ${WORKSPACE}/eigen && cd $_
+git clone https://gitlab.com/libeigen/eigen.git . && git checkout 3.3.7
+mkdir build && cd $_
+cmake .. && make install # default install location is /usr/local/
 ```
 
-If installed from source to a custom location then make sure `cmake` can find it.
+- Note: if installed from source to a custom location then make sure `cmake` can find it.
 
-### Build and install using `cmake`
-
-Clone this repo
+### Build and install lgmath using `cmake`
 
 ```bash
-git clone --recursive https://github.com/utiasASRL/lgmath.git .
-```
-
-Build and install
-
-```bash
+WORKSPACE=~/workspace  # choose your own workspace directory
+# clone
+mkdir -p ${WORKSPACE}/lgmath && cd $_
+git clone https://github.com/utiasASRL/lgmath.git .
+# build and install
 mkdir -p build && cd $_
 cmake ..
 cmake --build .
@@ -55,17 +59,15 @@ make doc  # (optional) generate documentation in ./doc
 
 Note: `lgmathConfig.cmake` will be generated in both `build/` and `<install prefix>/lib/cmake/lgmath/` to be included in other projects.
 
-### Build and install using `ROS2(colcon+ament_cmake)`
-
-Clone this repo
+### Build and install lgmath using `ROS2(colcon+ament_cmake)`
 
 ```bash
-git clone --recursive https://github.com/utiasASRL/lgmath.git .
-```
+WORKSPACE=~/workspace  # choose your own workspace directory
 
-Source your ROS2 workspace and then
+mkdir -p ${WORKSPACE}/lgmath && cd $_
+git clone https://github.com/utiasASRL/lgmath.git .
 
-```bash
+source <your ROS2 worspace>
 colcon build --symlink-install --cmake-args "-DUSE_AMENT=ON"
 colcon build --symlink-install --cmake-args "-DUSE_AMENT=ON" --cmake-target doc  # (optional) generate documentation in ./build/doc
 ```
