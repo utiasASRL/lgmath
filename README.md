@@ -11,6 +11,8 @@ There are no minimal, constraint-free, singularity-free representations for thes
 This library uses concepts and mathematics described in Timothy D. Barfoot's book [State Estimation for Robotics](asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser17.pdf).
 It is used for robotics research at the Autonomous Space Robotics Lab; most notably in the STEAM Engine, a library for Simultaneous Trajectory Estimation and Mapping.
 
+**Note**: This branch is for VTR3, and the `USE_AMENT` flag is `ON` by default.
+
 ## Installation
 
 ### Hardware and Software Requirements
