@@ -1,24 +1,21 @@
-<package>
-  <!--REQUIRED HEADER-->
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>lgmath</name>
-  <description>
-    Lie group math library.
-  </description>
-  <version>0.1.0</version>
-  <maintainer email="sean.anderson@mail.utoronto.ca">Sean Anderson</maintainer>
+  <version>1.1.0</version>
+  <description>Lie group math library.</description>
+  <maintainer email="yuchen.wu@robotics.utias.utoronto.ca">Yuchen Wu</maintainer>
   <license>BSD</license>
 
-  <!--BUILD TOOL DEPENDENCIES-->
-  <buildtool_depend>catkin</buildtool_depend>
-  <buildtool_depend>catkin_optional</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>eigen3_cmake_module</buildtool_depend>
 
-  <!--BUILD DEPENDENCIES-->
-  <build_depend>catch</build_depend>
-  <build_depend>Eigen3</build_depend>
+  <build_depend>eigen</build_depend>
 
-  <!--RUNTIME DEPENDENCIES-->
-  <!-- run_depend></run_depend -->
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
 
-  <!--TEST DEPENDENCIES-->
-  <!-- test_depend></test_depend -->
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

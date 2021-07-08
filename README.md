@@ -1,106 +1,75 @@
 # lgmath
+
 lgmath is a C++ library for handling geometry in state estimation problems in robotics.
 It is used to store, manipulate, and apply three-dimensional rotations and transformations and their associated uncertainties.
 
-There are no minimal, constraint-free, singularity-free representations for these quantities,
-  so lgmath exploits two different representations for the nominal and noisy parts of the uncertain random variable.
-- Nominal rotations and transformations are represented using their composable, singularity-free *matrix Lie groups*, *SO(3)* and *SE(3)*.
-- Their uncertainties are represented as multiplicative perturbations on the minimal, constraint-free vectorspaces of their *Lie algebras*, ***so****(3)* and ***se****(3)*.
+There are no minimal, constraint-free, singularity-free representations for these quantities, so lgmath exploits two different representations for the nominal and noisy parts of the uncertain random variable.
 
-This library uses concepts and mathematics described in Timothy D. Barfoot's upcoming book [State Estimation for Robotics](asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser15.pdf).
-It is used for robotics research at the Autonomous Space Robotics Lab;
-  most notably in the STEAM Engine, a library for Simultaneous Trajectory Estimation and Mapping.
+- Nominal rotations and transformations are represented using their composable, singularity-free _matrix Lie groups_, _SO(3)_ and _SE(3)_.
+- Their uncertainties are represented as multiplicative perturbations on the minimal, constraint-free vectorspaces of their _Lie algebras_, **\*so\*\***(3)\* and **\*se\*\***(3)\*.
 
-# Getting Started
-You will need:
-- A compiler with C++11 support
-- Eigen, at least 3.2.5
-- CMake (and optionally catkin) build systems
+This library uses concepts and mathematics described in Timothy D. Barfoot's book [State Estimation for Robotics](asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser17.pdf).
+It is used for robotics research at the Autonomous Space Robotics Lab; most notably in the STEAM Engine, a library for Simultaneous Trajectory Estimation and Mapping.
 
-## Dependencies
+## Installation
 
-### Eigen
-In a folder for 3rd party dependencies,
+### Dependencies
+
+- Compiler with C++17 support
+- CMake (>=3.16)
+- Eigen (>=3.3.7)
+- (Optional) ROS2 Foxy or later (colcon+ament_cmake)
+
+### Install c++ compiler and cmake
+
 ```bash
-wget http://bitbucket.org/eigen/eigen/get/3.2.5.tar.gz
-tar zxvf 3.2.5.tar.gz
-cd eigen-eigen-bdd17ee3b1b3/
-mkdir build && cd build
+sudo apt -q -y install build-essential cmake
+```
+
+### Install Eigen (>=3.3.7)
+
+```bash
+# using APT
+sudo apt -q -y install libeigen3-dev
+
+# OR from source
+WORKSPACE=~/workspace  # choose your own workspace directory
+mkdir -p ${WORKSPACE}/eigen && cd $_
+git clone https://gitlab.com/libeigen/eigen.git . && git checkout 3.3.7
+mkdir build && cd $_
+cmake .. && make install # default install location is /usr/local/
+```
+
+- Note: if installed from source to a custom location then make sure `cmake` can find it.
+
+### Build and install lgmath using `cmake`
+
+```bash
+WORKSPACE=~/workspace  # choose your own workspace directory
+# clone
+mkdir -p ${WORKSPACE}/lgmath && cd $_
+git clone https://github.com/utiasASRL/lgmath.git .
+# build and install
+mkdir -p build && cd $_
 cmake ..
-sudo make install
+cmake --build .
+cmake --install . # (optional) install, default location is /usr/local/
+make doc  # (optional) generate documentation in ./doc
 ```
 
-## Build
-In your development folder
+Note: `lgmathConfig.cmake` will be generated in both `build/` and `<install prefix>/lib/cmake/lgmath/` to be included in other projects.
+
+### Build and install lgmath using `ROS2(colcon+ament_cmake)`
+
 ```bash
-mkdir lgmath-ws && cd $_
-git clone --recursive https://github.com/utiasASRL/lgmath.git
+WORKSPACE=~/workspace  # choose your own workspace directory
+
+mkdir -p ${WORKSPACE}/lgmath && cd $_
+git clone https://github.com/utiasASRL/lgmath.git .
+
+source <your ROS2 worspace>
+colcon build --symlink-install --cmake-args "-DUSE_AMENT=ON"
+colcon build --symlink-install --cmake-args "-DUSE_AMENT=ON" --cmake-target doc  # (optional) generate documentation in ./build/doc
 ```
 
-Using [catkin](https://github.com/ros/catkin)
-and [catkin tools](https://github.com/catkin/catkin_tools) (recommended)
-```bash
-cd deps/catkin && catkin build
-cd ../.. && catkin build
-```
-
-Using CMake (manual)
-```bash
-cd .. && mkdir -p build/catkin_optional && cd $_
-cmake ../../lgmath/deps/catkin/catkin_optional && make
-cd ../.. && mkdir -p build/catch && cd $_
-cmake ../../lgmath/deps/catkin/catch && make cd ../.. && mkdir -p build/lgmath && cd $_
-cmake ../../lgmath && make -j4
-```
-
-## Install (optional)
-
-Since the catkin build produces a catkin workspace you can overlay, and the CMake build exports
-packageConfig.cmake files, it is unnecessary to install lgmath except in production environments. If
-you are really sure you need to install, you can use the following procedure.
-
-Using catkin tools (recommended) 
-```bash 
-cd lgmath 
-catkin profile add --copy-active install 
-catkin profile set install 
-catkin config --install 
-catkin build
-```
-
-Using CMake (manual)
-```bash 
-cd build/lgmath 
-sudo make install
-```
-
-## Uninstall (Optional)
-
-If you have installed, and would like to uninstall,
-
-Using catkin tools (recommended) 
-```bash 
-cd lgmath && catkin clean -i
-```
-
-Using CMake (manual)
-```bash
-cd build/lgmath && sudo make uninstall
-```
-
-## Generating Documentation
-
-Using catkin tool (recommended)
-In your catkin workspace
-```bash
-catkin build --make-arg doc
-```
-
-
-Using CMake (manual)
-In your build folder
-```bash
-make doc
-```
-
-The documentation will be found in the `doc` subdirectory of the build folder.
+## [License](./LICENSE)

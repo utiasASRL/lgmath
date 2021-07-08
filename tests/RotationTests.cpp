@@ -1,24 +1,25 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 /// \file RotationTests.cpp
 /// \brief Unit tests for the implementation of the rotation matrix class.
-/// \details Unit tests for the various Lie Group functions will test both special cases,
+/// \details Unit tests for the various Lie Group functions will test both
+/// special cases,
 ///          and randomly generated cases.
 ///
 /// \author Sean Anderson
 //////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <gtest/gtest.h>
+
 #include <math.h>
-#include <iostream>
 #include <iomanip>
 #include <ios>
+#include <iostream>
 
 #include <Eigen/Dense>
 #include <lgmath/CommonMath.hpp>
 
 #include <lgmath/so3/Operations.hpp>
 #include <lgmath/so3/Rotation.hpp>
-
-#include "catch.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 ///
@@ -29,132 +30,144 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief General test of rotation constructors
 /////////////////////////////////////////////////////////////////////////////////////////////
-TEST_CASE("Rotation Constructors.", "[lgmath]" ) {
-
+TEST(LGMath, RotationConstructors) {
   // Generate random transform from most basic constructor
   Eigen::Matrix3d C_ba_rand = lgmath::so3::vec2rot(Eigen::Vector3d::Random());
   lgmath::so3::Rotation rand(C_ba_rand);
 
   // Rotation();
-  SECTION("default" ) {
+  {
     lgmath::so3::Rotation cmatrix;
     Eigen::Matrix3d test = Eigen::Matrix3d::Identity();
-    INFO("cmat: " << cmatrix.matrix());
-    INFO("test: " << test);
-    CHECK(lgmath::common::nearEqual(cmatrix.matrix(), test, 1e-6));
+    std::cout << "cmat: " << cmatrix.matrix() << std::endl;
+    std::cout << "test: " << test << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(cmatrix.matrix(), test, 1e-6));
   }
 
   // Rotation(const Rotation& C);
-  SECTION("copy constructor" ) {
+  {
     lgmath::so3::Rotation test(rand);
-    INFO("cmat: " << rand.matrix());
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
+    std::cout << "cmat: " << rand.matrix() << std::endl;
+    std::cout << "test: " << test.matrix() << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
   }
 
   // Rotation(const Eigen::Matrix3d& C);
-  SECTION("matrix constructor" ) {
+  {
     lgmath::so3::Rotation test = rand;
-    INFO("cmat: " << rand.matrix());
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
+    std::cout << "cmat: " << rand.matrix() << std::endl;
+    std::cout << "test: " << test.matrix() << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
 
     // Test forced reprojection (ones to identity)
     Eigen::Matrix3d notRotation = Eigen::Matrix3d::Ones();
-    lgmath::so3::Rotation test_bad(notRotation); // forces reprojection
-    INFO("cmat: " << test_bad.matrix());
-    INFO("test: " << Eigen::Matrix3d::Identity());
-    CHECK(lgmath::common::nearEqual(test_bad.matrix(), Eigen::Matrix3d::Identity(), 1e-6));
+    lgmath::so3::Rotation test_bad(notRotation);  // forces reprojection
+    std::cout << "cmat: " << test_bad.matrix() << std::endl;
+    std::cout << "test: " << Eigen::Matrix3d::Identity() << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(test_bad.matrix(),
+                                          Eigen::Matrix3d::Identity(), 1e-6));
   }
 
   // Rotation& operator=(Rotation C);
-  SECTION("assignment operator" ) {
-
+  {
     lgmath::so3::Rotation test(C_ba_rand);
-    INFO("cmat: " << rand.matrix());
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
+    std::cout << "cmat: " << rand.matrix() << std::endl;
+    std::cout << "test: " << test.matrix() << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
   }
 
   // Rotation(const Eigen::Vector3d& vec, unsigned int numTerms = 0);
-  SECTION("exponential map" ) {
+  {
     Eigen::Vector3d vec = Eigen::Vector3d::Random();
     Eigen::Matrix3d cmat = lgmath::so3::vec2rot(vec);
     lgmath::so3::Rotation testAnalytical(vec);
-    lgmath::so3::Rotation testNumerical(vec,15);
-    INFO("cmat: " << cmat);
-    INFO("testAnalytical: " << testAnalytical.matrix());
-    INFO("testNumerical: " << testNumerical.matrix());
-    CHECK(lgmath::common::nearEqual(cmat, testAnalytical.matrix(), 1e-6));
-    CHECK(lgmath::common::nearEqual(cmat, testNumerical.matrix(), 1e-6));
+    lgmath::so3::Rotation testNumerical(vec, 15);
+    std::cout << "cmat: " << cmat << std::endl;
+    std::cout << "testAnalytical: " << testAnalytical.matrix() << std::endl;
+    std::cout << "testNumerical: " << testNumerical.matrix() << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(cmat, testAnalytical.matrix(), 1e-6));
+    EXPECT_TRUE(lgmath::common::nearEqual(cmat, testNumerical.matrix(), 1e-6));
   }
 
   // Rotation(const Eigen::VectorXd& vec);
-  SECTION("exponential map with VectorXd" ) {
+  {
     Eigen::VectorXd vec = Eigen::Vector3d::Random();
     Eigen::Matrix3d tmat = lgmath::so3::vec2rot(vec);
     lgmath::so3::Rotation test(vec);
-    INFO("tmat: " << tmat);
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(tmat, test.matrix(), 1e-6));
+    std::cout << "tmat: " << tmat << std::endl;
+    std::cout << "test: " << test.matrix() << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(tmat, test.matrix(), 1e-6));
   }
 
   // Rotation(const Eigen::VectorXd& vec);
-  SECTION("exponential map with bad VectorXd" ) {
+  {
     Eigen::VectorXd vec = Eigen::Vector3d::Random();
     lgmath::so3::Rotation test(vec);
 
-    Eigen::VectorXd badvec = Eigen::Matrix<double,6,1>::Random();
+    Eigen::VectorXd badvec = Eigen::Matrix<double, 6, 1>::Random();
     lgmath::so3::Rotation testFailure;
     try {
       testFailure = lgmath::so3::Rotation(badvec);
     } catch (const std::invalid_argument& e) {
       testFailure = test;
     }
-    INFO("tmat: " << testFailure.matrix());
-    INFO("test: " << test.matrix());
-    CHECK(lgmath::common::nearEqual(testFailure.matrix(), test.matrix(), 1e-6));
+    std::cout << "tmat: " << testFailure.matrix() << std::endl;
+    std::cout << "test: " << test.matrix() << std::endl;
+    EXPECT_TRUE(
+        lgmath::common::nearEqual(testFailure.matrix(), test.matrix(), 1e-6));
   }
 
   // Rotation(Rotation&&);
-  SECTION("move constructor" ) {
+  {
+    auto rand2 = rand;  // std::move may invalidate the original variable.
     lgmath::so3::Rotation test(std::move(rand));
+    rand = rand2;
 
-    INFO("tmat: " << test.matrix());
-    INFO("test: " << rand.matrix());
-    CHECK(lgmath::common::nearEqual(test.matrix(),rand.matrix(), 1e-6));
+    std::cout << "tmat: " << test.matrix() << std::endl;
+    std::cout << "test: " << rand2.matrix() << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(test.matrix(), rand2.matrix(), 1e-6));
   }
 
   // Rotation = Rotation&&;
-  SECTION("move assignment" ) {
+  {
     lgmath::so3::Rotation test;
+    auto rand2 = rand;  // std::move may invalidate the original variable.
     test = std::move(rand);
+    rand = rand2;
 
-    INFO("tmat: " << test.matrix());
-    INFO("test: " << rand.matrix());
-    CHECK(lgmath::common::nearEqual(test.matrix(),rand.matrix(), 1e-6));
+    std::cout << "tmat: " << test.matrix() << std::endl;
+    std::cout << "test: " << rand2.matrix() << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(test.matrix(), rand2.matrix(), 1e-6));
   }
-
-} // TEST_CASE
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Test exponential map construction and logarithmic vec() method
 /////////////////////////////////////////////////////////////////////////////////////////////
-TEST_CASE("Test Rotation to/from SE(3) algebra.", "[lgmath]" ) {
-
+TEST(LGMath, RotationToFromSE3Algebra) {
   // Add vectors to be tested
   std::vector<Eigen::Vector3d> trueVecs;
   Eigen::Vector3d temp;
-  temp << 0.0, 0.0, 0.0; trueVecs.push_back(temp);
-  temp << lgmath::constants::PI, 0.0, 0.0; trueVecs.push_back(temp);
-  temp << 0.0, lgmath::constants::PI, 0.0; trueVecs.push_back(temp);
-  temp << 0.0, 0.0, lgmath::constants::PI; trueVecs.push_back(temp);
-  temp << -lgmath::constants::PI, 0.0, 0.0; trueVecs.push_back(temp);
-  temp << 0.0, -lgmath::constants::PI, 0.0; trueVecs.push_back(temp);
-  temp << 0.0, 0.0, -lgmath::constants::PI; trueVecs.push_back(temp);
-  temp << 0.5*lgmath::constants::PI, 0.0, 0.0; trueVecs.push_back(temp);
-  temp << 0.0, 0.5*lgmath::constants::PI, 0.0; trueVecs.push_back(temp);
-  temp << 0.0, 0.0, 0.5*lgmath::constants::PI; trueVecs.push_back(temp);
+  temp << 0.0, 0.0, 0.0;
+  trueVecs.push_back(temp);
+  temp << lgmath::constants::PI, 0.0, 0.0;
+  trueVecs.push_back(temp);
+  temp << 0.0, lgmath::constants::PI, 0.0;
+  trueVecs.push_back(temp);
+  temp << 0.0, 0.0, lgmath::constants::PI;
+  trueVecs.push_back(temp);
+  temp << -lgmath::constants::PI, 0.0, 0.0;
+  trueVecs.push_back(temp);
+  temp << 0.0, -lgmath::constants::PI, 0.0;
+  trueVecs.push_back(temp);
+  temp << 0.0, 0.0, -lgmath::constants::PI;
+  trueVecs.push_back(temp);
+  temp << 0.5 * lgmath::constants::PI, 0.0, 0.0;
+  trueVecs.push_back(temp);
+  temp << 0.0, 0.5 * lgmath::constants::PI, 0.0;
+  trueVecs.push_back(temp);
+  temp << 0.0, 0.0, 0.5 * lgmath::constants::PI;
+  trueVecs.push_back(temp);
   const unsigned numRand = 20;
   for (unsigned i = 0; i < numRand; i++) {
     trueVecs.push_back(Eigen::Vector3d::Random());
@@ -164,56 +177,67 @@ TEST_CASE("Test Rotation to/from SE(3) algebra.", "[lgmath]" ) {
   const unsigned numTests = trueVecs.size();
 
   // Calc rotation matrices
-  std::vector<Eigen::Matrix3d > rotMatrices;
+  std::vector<Eigen::Matrix3d> rotMatrices;
   for (unsigned i = 0; i < numTests; i++) {
     rotMatrices.push_back(lgmath::so3::vec2rot(trueVecs.at(i)));
   }
 
   // Calc rotations
-  std::vector<lgmath::so3::Rotation > rotations;
+  std::vector<lgmath::so3::Rotation> rotations;
   for (unsigned i = 0; i < numTests; i++) {
     rotations.push_back(lgmath::so3::Rotation(trueVecs.at(i)));
   }
 
   // Compare matrices
-  SECTION("vec2rot") {
+  {
     for (unsigned i = 0; i < numTests; i++) {
-      INFO("matr: " << rotMatrices.at(i));
-      INFO("tran: " << rotations.at(i).matrix());
-      CHECK(lgmath::common::nearEqual(rotMatrices.at(i), rotations.at(i).matrix(), 1e-6));
+      std::cout << "matr: " << rotMatrices.at(i) << std::endl;
+      std::cout << "tran: " << rotations.at(i).matrix() << std::endl;
+      EXPECT_TRUE(lgmath::common::nearEqual(rotMatrices.at(i),
+                                            rotations.at(i).matrix(), 1e-6));
     }
   }
 
   // Test logarithmic map
-  SECTION("rot2vec") {
+  {
     for (unsigned i = 0; i < numTests; i++) {
       Eigen::Vector3d testVec = rotations.at(i).vec();
-      INFO("true: " << trueVecs.at(i));
-      INFO("func: " << testVec);
-      CHECK(lgmath::common::nearEqualAxisAngle(trueVecs.at(i), testVec, 1e-6));
+      std::cout << "true: " << trueVecs.at(i) << std::endl;
+      std::cout << "func: " << testVec << std::endl;
+      EXPECT_TRUE(
+          lgmath::common::nearEqualAxisAngle(trueVecs.at(i), testVec, 1e-6));
     }
   }
 
-} // TEST_CASE
+}  // TEST
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Test inverse and operatations
 /////////////////////////////////////////////////////////////////////////////////////////////
-TEST_CASE("Test Rotation inverse.", "[lgmath]" ) {
-
+TEST(LGMath, RotationInverse) {
   // Add vectors to be tested
-  std::vector<Eigen::Vector3d > trueVecs;
+  std::vector<Eigen::Vector3d> trueVecs;
   Eigen::Vector3d temp;
-  temp << 0.0, 0.0, 0.0; trueVecs.push_back(temp);
-  temp << lgmath::constants::PI, 0.0, 0.0; trueVecs.push_back(temp);
-  temp << 0.0, lgmath::constants::PI, 0.0; trueVecs.push_back(temp);
-  temp << 0.0, 0.0, lgmath::constants::PI; trueVecs.push_back(temp);
-  temp << -lgmath::constants::PI, 0.0, 0.0; trueVecs.push_back(temp);
-  temp << 0.0, -lgmath::constants::PI, 0.0; trueVecs.push_back(temp);
-  temp << 0.0, 0.0, -lgmath::constants::PI; trueVecs.push_back(temp);
-  temp << 0.5*lgmath::constants::PI, 0.0, 0.0; trueVecs.push_back(temp);
-  temp << 0.0, 0.5*lgmath::constants::PI, 0.0; trueVecs.push_back(temp);
-  temp << 0.0, 0.0, 0.5*lgmath::constants::PI; trueVecs.push_back(temp);
+  temp << 0.0, 0.0, 0.0;
+  trueVecs.push_back(temp);
+  temp << lgmath::constants::PI, 0.0, 0.0;
+  trueVecs.push_back(temp);
+  temp << 0.0, lgmath::constants::PI, 0.0;
+  trueVecs.push_back(temp);
+  temp << 0.0, 0.0, lgmath::constants::PI;
+  trueVecs.push_back(temp);
+  temp << -lgmath::constants::PI, 0.0, 0.0;
+  trueVecs.push_back(temp);
+  temp << 0.0, -lgmath::constants::PI, 0.0;
+  trueVecs.push_back(temp);
+  temp << 0.0, 0.0, -lgmath::constants::PI;
+  trueVecs.push_back(temp);
+  temp << 0.5 * lgmath::constants::PI, 0.0, 0.0;
+  trueVecs.push_back(temp);
+  temp << 0.0, 0.5 * lgmath::constants::PI, 0.0;
+  trueVecs.push_back(temp);
+  temp << 0.0, 0.0, 0.5 * lgmath::constants::PI;
+  trueVecs.push_back(temp);
   const unsigned numRand = 20;
   for (unsigned i = 0; i < numRand; i++) {
     trueVecs.push_back(Eigen::Vector3d::Random());
@@ -223,97 +247,108 @@ TEST_CASE("Test Rotation inverse.", "[lgmath]" ) {
   const unsigned numTests = trueVecs.size();
 
   // Add vectors to be tested - random
-  std::vector<Eigen::Vector3d > landmarks;
+  std::vector<Eigen::Vector3d> landmarks;
   for (unsigned i = 0; i < numTests; i++) {
     landmarks.push_back(Eigen::Vector3d::Random());
   }
 
   // Calc rotation matrices
-  std::vector<Eigen::Matrix3d > rotMatrices;
+  std::vector<Eigen::Matrix3d> rotMatrices;
   for (unsigned i = 0; i < numTests; i++) {
     rotMatrices.push_back(lgmath::so3::vec2rot(trueVecs.at(i)));
   }
 
   // Calc rotations
-  std::vector<lgmath::so3::Rotation > rotations;
+  std::vector<lgmath::so3::Rotation> rotations;
   for (unsigned i = 0; i < numTests; i++) {
     rotations.push_back(lgmath::so3::Rotation(trueVecs.at(i)));
   }
 
   // Compare inverse to basic matrix inverse
-  SECTION("compare inverse") {
+  {
     for (unsigned i = 0; i < numTests; i++) {
-      INFO("matr: " << rotMatrices.at(i).inverse());
-      INFO("tran: " << rotations.at(i).inverse().matrix());
-      CHECK(lgmath::common::nearEqual(rotMatrices.at(i).inverse(), rotations.at(i).inverse().matrix(), 1e-6));
+      std::cout << "matr: " << rotMatrices.at(i).inverse() << std::endl;
+      std::cout << "tran: " << rotations.at(i).inverse().matrix() << std::endl;
+      EXPECT_TRUE(lgmath::common::nearEqual(rotMatrices.at(i).inverse(),
+                                            rotations.at(i).inverse().matrix(),
+                                            1e-6));
     }
   }
 
   // Test that product of inverse and self make identity
-  SECTION("test product of inverse") {
+  {
     for (unsigned i = 0; i < numTests; i++) {
-      INFO("C*Cinv: " << rotations.at(i).matrix()*rotations.at(i).inverse().matrix());
-      CHECK(lgmath::common::nearEqual(rotations.at(i).matrix()*rotations.at(i).inverse().matrix(), Eigen::Matrix3d::Identity(), 1e-6));
+      std::cout << "C*Cinv: "
+                << rotations.at(i).matrix() * rotations.at(i).inverse().matrix()
+                << std::endl;
+      EXPECT_TRUE(lgmath::common::nearEqual(
+          rotations.at(i).matrix() * rotations.at(i).inverse().matrix(),
+          Eigen::Matrix3d::Identity(), 1e-6));
     }
   }
 
   // Test self-product
-  SECTION("test self product") {
-    for (unsigned i = 0; i < numTests-1; i++) {
+  {
+    for (unsigned i = 0; i < numTests - 1; i++) {
       lgmath::so3::Rotation test = rotations.at(i);
-      test *= rotations.at(i+1);
-      Eigen::Matrix3d matrix = rotMatrices.at(i)*rotMatrices.at(i+1);
-      INFO("matr: " << matrix);
-      INFO("tran: " << test.matrix());
-      CHECK(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
+      test *= rotations.at(i + 1);
+      Eigen::Matrix3d matrix = rotMatrices.at(i) * rotMatrices.at(i + 1);
+      std::cout << "matr: " << matrix << std::endl;
+      std::cout << "tran: " << test.matrix() << std::endl;
+      EXPECT_TRUE(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
     }
   }
 
   // Test product
-  SECTION("test product") {
-    for (unsigned i = 0; i < numTests-1; i++) {
-      lgmath::so3::Rotation test = rotations.at(i)*rotations.at(i+1);
-      Eigen::Matrix3d matrix = rotMatrices.at(i)*rotMatrices.at(i+1);
-      INFO("matr: " << matrix);
-      INFO("tran: " << test.matrix());
-      CHECK(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
+  {
+    for (unsigned i = 0; i < numTests - 1; i++) {
+      lgmath::so3::Rotation test = rotations.at(i) * rotations.at(i + 1);
+      Eigen::Matrix3d matrix = rotMatrices.at(i) * rotMatrices.at(i + 1);
+      std::cout << "matr: " << matrix << std::endl;
+      std::cout << "tran: " << test.matrix() << std::endl;
+      EXPECT_TRUE(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
     }
   }
 
   // Test self product with inverse
-  SECTION("test self product with inverse") {
-    for (unsigned i = 0; i < numTests-1; i++) {
+  {
+    for (unsigned i = 0; i < numTests - 1; i++) {
       lgmath::so3::Rotation test = rotations.at(i);
-      test /= rotations.at(i+1);
-      Eigen::Matrix3d matrix = rotMatrices.at(i) * rotMatrices.at(i+1).inverse();
-      INFO("matr: " << matrix);
-      INFO("tran: " << test.matrix());
-      CHECK(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
+      test /= rotations.at(i + 1);
+      Eigen::Matrix3d matrix =
+          rotMatrices.at(i) * rotMatrices.at(i + 1).inverse();
+      std::cout << "matr: " << matrix << std::endl;
+      std::cout << "tran: " << test.matrix() << std::endl;
+      EXPECT_TRUE(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
     }
   }
 
   // Test product with inverse
-  SECTION("test product with inverse") {
-    for (unsigned i = 0; i < numTests-1; i++) {
-      lgmath::so3::Rotation test = rotations.at(i) / rotations.at(i+1);
-      Eigen::Matrix3d matrix = rotMatrices.at(i) * rotMatrices.at(i+1).inverse();
-      INFO("matr: " << matrix);
-      INFO("tran: " << test.matrix());
-      CHECK(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
+  {
+    for (unsigned i = 0; i < numTests - 1; i++) {
+      lgmath::so3::Rotation test = rotations.at(i) / rotations.at(i + 1);
+      Eigen::Matrix3d matrix =
+          rotMatrices.at(i) * rotMatrices.at(i + 1).inverse();
+      std::cout << "matr: " << matrix << std::endl;
+      std::cout << "tran: " << test.matrix() << std::endl;
+      EXPECT_TRUE(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
     }
   }
 
   // Test product with landmark
-  SECTION("test product with landmark") {
+  {
     for (unsigned i = 0; i < numTests; i++) {
-      Eigen::Vector3d mat = rotMatrices.at(i)*landmarks.at(i);
-      Eigen::Vector3d test = rotations.at(i)*landmarks.at(i);
+      Eigen::Vector3d mat = rotMatrices.at(i) * landmarks.at(i);
+      Eigen::Vector3d test = rotations.at(i) * landmarks.at(i);
 
-      INFO("matr: " << mat);
-      INFO("test: " << test);
-      CHECK(lgmath::common::nearEqual(mat, test, 1e-6));
+      std::cout << "matr: " << mat << std::endl;
+      std::cout << "test: " << test << std::endl;
+      EXPECT_TRUE(lgmath::common::nearEqual(mat, test, 1e-6));
     }
   }
+}
 
-} // TEST_CASE
-
+int main(int argc, char** argv) {
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

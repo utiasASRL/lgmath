@@ -47,9 +47,11 @@ class TransformationWithCovariance: public Transformation
   TransformationWithCovariance(bool initCovarianceToZero = false);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Copy constructor. Default implementation.
+  /// \brief Copy constructor. Default implementation causes functional failure.
+  /// \todo (yuchen) Figure out why default does not work.
   //////////////////////////////////////////////////////////////////////////////////////////////
-  TransformationWithCovariance(const TransformationWithCovariance&) = default;
+  // TransformationWithCovariance(const TransformationWithCovariance&) = default;
+  TransformationWithCovariance(const TransformationWithCovariance&);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Move constructor. Manually implemented as Eigen doesn't support moving.
@@ -128,9 +130,11 @@ class TransformationWithCovariance: public Transformation
   ~TransformationWithCovariance() = default;
 
   //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Copy assignment operator. Default implementation.
+  /// \brief Copy assignment operator. Default implementation causes functional failure
+  /// \todo (yuchen) Figure out why default does not work.
   //////////////////////////////////////////////////////////////////////////////////////////////
-  TransformationWithCovariance& operator=(const TransformationWithCovariance&) = default;
+  // TransformationWithCovariance& operator=(const TransformationWithCovariance&) = default;
+  TransformationWithCovariance& operator=(const TransformationWithCovariance&);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Move assignment operator. Manually implemented as Eigen doesn't support moving.
@@ -139,19 +143,19 @@ class TransformationWithCovariance: public Transformation
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Copy assignment operator from basic Transform.
-  /// \description This assignment resets the covariance to the uninitialized state.  You must
-  ///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
-  ///              before querying it with the public method cov(), or an exception will be
-  ///              thrown.
+  /// \details This assignment resets the covariance to the uninitialized state.  You must
+  ///          manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
+  ///          before querying it with the public method cov(), or an exception will be
+  ///          thrown.
   //////////////////////////////////////////////////////////////////////////////////////////////
   virtual TransformationWithCovariance& operator=(const Transformation& T);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
   /// \brief Move assignment operator from basic Transform.
-  /// \description This assignment resets the covariance to the uninitialized state.  You must
-  ///              manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
-  ///              before querying it with the public method cov(), or an exception will be
-  ///              thrown.
+  /// \details This assignment resets the covariance to the uninitialized state.  You must
+  ///          manually call setZeroCovariance() or setCovariance(const Eigen::Matrix6d&)
+  ///          before querying it with the public method cov(), or an exception will be
+  ///          thrown.
   //////////////////////////////////////////////////////////////////////////////////////////////
   virtual TransformationWithCovariance& operator=(Transformation&& T);
 
