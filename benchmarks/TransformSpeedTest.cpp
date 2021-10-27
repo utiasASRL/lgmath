@@ -6,7 +6,7 @@
 
 TEST(LGMath, TransformBenchmark) {
   // Init variables
-  double margin = 1.1;
+  double margin = 2.0;  // 100% increase
   unsigned int N = 1000000;
   unsigned int L = 1000;
   unsigned int M = 10000;

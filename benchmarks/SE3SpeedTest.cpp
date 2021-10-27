@@ -5,7 +5,7 @@
 
 TEST(LGMath, SE3Benchmark) {
   // Init variables
-  double margin = 1.1;  // 10% increase
+  double margin = 2.0;  // 100% increase
   unsigned int N = 1000000;
   lgmath::common::Timer timer;
   double time1;

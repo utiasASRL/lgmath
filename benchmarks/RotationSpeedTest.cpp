@@ -5,7 +5,7 @@
 
 TEST(LGMath, RotationBenchmark) {
   // Init variables
-  double margin = 1.1;  // 10% increase
+  double margin = 2.0;  // 100% increase
   unsigned int N = 1000000;
   unsigned int L = 1000;
   unsigned int M = 10000;
