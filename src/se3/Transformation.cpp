@@ -26,23 +26,7 @@ Transformation::Transformation() :
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Copy constructor. Default implementation causes functional failure.
-/// \todo (yuchen) Figure out why default does not work.
-//////////////////////////////////////////////////////////////////////////////////////////////
-Transformation::Transformation(const Transformation& T) :
-  C_ba_(T.C_ba_), r_ab_inb_(T.r_ab_inb_){
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Move constructor
-//////////////////////////////////////////////////////////////////////////////////////////////
-Transformation::Transformation(Transformation&& T) :
-  C_ba_(std::move(T.C_ba_)), r_ab_inb_(std::move(T.r_ab_inb_)){
-  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Constructor
+/// \brief Copy constructor (from Eigen)
 //////////////////////////////////////////////////////////////////////////////////////////////
 Transformation::Transformation(const Eigen::Matrix4d& T) :
     C_ba_(T.block<3,3>(0,0)), r_ab_inb_(T.block<3,1>(0,3)) {
@@ -78,29 +62,6 @@ Transformation::Transformation(const Eigen::VectorXd& xi_ab) {
 
   // Construct using exponential map
   lgmath::se3::vec2tran(xi_ab, &C_ba_, &r_ab_inb_, 0);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Copy assignment operator. Default implementation causes functional failure.
-/// \todo (yuchen) Figure out why default does not work.
-//////////////////////////////////////////////////////////////////////////////////////////////
-Transformation& Transformation::operator=(const Transformation& T) {
-
-  this->C_ba_ = T.C_ba_;
-  this->r_ab_inb_ = T.r_ab_inb_;
-
-  return (*this);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Move assignment operator. Manually implemented as Eigen doesn't support moving.
-//////////////////////////////////////////////////////////////////////////////////////////////
-Transformation& Transformation::operator=(Transformation&& T) {
-  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
-  this->C_ba_ = std::move(T.C_ba_);
-  this->r_ab_inb_ = std::move(T.r_ab_inb_);
-
-  return (*this);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
