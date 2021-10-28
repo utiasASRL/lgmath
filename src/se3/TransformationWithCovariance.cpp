@@ -27,22 +27,6 @@ TransformationWithCovariance::TransformationWithCovariance(bool initCovarianceTo
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Copy constructor. Default implementation causes functional failure.
-/// \todo (yuchen) Figure out why default does not work.
-//////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(const TransformationWithCovariance& T) :
-  Transformation(T), covariance_(T.covariance_), covarianceSet_(T.covarianceSet_) {
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Move constructor. Manually implemented as Eigen doesn't support moving.
-//////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance::TransformationWithCovariance(TransformationWithCovariance&& T) :
-    Transformation(T), covariance_(std::move(T.covariance_)), covarianceSet_(std::move(T.covarianceSet_)) {
-  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Copy constructor from deterministic Transformation
 //////////////////////////////////////////////////////////////////////////////////////////////
 TransformationWithCovariance::TransformationWithCovariance(const Transformation& T, bool initCovarianceToZero) :
@@ -124,34 +108,6 @@ TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd
 TransformationWithCovariance::TransformationWithCovariance(const Eigen::VectorXd& xi_ab,
                                                            const Eigen::Matrix<double,6,6>& covariance) :
   Transformation(xi_ab), covariance_(covariance), covarianceSet_(true) {
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Copy assignment operator. Default implementation causes functional failure
-/// \todo (yuchen) Figure out why default does not work.
-//////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance& TransformationWithCovariance::operator=(const TransformationWithCovariance& T) {
-
-  Transformation::operator=(T);
-
-  covariance_ = T.covariance_;
-  covarianceSet_ = T.covarianceSet_;
-
-  return *this;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \brief Move assignment operator. Manually implemented as Eigen doesn't support moving.
-//////////////////////////////////////////////////////////////////////////////////////////////
-TransformationWithCovariance& TransformationWithCovariance::operator=(TransformationWithCovariance&& T) {
-  // Call the assignment operator on the super class, as the internal members are not accessible here
-  Transformation::operator=(T);
-
-  // TODO: Eigen doesn't support move construction, so right now this is mostly the same as a copy...
-  this->covariance_ = std::move(T.covariance_);
-  this->covarianceSet_ = std::move(T.covarianceSet_);
-
-  return (*this);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

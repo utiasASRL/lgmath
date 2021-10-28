@@ -28,7 +28,7 @@ pipeline {
                 stage('build') {
                     steps {
                         sh '''
-                            source /opt/ros/foxy/setup.bash
+                            source /opt/ros/galactic/setup.bash
                             colcon build --symlink-install --cmake-args "-DUSE_AMENT=ON"
                             colcon build --symlink-install --cmake-args "-DUSE_AMENT=ON" --cmake-target doc
                         '''
@@ -37,7 +37,7 @@ pipeline {
                 stage('test') {
                     steps {
                         sh '''
-                            source /opt/ros/foxy/setup.bash
+                            source /opt/ros/galactic/setup.bash
                             colcon test --event-handlers console_cohesion+
                             colcon test-result
                         '''
