@@ -47,12 +47,12 @@ class TransformationWithCovariance: public Transformation
   TransformationWithCovariance(bool initCovarianceToZero = false);
 
   //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Copy constructor.
+  /// \brief Copy constructor. \todo for some reason only work when having -march=native
   //////////////////////////////////////////////////////////////////////////////////////////////
   TransformationWithCovariance(const TransformationWithCovariance&) = default;
 
   //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Move constructor.
+  /// \brief Move constructor. \todo for some reason only work when having -march=native
   //////////////////////////////////////////////////////////////////////////////////////////////
   TransformationWithCovariance(TransformationWithCovariance&& T) = default;
 
@@ -128,12 +128,12 @@ class TransformationWithCovariance: public Transformation
   ~TransformationWithCovariance() = default;
 
   //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Copy assignment operator.
+  /// \brief Copy assignment operator. \todo for some reason only work when having -march=native
   //////////////////////////////////////////////////////////////////////////////////////////////
   TransformationWithCovariance& operator=(const TransformationWithCovariance&) = default;
 
   //////////////////////////////////////////////////////////////////////////////////////////////
-  /// \brief Move assignment operator.
+  /// \brief Move assignment operator. \todo for some reason only work when having -march=native
   //////////////////////////////////////////////////////////////////////////////////////////////
   TransformationWithCovariance& operator=(TransformationWithCovariance&& T) = default;
 
