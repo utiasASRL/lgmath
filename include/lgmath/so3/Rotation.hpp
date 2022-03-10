@@ -22,36 +22,33 @@ class Rotation {
   Rotation(const Rotation&) = default;
 
   /** \brief Move constructor. */
-  Rotation(Rotation&& C) = default;
+  Rotation(Rotation&&) = default;
 
   /** \brief Copy constructor (from Eigen) */
-  Rotation(const Eigen::Matrix3d& C);
+  explicit Rotation(const Eigen::Matrix3d& C);
 
   /** \brief Constructor. The rotation will be C_ba = vec2rot(aaxis_ab) */
   explicit Rotation(const Eigen::Vector3d& aaxis_ab, unsigned int numTerms = 0);
 
   /**
-   * \brief Constructor. The rotation will be C_ba = vec2rot(aaxis_ab),
-   * aaxis_ab must be 3x1
+   * \brief Constructor.
+   * The rotation will be C_ba = vec2rot(aaxis_ab), aaxis_ab must be 3x1
    */
   explicit Rotation(const Eigen::VectorXd& aaxis_ab);
 
   /** \brief Destructor. */
-  ~Rotation() = default;
+  virtual ~Rotation() = default;
 
   /** \brief Copy assignment operator. */
-  Rotation& operator=(const Rotation&) = default;
+  virtual Rotation& operator=(const Rotation&) = default;
 
   /** \brief Move assignment operator. */
-  Rotation& operator=(Rotation&& C) = default;
+  virtual Rotation& operator=(Rotation&&) = default;
 
   /** \brief Gets the underlying rotation matrix */
   const Eigen::Matrix3d& matrix() const;
 
-  /**
-   * \brief Get the corresponding Lie algebra (axis-angle) using the logarithmic
-   * map
-   */
+  /** \brief Get the corresponding Lie algebra using the logarithmic map */
   Eigen::Vector3d vec() const;
 
   /** \brief Get the inverse (transpose) matrix */
@@ -66,21 +63,18 @@ class Rotation {
   void reproject(bool force = true);
 
   /** \brief In-place right-hand side multiply C_rhs */
-  Rotation& operator*=(const Rotation& C_rhs);
+  virtual Rotation& operator*=(const Rotation& C_rhs);
 
   /** \brief Right-hand side multiply C_rhs */
-  Rotation operator*(const Rotation& C_rhs) const;
+  virtual Rotation operator*(const Rotation& C_rhs) const;
 
-  /**
-   * \brief In-place right-hand side multiply this matrix by the inverse of
-   * C_rhs
-   */
-  Rotation& operator/=(const Rotation& C_rhs);
+  /** \brief In-place right-hand side multiply the inverse of C_rhs */
+  virtual Rotation& operator/=(const Rotation& C_rhs);
 
-  /** \brief Right-hand side multiply this matrix by the inverse of C_rhs */
-  Rotation operator/(const Rotation& C_rhs) const;
+  /** \brief Right-hand side multiply the inverse of C_rhs */
+  virtual Rotation operator/(const Rotation& C_rhs) const;
 
-  /** \brief Right-hand side multiply this matrix by the point vector p_a */
+  /** \brief Right-hand side multiply the point vector p_a */
   Eigen::Vector3d operator*(const Eigen::Ref<const Eigen::Vector3d>& p_a) const;
 
  private:

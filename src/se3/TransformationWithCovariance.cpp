@@ -87,7 +87,7 @@ TransformationWithCovariance::TransformationWithCovariance(
     : Transformation(xi_ab), covariance_(covariance), covarianceSet_(true) {}
 
 TransformationWithCovariance& TransformationWithCovariance::operator=(
-    const Transformation& T) {
+    const Transformation& T) noexcept {
   // Call the assignment operator on the super class, as the internal members
   // are not accessible here
   Transformation::operator=(T);
@@ -101,7 +101,7 @@ TransformationWithCovariance& TransformationWithCovariance::operator=(
 }
 
 TransformationWithCovariance& TransformationWithCovariance::operator=(
-    Transformation&& T) {
+    Transformation&& T) noexcept {
   // Call the assignment operator on the super class, as the internal members
   // are not accessible here
   Transformation::operator=(T);

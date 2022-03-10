@@ -22,7 +22,7 @@ class Transformation {
   Transformation(const Transformation&) = default;
 
   /** \brief Move constructor. */
-  Transformation(Transformation&& T) = default;
+  Transformation(Transformation&&) = default;
 
   /** \brief Copy constructor (from Eigen) */
   explicit Transformation(const Eigen::Matrix4d& T);
@@ -31,11 +31,12 @@ class Transformation {
    * \brief Constructor.
    * The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
    */
-  Transformation(const Eigen::Matrix3d& C_ba, const Eigen::Vector3d& r_ba_ina);
+  explicit Transformation(const Eigen::Matrix3d& C_ba,
+                          const Eigen::Vector3d& r_ba_ina);
 
   /** \brief Constructor. The transformation will be T_ba = vec2tran(xi_ab) */
-  Transformation(const Eigen::Matrix<double, 6, 1>& xi_ab,
-                 unsigned int numTerms = 0);
+  explicit Transformation(const Eigen::Matrix<double, 6, 1>& xi_ab,
+                          unsigned int numTerms = 0);
 
   /**
    * \brief Constructor.
@@ -44,13 +45,13 @@ class Transformation {
   explicit Transformation(const Eigen::VectorXd& xi_ab);
 
   /** \brief Destructor. Default implementation. */
-  ~Transformation() = default;
+  virtual ~Transformation() = default;
 
   /** \brief Copy assignment operator. */
-  Transformation& operator=(const Transformation&) = default;
+  virtual Transformation& operator=(const Transformation&) = default;
 
   /** \brief Move assignment operator. */
-  Transformation& operator=(Transformation&& T) = default;
+  virtual Transformation& operator=(Transformation&& T) = default;
 
   /** \brief Gets basic matrix representation of the transformation */
   Eigen::Matrix4d matrix() const;
@@ -58,9 +59,7 @@ class Transformation {
   /** \brief Gets the underlying rotation matrix */
   const Eigen::Matrix3d& C_ba() const;
 
-  /**
-   * \brief Gets the "forward" translation r_ba_ina = -C_ba.transpose()*r_ab_inb
-   */
+  /** \brief Gets r_ba_ina = -C_ba.transpose() * r_ab_inb */
   Eigen::Vector3d r_ba_ina() const;
 
   /** \brief Gets the underlying r_ab_inb vector. */
@@ -89,18 +88,13 @@ class Transformation {
   /** \brief Right-hand side multiply T_rhs */
   virtual Transformation operator*(const Transformation& T_rhs) const;
 
-  /**
-   * \brief In-place right-hand side multiply this matrix by the inverse of
-   * T_rhs
-   */
+  /** \brief In-place right-hand side multiply the inverse of T_rhs */
   virtual Transformation& operator/=(const Transformation& T_rhs);
 
-  /** \brief Right-hand side multiply this matrix by the inverse of T_rhs */
+  /** \brief Right-hand side multiply the inverse of T_rhs */
   virtual Transformation operator/(const Transformation& T_rhs) const;
 
-  /**
-   * \brief Right-hand side multiply this matrix by the homogeneous vector p_a
-   */
+  /** \brief Right-hand side multiply the homogeneous vector p_a */
   Eigen::Vector4d operator*(const Eigen::Ref<const Eigen::Vector4d>& p_a) const;
 
  private:

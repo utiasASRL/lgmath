@@ -57,8 +57,8 @@ class TransformationWithCovariance : public Transformation {
                                const Eigen::Vector3d& r_ba_ina);
 
   /**
-   * \brief Constructor with covariance. The transformation will be
-   * T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
+   * \brief Constructor with covariance.
+   * The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
    */
   TransformationWithCovariance(const Eigen::Matrix3d& C_ba,
                                const Eigen::Vector3d& r_ba_ina,
@@ -93,7 +93,7 @@ class TransformationWithCovariance : public Transformation {
                                const Eigen::Matrix<double, 6, 6>& covariance);
 
   /** \brief Destructor. Default implementation. */
-  ~TransformationWithCovariance() = default;
+  ~TransformationWithCovariance() override = default;
 
   /** \brief Copy assignment operator. */
   TransformationWithCovariance& operator=(const TransformationWithCovariance&) =
@@ -110,7 +110,8 @@ class TransformationWithCovariance : public Transformation {
    * setCovariance(const Eigen::Matrix6d&) before querying it with the public
    * method cov(), or an exception will be thrown.
    */
-  virtual TransformationWithCovariance& operator=(const Transformation& T);
+  TransformationWithCovariance& operator=(
+      const Transformation& T) noexcept override;
 
   /**
    * \brief Move assignment operator from basic Transform.
@@ -119,27 +120,21 @@ class TransformationWithCovariance : public Transformation {
    * setCovariance(const Eigen::Matrix6d&) before querying it with the public
    * method cov(), or an exception will be thrown.
    */
-  virtual TransformationWithCovariance& operator=(Transformation&& T);
+  TransformationWithCovariance& operator=(Transformation&& T) noexcept override;
 
   /** \brief Gets the underlying covariance matrix */
   const Eigen::Matrix<double, 6, 6>& cov() const;
 
-  /**
-   * \brief Returns whether or not a covariance has been set. If it is unset,
-   * then querying it with the public method cov() will throw an exception.
-   */
+  /** \brief Returns whether or not a covariance has been set. */
   bool covarianceSet() const;
 
-  /** \brief Sets the underlying rotation matrix */
+  /** \brief Sets the underlying covariance matrix */
   void setCovariance(const Eigen::Matrix<double, 6, 6>& covariance);
 
-  /**
-   * \brief Sets the underlying rotation matrix to the 6x6 zero matrix (perfect
-   * certainty)
-   */
+  /** \brief Sets the underlying rotation matrix to zero (perfect certainty) */
   void setZeroCovariance();
 
-  /** \brief Get the inverse matrix */
+  /** \brief Gets the inverse of this */
   TransformationWithCovariance inverse() const;
 
   /** \brief In-place right-hand side multiply T_rhs. */
@@ -150,22 +145,20 @@ class TransformationWithCovariance : public Transformation {
    * \brief In-place right-hand side multiply basic (certain) T_rhs
    * \note Assumes that the Transformation matrix has perfect certainty
    */
-  TransformationWithCovariance& operator*=(const Transformation& T_rhs);
+  TransformationWithCovariance& operator*=(
+      const Transformation& T_rhs) override;
 
-  /**
-   * \brief In-place right-hand side multiply this matrix by the inverse of
-   * T_rhs
-   */
+  /** \brief In-place right-hand side multiply the inverse of T_rhs */
   TransformationWithCovariance& operator/=(
       const TransformationWithCovariance& T_rhs);
 
   /**
-   * \brief In-place right-hand side multiply this matrix by the inverse of a
-   * basic (certain) T_rhs
-   *
+   * \brief In-place right-hand side multiply the inverse of a basic (certain)
+   * T_rhs
    * \note Assumes that the Transformation matrix has perfect certainty
    */
-  TransformationWithCovariance& operator/=(const Transformation& T_rhs);
+  TransformationWithCovariance& operator/=(
+      const Transformation& T_rhs) override;
 
  private:
   /** \brief Covariance */
@@ -175,9 +168,7 @@ class TransformationWithCovariance : public Transformation {
   bool covarianceSet_;
 };
 
-/**
- * \brief Multiplication of TransformWithCovariance by TransformWithCovariance
- */
+/** \brief Multiplication of two TransformWithCovariance */
 TransformationWithCovariance operator*(
     TransformationWithCovariance T_lhs,
     const TransformationWithCovariance& T_rhs);
