@@ -1,12 +1,10 @@
-//////////////////////////////////////////////////////////////////////////////////////////////
-/// \file lgmath.hpp
-/// \brief Convenience Header
-///
-/// \author Sean Anderson
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifndef LGMATH_HPP
-#define LGMATH_HPP
+/**
+ * \file lgmath.hpp
+ * \brief Convenience Header
+ *
+ * \author Sean Anderson
+ */
+#pragma once
 
 // SO2
 // todo
@@ -27,5 +25,3 @@
 // R3
 #include <lgmath/r3/Operations.hpp>
 #include <lgmath/r3/Types.hpp>
-
-#endif // LGMATH_HPP
