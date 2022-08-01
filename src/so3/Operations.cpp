@@ -9,6 +9,7 @@
 #include <lgmath/so3/Operations.hpp>
 
 #include <stdio.h>
+#include <algorithm>
 #include <stdexcept>
 
 #include <Eigen/Dense>
@@ -78,7 +79,7 @@ void vec2rot(const Eigen::Vector3d& aaxis_ba, Eigen::Matrix3d* out_C_ab,
 
 Eigen::Vector3d rot2vec(const Eigen::Matrix3d& C_ab) {
   // Get angle
-  const double phi_ba = acos(0.5 * (C_ab.trace() - 1.0));
+  const double phi_ba = acos(std::clamp(0.5 * (C_ab.trace() - 1.0), -1.0, 1.0));
   const double sinphi_ba = sin(phi_ba);
 
   if (fabs(sinphi_ba) > 1e-9) {
