@@ -82,14 +82,14 @@ Eigen::Vector3d rot2vec(const Eigen::Matrix3d& C_ab) {
   const double phi_ba = acos(std::clamp(0.5 * (C_ab.trace() - 1.0), -1.0, 1.0));
   const double sinphi_ba = sin(phi_ba);
 
-  if (fabs(sinphi_ba) > 1e-9) {
+  if (fabs(sinphi_ba) > 1e-6) {
     // General case, angle is NOT near 0, pi, or 2*pi
     Eigen::Vector3d axis;
     axis << C_ab(2, 1) - C_ab(1, 2), C_ab(0, 2) - C_ab(2, 0),
         C_ab(1, 0) - C_ab(0, 1);
     return (0.5 * phi_ba / sinphi_ba) * axis;
 
-  } else if (fabs(phi_ba) > 1e-9) {
+  } else if (fabs(phi_ba) > 1e-6) {
     // Angle is near pi or 2*pi
     // ** Note with this method we do not know the sign of 'phi', however since
     // we know phi is
