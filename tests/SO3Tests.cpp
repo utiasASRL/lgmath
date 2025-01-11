@@ -181,6 +181,8 @@ TEST(LGMath, CompareAnalyticalAndNumericVec2Rot) {
   trueVecs.push_back(Eigen::Matrix<double,3,1>(0.5*lgmath::constants::PI, 0.0, 0.0));
   trueVecs.push_back(Eigen::Matrix<double,3,1>(0.0, 0.5*lgmath::constants::PI, 0.0));
   trueVecs.push_back(Eigen::Matrix<double,3,1>(0.0, 0.0, 0.5*lgmath::constants::PI));
+  // Edge case for rot2vec
+  trueVecs.push_back(Eigen::Matrix<double,3,1>(3.141582282177315, 0.008064303485426312, 0.0));
   const unsigned numRand = 50;
   for (unsigned i = 0; i < numRand; i++) {
     trueVecs.push_back(Eigen::Matrix<double,3,1>::Random());
