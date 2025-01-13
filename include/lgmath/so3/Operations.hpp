@@ -99,7 +99,7 @@ void vec2rot(const Eigen::Vector3d& aaxis_ba, Eigen::Matrix3d* out_C_ab,
  *
  * See Barfoot-TRO-2014 Appendix B2 for more information.
  */
-Eigen::Vector3d rot2vec(const Eigen::Matrix3d& C_ab);
+Eigen::Vector3d rot2vec(const Eigen::Matrix3d& C_ab, const double eps = 1e-6);
 
 /**
  * \brief Builds the 3x3 Jacobian matrix of SO(3)
