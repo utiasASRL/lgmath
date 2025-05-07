@@ -1,7 +1,5 @@
 # lgmath
 
-**NOTE**: this branch is kept identical to the master branch, except that USE_AMENT is set to ON.
-
 lgmath is a C++ library for handling geometry in state estimation problems in robotics.
 It is used to store, manipulate, and apply three-dimensional rotations and transformations and their associated uncertainties.
 

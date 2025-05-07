@@ -73,8 +73,8 @@ Eigen::Matrix<double, 6, 1> Transformation::vec() const {
 Transformation Transformation::inverse() const {
   Transformation temp;
   temp.C_ba_ = C_ba_.transpose();
-  temp.reproject(
-      false);  // Trigger a conditional reprojection, depending on determinant
+  // Trigger a conditional reprojection, depending on determinant
+  temp.reproject(false);
   temp.r_ab_inb_ = (-1.0) * temp.C_ba_ * r_ab_inb_;
   return temp;
 }
@@ -86,9 +86,7 @@ Eigen::Matrix<double, 6, 6> Transformation::adjoint() const {
 void Transformation::reproject(bool force) {
   // Note that the translation parameter always belongs to SE(3), but the
   // rotation can incur numerical error that accumulates.
-  if (force || fabs(1.0 - this->C_ba_.determinant()) > 1e-6) {
-    C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
-  }
+  C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
 }
 
 Transformation& Transformation::operator*=(const Transformation& T_rhs) {
