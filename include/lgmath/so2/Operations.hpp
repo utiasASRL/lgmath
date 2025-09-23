@@ -71,7 +71,7 @@ double vec2jac();
 /**
  * \brief Builds the scalar inverse Jacobian of SO(2)
  * \details
- * uilds the scalar inverse Jacobian of SO(2).
+ * Builds the scalar inverse Jacobian of SO(2).
  *
  * This is just equal to the inverse of the Jacobian, which is also 1.
  * We keep the function for consistency with SO(3).
