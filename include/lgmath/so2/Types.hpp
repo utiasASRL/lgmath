@@ -9,7 +9,7 @@
 
 #include <Eigen/Core>
 
-/// Lie Group Math - Special Orthogonal Group
+/// Lie Group Math - Special Orthogonal Group in two dimensions
 namespace lgmath {
 namespace so2 {
 
