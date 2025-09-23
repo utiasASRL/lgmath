@@ -38,7 +38,7 @@ Eigen::Matrix2d hat(const double angle);
  * exponential map. Make sure that you are actually feeding in angle_ba, not angle_ab.
  * For more information see sec. 7.3.2 in State Estimation for Robotics by Barfoot.
  */
-Eigen::Matrix2d vec2rot(const angle angle_ba, unsigned int numTerms = 0);
+Eigen::Matrix2d vec2rot(const double angle_ba);
 
 /**
  * \brief Compute the matrix log of a rotation matrix
@@ -56,7 +56,7 @@ Eigen::Matrix2d vec2rot(const angle angle_ba, unsigned int numTerms = 0);
  *
  *   angle_ab = -angle_ba = ln(C_ba) = ln(C_ab^T)
  */
-double rot2vec(const Eigen::Matrix2d& C_ab, const double eps = 1e-6);
+double rot2vec(const Eigen::Matrix2d& C_ab);
 
 /**
  * \brief Builds the scalar Jacobian of SO(2)
@@ -66,7 +66,7 @@ double rot2vec(const Eigen::Matrix2d& C_ab, const double eps = 1e-6);
  * This Jacobian is equal to the right Jacobian and is simply 1.
  * We keep the function for consistency with SO(3).
  */
-double vec2jac(const Eigen::Vector3d& aaxis_ba);
+double vec2jac();
 
 /**
  * \brief Builds the scalar inverse Jacobian of SO(2)
@@ -76,7 +76,7 @@ double vec2jac(const Eigen::Vector3d& aaxis_ba);
  * This is just equal to the inverse of the Jacobian, which is also 1.
  * We keep the function for consistency with SO(3).
  */
-Eigen::Matrix3d vec2jacinv(const Eigen::Vector3d& aaxis_ba);
+double vec2jacinv();
 
 }  // namespace so2
 }  // namespace lgmath

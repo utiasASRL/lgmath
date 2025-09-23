@@ -27,14 +27,14 @@ class Rotation {
   /** \brief Copy constructor (from Eigen) */
   explicit Rotation(const Eigen::Matrix2d& C);
 
-  /** \brief Constructor. The rotation will be C_ba = vec2rot(angle_ab) */
-  explicit Rotation(const double angle_ab, unsigned int numTerms = 0);
+  /** \brief Constructor. The rotation will be C_ab = vec2rot(angle_ba) */
+  explicit Rotation(const double angle_ba, unsigned int numTerms = 0);
 
   /**
    * \brief Constructor.
-   * The rotation will be C_ba = vec2rot(angle_ab)
+   * The rotation will be C_ab = vec2rot(angle_ba)
    */
-  explicit Rotation(const double angle_ab);
+  explicit Rotation(const double angle_ba);
 
   /** \brief Destructor. */
   virtual ~Rotation() = default;
@@ -75,11 +75,11 @@ class Rotation {
   virtual Rotation operator/(const Rotation& C_rhs) const;
 
   /** \brief Right-hand side multiply the point vector p_a */
-  Eigen::Vector3d operator*(const Eigen::Ref<const Eigen::Vector2d>& p_a) const;
+  Eigen::Vector2d operator*(const Eigen::Ref<const Eigen::Vector2d>& p_a) const;
 
  private:
-  /** \brief Rotation matrix from a to b */
-  Eigen::Matrix2d C_ba_;
+  /** \brief Rotation matrix from b to a */
+  Eigen::Matrix2d C_ab_;
 };
 
 }  // namespace so2
