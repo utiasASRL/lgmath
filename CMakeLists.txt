@@ -80,6 +80,10 @@ if(BUILD_TESTING)
   enable_testing()
 
   # Unit-tests
+  add_executable(so2_tests tests/SO2Tests.cpp)
+  target_link_libraries(so2_tests ${PROJECT_NAME} GTest::gtest GTest::gtest_main)
+  add_test(NAME so2_tests COMMAND so2_tests)
+
   add_executable(so3_tests tests/SO3Tests.cpp)
   target_link_libraries(so3_tests ${PROJECT_NAME} GTest::gtest GTest::gtest_main)
   add_test(NAME so3_tests COMMAND so3_tests)
@@ -140,6 +144,8 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
 
   # Unit-tests
+  ament_add_gtest(so2_tests tests/SO2Tests.cpp)
+  target_link_libraries(so2_tests ${PROJECT_NAME})
   ament_add_gtest(so3_tests tests/SO3Tests.cpp)
   target_link_libraries(so3_tests ${PROJECT_NAME})
   ament_add_gtest(se3_tests tests/SE3Tests.cpp)
