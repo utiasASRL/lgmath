@@ -86,7 +86,9 @@ Eigen::Matrix<double, 6, 6> Transformation::adjoint() const {
 void Transformation::reproject(bool force) {
   // Note that the translation parameter always belongs to SE(3), but the
   // rotation can incur numerical error that accumulates.
-  C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
+  if (force || fabs(1.0 - this->C_ba_.determinant()) > 1e-6) {
+    C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
+  }
 }
 
 Transformation& Transformation::operator*=(const Transformation& T_rhs) {
