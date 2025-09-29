@@ -74,6 +74,41 @@ install(
   DESTINATION lib/cmake/${PROJECT_NAME}
 )
 
+# Tests (for default cmake flow)
+if(BUILD_TESTING)
+  find_package(GTest REQUIRED)
+  enable_testing()
+
+  # Unit-tests
+  add_executable(so2_tests tests/SO2Tests.cpp)
+  target_link_libraries(so2_tests ${PROJECT_NAME} GTest::gtest GTest::gtest_main)
+  add_test(NAME so2_tests COMMAND so2_tests)
+
+  add_executable(so3_tests tests/SO3Tests.cpp)
+  target_link_libraries(so3_tests ${PROJECT_NAME} GTest::gtest GTest::gtest_main)
+  add_test(NAME so3_tests COMMAND so3_tests)
+  
+  add_executable(se3_tests tests/SE3Tests.cpp)
+  target_link_libraries(se3_tests ${PROJECT_NAME} GTest::gtest GTest::gtest_main)
+  add_test(NAME se3_tests COMMAND se3_tests)
+  
+  add_executable(covariance_tests tests/CovarianceTests.cpp)
+  target_link_libraries(covariance_tests ${PROJECT_NAME} GTest::gtest GTest::gtest_main)
+  add_test(NAME covariance_tests COMMAND covariance_tests)
+  
+  add_executable(rotation_tests tests/RotationTests.cpp)
+  target_link_libraries(rotation_tests ${PROJECT_NAME} GTest::gtest GTest::gtest_main)
+  add_test(NAME rotation_tests COMMAND rotation_tests)
+  
+  add_executable(transform_tests tests/TransformTests.cpp)
+  target_link_libraries(transform_tests ${PROJECT_NAME} GTest::gtest GTest::gtest_main)
+  add_test(NAME transform_tests COMMAND transform_tests)
+  
+  add_executable(transform_with_covariance_tests tests/TransformWithCovarianceTests.cpp)
+  target_link_libraries(transform_with_covariance_tests ${PROJECT_NAME} GTest::gtest GTest::gtest_main)
+  add_test(NAME transform_with_covariance_tests COMMAND transform_with_covariance_tests)
+endif()
+
 ## ROS2 ament_cmake flow
 else()
 
@@ -109,6 +144,8 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
 
   # Unit-tests
+  ament_add_gtest(so2_tests tests/SO2Tests.cpp)
+  target_link_libraries(so2_tests ${PROJECT_NAME})
   ament_add_gtest(so3_tests tests/SO3Tests.cpp)
   target_link_libraries(so3_tests ${PROJECT_NAME})
   ament_add_gtest(se3_tests tests/SE3Tests.cpp)

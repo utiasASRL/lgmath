@@ -7,7 +7,8 @@
 #pragma once
 
 // SO2
-// todo
+#include <lgmath/so2/Operations.hpp>
+#include <lgmath/so2/Rotation.hpp>
 
 // SE2
 // todo
