@@ -105,27 +105,27 @@ TEST(LGMath, testVec2Rot2Vec) {
     trueMats.push_back(Eigen::Matrix2d::Identity());
 
     // Rotation by PI
-    trueAngles.push_back(-M_PI);
+    trueAngles.push_back(M_PI);
     Eigen::Matrix2d temp;
     temp << -1.0,  0.0,
-            0.0, -1.0;
+            0.0,  -1.0;
     trueMats.push_back(temp);
 
     // Rotation by PI/2 (90 degrees counter-clockwise)
-    trueAngles.push_back(-M_PI/2);
-    temp <<  0.0, -1.0,
+    trueAngles.push_back(M_PI/2);
+    temp << 0.0, -1.0,
             1.0,  0.0;
     trueMats.push_back(temp);
 
     // Rotation by PI/4 (45 degrees counter-clockwise)
-    trueAngles.push_back(-M_PI/4);
+    trueAngles.push_back(M_PI/4);
     double sqrt2_2 = sqrt(2.0) / 2.0;
-    temp <<  sqrt2_2, -sqrt2_2,
+    temp << sqrt2_2, -sqrt2_2,
             sqrt2_2,  sqrt2_2;
     trueMats.push_back(temp);
 
     // Rotation by 3*PI/4 (135 degrees counter-clockwise)
-    trueAngles.push_back(-3*M_PI/4);
+    trueAngles.push_back(3*M_PI/4);
     temp << -sqrt2_2, -sqrt2_2,
             sqrt2_2, -sqrt2_2;
     trueMats.push_back(temp);
@@ -133,8 +133,8 @@ TEST(LGMath, testVec2Rot2Vec) {
     // Small angle rotation
     double small_angle = 0.0001;
     trueAngles.push_back(small_angle);
-    temp <<  cos(small_angle), sin(small_angle),
-            -sin(small_angle),  cos(small_angle);
+    temp <<  cos(small_angle), -sin(small_angle),
+             sin(small_angle),  cos(small_angle);
     trueMats.push_back(temp);
 
     // Get number of tests
@@ -143,17 +143,17 @@ TEST(LGMath, testVec2Rot2Vec) {
     // Test vec2rot
     for (unsigned i = 0; i < numTests; i++) {
         Eigen::Matrix2d testMat = lgmath::so2::vec2rot(trueAngles.at(i));
-        std::cout << "angle: " << trueAngles.at(i) << std::endl;
-        std::cout << "true: " << std::endl << trueMats.at(i) << std::endl;
-        std::cout << "func: " << std::endl << testMat << std::endl;
+        // std::cout << "angle: " << trueAngles.at(i) << std::endl;
+        // std::cout << "true: " << std::endl << trueMats.at(i) << std::endl;
+        // std::cout << "func: " << std::endl << testMat << std::endl;
         EXPECT_TRUE(lgmath::common::nearEqual(trueMats.at(i), testMat, 1e-6));
     }
 
     // Test rot2vec
     for (unsigned i = 0; i < numTests; i++) {
         double testAngle = lgmath::so2::rot2vec(trueMats.at(i));
-        std::cout << "true angle: " << trueAngles.at(i) << std::endl;
-        std::cout << "func angle: " << testAngle << std::endl;
+        // std::cout << "true angle: " << trueAngles.at(i) << std::endl;
+        // std::cout << "func angle: " << testAngle << std::endl;
         
         // For angles near ±π, we need to handle the wraparound
         double expected = trueAngles.at(i);
@@ -182,8 +182,8 @@ TEST(LGMath, testVec2Rot2Vec) {
         while (actual > M_PI) actual -= 2.0 * M_PI;
         while (actual < -M_PI) actual += 2.0 * M_PI;
         
-        std::cout << "Round-trip test - original: " << trueAngles.at(i) 
-                << ", recovered: " << recovered_angle << std::endl;
+        // std::cout << "Round-trip test - original: " << trueAngles.at(i) 
+        //         << ", recovered: " << recovered_angle << std::endl;
         EXPECT_NEAR(expected, actual, 1e-6);
     }
 
@@ -205,7 +205,6 @@ TEST(LGMath, testVec2Rot2Vec) {
 /// \brief General test of exponential jacobians: vec2jac and vec2jacinv
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST(LGMath, testGroupJacobians) {
-
     // These should both just be 1.0.
     double J = lgmath::so2::vec2jac();
     EXPECT_EQ(J, 1.0);
