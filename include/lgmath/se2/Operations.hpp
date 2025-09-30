@@ -41,6 +41,67 @@ Eigen::Matrix3d hat(const Eigen::Vector2d& rho, const double angle);
 Eigen::Matrix3d hat(const Eigen::Matrix<double, 3, 1>& xi);
 
 /**
+ * \brief Builds the 3x3 "curly hat" matrix (related to the skew symmetric
+ * matrix)
+ * \details
+ * The curly hat operator builds the 3x3 skew symmetric matrix from the scalar
+ * angle and 2x1 translation vector.
+ *
+ * curlyhat(rho, angle) = [angle^   -S*rho^]; , S = [0 -1; 1 0]
+ *                        [     0      0   ]
+ *
+ * See eq. 104 in Integral Forms in Matrix Lie Groups by Barfoot for more information.
+ */
+Eigen::Matrix<double, 3, 3> curlyhat(const Eigen::Vector2d& rho,
+                                     const double angle);
+
+/**
+ * \brief Builds the 3x3 "curly hat" matrix (related to the skew symmetric
+ * matrix)
+ * \details
+ * The curly hat operator builds the 6x6 skew symmetric matrix
+ * from the 3x1 se2 algebra vector, xi:
+ *
+ * curlyhat(xi) = curlyhat([rho  ]) = [angle^   -S*rho^]; , S = [0 -1; 1 0]
+ *                        ([angle])   [     0      0   ]
+ *
+ * See eq. 104 in Integral Forms in Matrix Lie Groups by Barfoot for more information.
+ */
+Eigen::Matrix<double, 3, 3> curlyhat(const Eigen::Matrix<double, 3, 1>& xi);
+
+/**
+ * \brief Turns a homogeneous point into a special 3x3 matrix (circle-dot
+ * operator)
+ * \details
+ * See eq. 72 in Barfoot-TRO-2014 for more information on the SE(3) version.
+ * The SE(2) version can be derived in a similar manner and is
+ * as follows for a homogeneous point p = [epsilon, s]^T = \[px, py, s]^T
+ * with scale s:
+ * 
+ * point2fs(p) = [ s*I   S*epsilon ]
+ *               [ 0^T       0     ]
+ * where S = [0 -1; 1 0] and I is the 2x2 identity matrix.
+ */
+Eigen::Matrix<double, 3, 3> point2fs(const Eigen::Vector2d& p,
+                                     double scale = 1);
+
+/**
+ * \brief Turns a homogeneous point into a special 6x4 matrix (double-circle
+ * operator)
+ *
+ * See eq. 72 in Barfoot-TRO-2014 for more information on the SE(3) version.
+ * The SE(2) version can be derived in a similar manner and is
+ * as follows for a homogeneous point p = [epsilon, s]^T = \[px, py, s]^T
+ * with scale s:
+ * 
+ * point2sf(p) = [ 0*I              epsilon ]
+ *               [ -(S*epsilon)^T     0     ]
+ * where S = [0 -1; 1 0] and I is the 2x2 identity matrix.
+ */
+Eigen::Matrix<double, 3, 3> point2sf(const Eigen::Vector2d& p,
+                                     double scale = 1);
+
+/**
  * \brief Builds a transformation matrix using the analytical exponential map
  * \details
  * This function builds a transformation matrix, T_ab, using the analytical
@@ -67,6 +128,13 @@ Eigen::Matrix3d hat(const Eigen::Matrix<double, 3, 1>& xi);
  *   T_ba = exp(-xi_ba^) = exp(xi_ab^).
  */
 Eigen::Matrix3d vec2tran(const Eigen::Matrix<double, 3, 1>& xi_ba);
+
+/**
+ * \brief Builds the 2x2 rotation and 2x1 translation using the exponential
+ * map.
+ */
+void vec2tran(const Eigen::Matrix<double, 3, 1>& xi_ba,
+            Eigen::Matrix2d* out_C_ab, Eigen::Vector2d* out_r_ba_ina);
 
 /**
  * \brief Compute the matrix log of a transformation matrix (from the rotation
@@ -136,7 +204,7 @@ Eigen::Matrix<double, 3, 3> tranAd(const Eigen::Matrix3d& T_ab);
  * \details
  * See eq. 109a in Integral Forms in Matrix Lie Groups by Barfoot for more information.
  */
-Eigen::Matrix2d vec2Gamma1(const angle angle);
+Eigen::Matrix2d vec2Gamma1(const double angle);
 
 /**
  * \brief Construction of the 2x2 "Gamma 1" matrix, used in SE(2)
@@ -150,7 +218,7 @@ Eigen::Matrix2d vec2Gamma1(const Eigen::Matrix<double, 3, 1>& xi_ba);
  * \details
  * See eq. 109b in Integral Forms in Matrix Lie Groups by Barfoot for more information.
  */
-Eigen::Matrix2d vec2Gamma2(const angle angle);
+Eigen::Matrix2d vec2Gamma2(const double angle);
 
 /**
  * \brief Construction of the 2x2 "Gamma 2" matrix, used in SE(2)
@@ -180,8 +248,8 @@ Eigen::Matrix2d vec2Gamma2(const Eigen::Matrix<double, 3, 1>& xi_ba);
  *
  * For more information see eq. 108 in in Integral Forms in Matrix Lie Groups by Barfoot
  */
-Eigen::Matrix<double, 3, 3> vec2jac(const Eigen::Vector2& rho_ba,
-                                    const Eigen::Vector3d& angle_ba);
+Eigen::Matrix<double, 3, 3> vec2jac(const Eigen::Vector2d& rho_ba,
+                                    const double angle_ba);
 
 /**
  * \brief Builds the 3x3 Jacobian matrix of SE(2) from the se(2) algebra.
@@ -212,7 +280,7 @@ Eigen::Matrix<double, 3, 3> vec2jac(const Eigen::Matrix<double, 3, 1>& xi_ba);
  *                 [     0^T                1                   ]
  */
 Eigen::Matrix<double, 3, 3> vec2jacinv(const Eigen::Vector2d& rho_ba,
-                                       const double angle);
+                                       const double angle_ba);
 
 /**
  * \brief Builds the 6x6 inverse Jacobian matrix of SE(2) from the se(2)
