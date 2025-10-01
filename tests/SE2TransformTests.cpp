@@ -114,6 +114,32 @@ TEST(LGMath, SE2TransformationConstructors) {
     std::cout << "test: " << rand.matrix() << std::endl;
     EXPECT_TRUE(lgmath::common::nearEqual(test.matrix(), rand.matrix(), 1e-6));
   }
+
+  // Transformation(const Eigen::VectorXd& xi_ab);
+  {
+    // Test with correct size (3x1) VectorXd
+    Eigen::VectorXd vec = Eigen::Matrix<double, 3, 1>::Random();
+    Eigen::Matrix3d tmat = lgmath::se2::vec2tran(vec.head<3>());
+    lgmath::se2::Transformation test(vec);
+    std::cout << "tmat: " << tmat << std::endl;
+    std::cout << "test: " << test.matrix() << std::endl;
+    EXPECT_TRUE(lgmath::common::nearEqual(tmat, test.matrix(), 1e-6));
+  }
+
+  // Test VectorXd constructor with wrong size (should throw exception)
+  {
+    // Wrong size vector (2x1)
+    Eigen::VectorXd badvec2 = Eigen::Matrix<double, 2, 1>::Random();
+    EXPECT_THROW(lgmath::se2::Transformation test(badvec2), std::invalid_argument);
+    
+    // Wrong size vector (4x1)
+    Eigen::VectorXd badvec4 = Eigen::Matrix<double, 4, 1>::Random();
+    EXPECT_THROW(lgmath::se2::Transformation test(badvec4), std::invalid_argument);
+    
+    // Wrong size vector (6x1) - this is for SE(3), not SE(2)
+    Eigen::VectorXd badvec6 = Eigen::Matrix<double, 6, 1>::Random();
+    EXPECT_THROW(lgmath::se2::Transformation test(badvec6), std::invalid_argument);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

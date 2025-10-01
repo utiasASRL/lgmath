@@ -34,12 +34,16 @@ Transformation::Transformation(const Eigen::Matrix2d& C_ab,
   r_ba_ina_ = r_ba_ina;
 }
 
-Transformation::Transformation(const Eigen::Vector3d& xi_ba) {
+Transformation::Transformation(const Eigen::Matrix<double, 3, 1>& xi_ba) {
+  lgmath::se2::vec2tran(xi_ba, &C_ab_, &r_ba_ina_);
+}
+
+Transformation::Transformation(const Eigen::VectorXd& xi_ba) {
   // Throw logic error
   if (xi_ba.rows() != 3) {
     throw std::invalid_argument(
         "Tried to initialize a transformation "
-        "from a VectorXd that was not dimension 6");
+        "from a VectorXd that was not dimension 3");
   }
 
   // Construct using exponential map

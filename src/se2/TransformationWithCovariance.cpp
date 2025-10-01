@@ -73,6 +73,16 @@ TransformationWithCovariance::TransformationWithCovariance(
     const Eigen::Vector3d& xi_ba, const Eigen::Matrix<double, 3, 3>& covariance)
     : Transformation(xi_ba), covariance_(covariance), covarianceSet_(true) {}
 
+TransformationWithCovariance::TransformationWithCovariance(
+    const Eigen::VectorXd& xi_ba)
+    : Transformation(xi_ba),
+      covariance_(Eigen::Matrix<double, 3, 3>::Zero()),
+      covarianceSet_(false) {}
+
+TransformationWithCovariance::TransformationWithCovariance(
+    const Eigen::VectorXd& xi_ba, const Eigen::Matrix<double, 3, 3>& covariance)
+    : Transformation(xi_ba), covariance_(covariance), covarianceSet_(true) {}
+
 TransformationWithCovariance& TransformationWithCovariance::operator=(
     const Transformation& T) noexcept {
   // Call the assignment operator on the super class, as the internal members

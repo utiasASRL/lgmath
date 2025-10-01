@@ -18,12 +18,24 @@ namespace so2 {
 Rotation::Rotation() : C_ab_(Eigen::Matrix2d::Identity()) {}
 
 Rotation::Rotation(const Eigen::Matrix2d& C) : C_ab_(C) {
-  // Trigger a conditional reprojection, depending on determinant
-  this->reproject(false);
+  // Force reprojection on construction
+  this->reproject(true);
 }
 
 Rotation::Rotation(const double angle_ba) {
   C_ab_ = lgmath::so2::vec2rot(angle_ba);
+}
+
+Rotation::Rotation(const Eigen::VectorXd& angle_ba) {
+  // Throw logic error
+  if (angle_ba.rows() != 1) {
+    throw std::invalid_argument(
+        "Tried to initialize a rotation "
+        "from a VectorXd that was not dimension 1");
+  }
+
+  // Construct using exponential map
+  C_ab_ = lgmath::so2::vec2rot(angle_ba(0));
 }
 
 const Eigen::Matrix2d& Rotation::matrix() const { return this->C_ab_; }

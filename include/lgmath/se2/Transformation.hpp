@@ -40,6 +40,12 @@ class Transformation {
    */
   explicit Transformation(const Eigen::Vector3d& xi_ba);
 
+  /**
+   * \brief Constructor.
+   * The transformation will be T_ab = vec2tran(xi_ba), xi_ba must be 3x1
+   */
+  explicit Transformation(const Eigen::VectorXd& xi_ab);
+
   /** \brief Destructor. Default implementation. */
   virtual ~Transformation() = default;
 

@@ -53,7 +53,7 @@ Rotation Rotation::inverse() const {
 }
 
 void Rotation::reproject(bool force) {
-  if (force || fabs(1.0 - this->C_ba_.determinant()) > 1e-6) {
+  if (force || fabs(1.0 - this->C_ba_.determinant()) > 1e-8) {
     C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
   }
 }

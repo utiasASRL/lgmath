@@ -77,6 +77,19 @@ class TransformationWithCovariance : public Transformation {
   TransformationWithCovariance(const Eigen::Vector3d& xi_ba,
                                const Eigen::Matrix<double, 3, 3>& covariance);
 
+  /**
+   * \brief Constructor.
+   * The transformation will be T_ab = vec2tran(xi_ba), xi_ba must be 3x1
+   */
+  TransformationWithCovariance(const Eigen::VectorXd& xi_ba);
+
+  /**
+   * \brief Constructor.
+   * The transformation will be T_ab = vec2tran(xi_ba), xi_ba must be 3x1
+   */
+  TransformationWithCovariance(const Eigen::VectorXd& xi_ba,
+                               const Eigen::Matrix<double, 3, 3>& covariance);
+
   /** \brief Destructor. Default implementation. */
   ~TransformationWithCovariance() override = default;
 

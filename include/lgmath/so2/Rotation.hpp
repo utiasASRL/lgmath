@@ -28,13 +28,13 @@ class Rotation {
   explicit Rotation(const Eigen::Matrix2d& C);
 
   /** \brief Constructor. The rotation will be C_ab = vec2rot(angle_ba) */
-  explicit Rotation(const double angle_ba, unsigned int numTerms = 0);
+  explicit Rotation(const double angle_ba);
 
   /**
    * \brief Constructor.
-   * The rotation will be C_ab = vec2rot(angle_ba)
+   * The rotation will be C_ba = vec2rot(angle_ba), angle_ba must be 1x1
    */
-  explicit Rotation(const double angle_ba);
+  explicit Rotation(const Eigen::VectorXd& angle_ba);
 
   /** \brief Destructor. */
   virtual ~Rotation() = default;
