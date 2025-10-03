@@ -31,7 +31,7 @@ Eigen::Matrix3d hat(const Eigen::Vector2d& rho, const double angle);
  * \brief Builds the 3x3 "skew symmetric matrix"
  * \details
  * The hat (^) operator, builds the 3x3 skew symmetric matrix from
- * the 4x1 se2 algebra vector, xi:
+ * the 3x1 se2 algebra vector, xi:
  *
  * xi^ = [rho  ] = [angle^ rho] = [0.0    -angle rho1]
  *       [angle]   [  0^T    0]   [angle  0.0    rho2]
@@ -86,7 +86,7 @@ Eigen::Matrix<double, 3, 3> point2fs(const Eigen::Vector2d& p,
                                      double scale = 1);
 
 /**
- * \brief Turns a homogeneous point into a special 6x4 matrix (double-circle
+ * \brief Turns a homogeneous point into a special 3x3 matrix (double-circle
  * operator)
  *
  * See eq. 72 in Barfoot-TRO-2014 for more information on the SE(3) version.
