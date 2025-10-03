@@ -8,6 +8,7 @@
  */
 #include <lgmath/so2/Rotation.hpp>
 
+#include <iostream>
 #include <stdexcept>
 
 #include <lgmath/so2/Operations.hpp>
@@ -18,8 +19,8 @@ namespace so2 {
 Rotation::Rotation() : C_ab_(Eigen::Matrix2d::Identity()) {}
 
 Rotation::Rotation(const Eigen::Matrix2d& C) : C_ab_(C) {
-  // Force reprojection on construction
-  this->reproject(true);
+  // Trigger a conditional reprojection, depending on determinant
+  this->reproject(false);
 }
 
 Rotation::Rotation(const double angle_ba) {
@@ -53,7 +54,16 @@ Rotation Rotation::inverse() const {
 }
 
 void Rotation::reproject(bool force) {
-  if (force || fabs(1.0 - this->C_ab_.determinant()) > 1e-6) {
+  // Compute determinant error
+  double det_err = fabs(1.0 - this->C_ab_.determinant());
+  // Check if matrix is extremely poor and output a warning
+  if (det_err > 1e-3) {
+    std::cout << "Warning: SO(2) rotation matrix " << this->C_ab_
+              << " has very poor determinant: "
+              << this->C_ab_.determinant() << std::endl;
+  }
+
+  if (force || det_err > 1e-8) {
     C_ab_ = so2::vec2rot(so2::rot2vec(C_ab_));
   }
 }
