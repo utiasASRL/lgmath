@@ -65,10 +65,10 @@ void vec2tran(const Eigen::Vector3d& xi_ba,
                          Eigen::Matrix2d* out_C_ab,
                          Eigen::Vector2d* out_r_ba_ina) {
   // Check pointers
-  if (out_C_ab == NULL) {
+  if (out_C_ab == nullptr) {
     throw std::invalid_argument("Null pointer out_C_ab in vec2tran");
   }
-  if (out_r_ba_ina == NULL) {
+  if (out_r_ba_ina == nullptr) {
     throw std::invalid_argument(
         "Null pointer out_r_ba_ina in vec2tran");
   }

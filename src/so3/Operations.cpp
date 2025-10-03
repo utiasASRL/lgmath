@@ -63,10 +63,10 @@ Eigen::Matrix3d vec2rot(const Eigen::Vector3d& aaxis_ba,
 void vec2rot(const Eigen::Vector3d& aaxis_ba, Eigen::Matrix3d* out_C_ab,
              Eigen::Matrix3d* out_J_ab) {
   // Check pointers
-  if (out_C_ab == NULL) {
+  if (out_C_ab == nullptr) {
     throw std::invalid_argument("Null pointer out_C_ab in vec2rot");
   }
-  if (out_J_ab == NULL) {
+  if (out_J_ab == nullptr) {
     throw std::invalid_argument("Null pointer out_J_ab in vec2rot");
   }
 
