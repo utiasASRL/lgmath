@@ -8,6 +8,7 @@
  */
 #include <lgmath/so3/Rotation.hpp>
 
+#include <iostream>
 #include <stdexcept>
 
 #include <lgmath/so3/Operations.hpp>
@@ -53,7 +54,15 @@ Rotation Rotation::inverse() const {
 }
 
 void Rotation::reproject(bool force) {
-  if (force || fabs(1.0 - this->C_ba_.determinant()) > 1e-6) {
+  // Compute determinant error
+  double det_err = fabs(1.0 - this->C_ba_.determinant());
+  // Check if matrix is extremely poor and output a warning
+  if (det_err > 1e-3) {
+    std::cerr << "Warning: SO(3) rotation matrix " << this->C_ba_
+              << " has very poor determinant: "
+              << this->C_ba_.determinant() << std::endl;
+  }
+  if (force || det_err > 1e-8) {
     C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
   }
 }

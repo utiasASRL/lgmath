@@ -60,10 +60,10 @@ void vec2tran_analytical(const Eigen::Vector3d& rho_ba,
                          Eigen::Matrix3d* out_C_ab,
                          Eigen::Vector3d* out_r_ba_ina) {
   // Check pointers
-  if (out_C_ab == NULL) {
+  if (out_C_ab == nullptr) {
     throw std::invalid_argument("Null pointer out_C_ab in vec2tran_analytical");
   }
-  if (out_r_ba_ina == NULL) {
+  if (out_r_ba_ina == nullptr) {
     throw std::invalid_argument(
         "Null pointer out_r_ba_ina in vec2tran_analytical");
   }
@@ -90,10 +90,10 @@ void vec2tran_numerical(const Eigen::Vector3d& rho_ba,
                         Eigen::Matrix3d* out_C_ab,
                         Eigen::Vector3d* out_r_ba_ina, unsigned int numTerms) {
   // Check pointers
-  if (out_C_ab == NULL) {
+  if (out_C_ab == nullptr) {
     throw std::invalid_argument("Null pointer out_C_ab in vec2tran_numerical");
   }
-  if (out_r_ba_ina == NULL) {
+  if (out_r_ba_ina == nullptr) {
     throw std::invalid_argument(
         "Null pointer out_r_ba_ina in vec2tran_numerical");
   }

@@ -24,18 +24,15 @@ Eigen::Matrix2d hat(const double angle) {
 }
 
 Eigen::Matrix2d vec2rot(const double angle_ba) {
-    // Note flipped minus sign on sin term since we're returning C_ab
-    // from angle_ba.
     const double sin_ba = sin(angle_ba);
     const double cos_ba = cos(angle_ba);
     Eigen::Matrix2d mat;
-    mat << cos_ba, sin_ba, -sin_ba, cos_ba;
+    mat << cos_ba, -sin_ba, sin_ba, cos_ba;
     return mat;
 }
 
 double rot2vec(const Eigen::Matrix2d& C_ab) {
-    // Note minus sign since we're returning angle_ba.
-    return -atan2(C_ab(1, 0), C_ab(0, 0));
+    return atan2(C_ab(1, 0), C_ab(0, 0));
 }
 
 double vec2jac() {

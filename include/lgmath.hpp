@@ -11,7 +11,9 @@
 #include <lgmath/so2/Rotation.hpp>
 
 // SE2
-// todo
+#include <lgmath/se2/Operations.hpp>
+#include <lgmath/se2/Transformation.hpp>
+#include <lgmath/se2/TransformationWithCovariance.hpp>
 
 // SO3
 #include <lgmath/so3/Operations.hpp>

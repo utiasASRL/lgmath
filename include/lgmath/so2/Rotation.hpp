@@ -30,6 +30,12 @@ class Rotation {
   /** \brief Constructor. The rotation will be C_ab = vec2rot(angle_ba) */
   explicit Rotation(const double angle_ba);
 
+  /**
+   * \brief Constructor.
+   * The rotation will be C_ba = vec2rot(angle_ba), angle_ba must be 1x1
+   */
+  explicit Rotation(const Eigen::VectorXd& angle_ba);
+
   /** \brief Destructor. */
   virtual ~Rotation() = default;
 
