@@ -69,25 +69,25 @@ TEST(LGMath, testHatFunction) {
 
     // Test the function
     for (unsigned i = 0; i < numTests; i++) {
-    Eigen::Matrix2d testMat = lgmath::so2::hat(trueAngles.at(i));
-    std::cout << "angle: " << trueAngles.at(i) << std::endl;
-    std::cout << "true: " << std::endl << trueMats.at(i) << std::endl;
-    std::cout << "func: " << std::endl << testMat << std::endl;
-    EXPECT_TRUE(lgmath::common::nearEqual(trueMats.at(i), testMat, 1e-6));
+        Eigen::Matrix2d testMat = lgmath::so2::hat(trueAngles.at(i));
+        // std::cout << "angle: " << trueAngles.at(i) << std::endl;
+        // std::cout << "true: " << std::endl << trueMats.at(i) << std::endl;
+        // std::cout << "func: " << std::endl << testMat << std::endl;
+        EXPECT_TRUE(lgmath::common::nearEqual(trueMats.at(i), testMat, 1e-6));
     }
 
     // Test identity: hat(θ)^T = -hat(θ) (skew-symmetric property)
     for (unsigned i = 0; i < numTests; i++) {
-    Eigen::Matrix2d testMat = lgmath::so2::hat(trueAngles.at(i));
-    EXPECT_TRUE(lgmath::common::nearEqual(testMat.transpose(), -testMat, 1e-6));
+        Eigen::Matrix2d testMat = lgmath::so2::hat(trueAngles.at(i));
+        EXPECT_TRUE(lgmath::common::nearEqual(testMat.transpose(), -testMat, 1e-6));
     }
 
     // Test linearity: hat(a*θ) = a*hat(θ)
     for (unsigned i = 0; i < numTests; i++) {
-    double scale = 2.5;
-    Eigen::Matrix2d hat_scaled_angle = lgmath::so2::hat(scale * trueAngles.at(i));
-    Eigen::Matrix2d scaled_hat_angle = scale * lgmath::so2::hat(trueAngles.at(i));
-    EXPECT_TRUE(lgmath::common::nearEqual(hat_scaled_angle, scaled_hat_angle, 1e-6));
+        double scale = 2.5;
+        Eigen::Matrix2d hat_scaled_angle = lgmath::so2::hat(scale * trueAngles.at(i));
+        Eigen::Matrix2d scaled_hat_angle = scale * lgmath::so2::hat(trueAngles.at(i));
+        EXPECT_TRUE(lgmath::common::nearEqual(hat_scaled_angle, scaled_hat_angle, 1e-6));
     }
 }
 
