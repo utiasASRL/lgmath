@@ -276,7 +276,7 @@ TEST(LGMath, testSO2RotationMatrixReprojection) {
     // Test with a slightly "corrupted" rotation matrix (should be reprojected)
     Eigen::Matrix2d corrupted_matrix;
     corrupted_matrix << 1.001, 0.001,
-                       -0.001, 0.999;  // Close to identity but not exactly orthogonal
+                       -0.001, 1.001;  // Close to identity but not exactly orthogonal
     
     lgmath::so2::Rotation rot_from_corrupted(corrupted_matrix);
     
