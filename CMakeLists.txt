@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(lgmath)
 
-option(USE_AMENT "Use ament_cmake to build lgmath for ROS2." OFF)
+find_package(ament_cmake QUIET)
 
 # Compiler setup
 set(CMAKE_CXX_STANDARD 17)
@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-march=native -O3 -Wall -pedantic)
 
 ## cmake flow (default)
-if (NOT USE_AMENT)
+if (NOT ament_cmake_FOUND)
 
 set(PROJECT_VERSION 1.1.0)
 
@@ -124,7 +124,6 @@ endif()
 ## ROS2 ament_cmake flow
 else()
 
-find_package(ament_cmake REQUIRED)
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3 3.3.7 REQUIRED)
 
@@ -211,6 +210,6 @@ else(DOXYGEN_FOUND)
     COMMENT "Doxygen was not found on this system so this target does not exist, please install it and re-run CMake." VERBATIM)
 endif(DOXYGEN_FOUND)
 
-if (USE_AMENT)
+if (ament_cmake_FOUND)
 ament_package()
 endif()
