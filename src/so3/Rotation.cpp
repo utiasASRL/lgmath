@@ -58,7 +58,7 @@ void Rotation::reproject(bool force) {
   double det_err = fabs(1.0 - this->C_ba_.determinant());
   // Check if matrix is extremely poor and output a warning
   if (det_err > 1e-3) {
-    std::cout << "Warning: SO(2) rotation matrix " << this->C_ba_
+    std::cerr << "Warning: SO(3) rotation matrix " << this->C_ba_
               << " has very poor determinant: "
               << this->C_ba_.determinant() << std::endl;
   }
