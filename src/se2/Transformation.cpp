@@ -68,7 +68,7 @@ Eigen::Vector2d Transformation::r_ab_inb() const {
 }
 
 Eigen::Matrix<double, 3, 1> Transformation::vec() const {
-  return lgmath::se2::tran2vec(this->C_ab_, this->r_ba_ina_);
+  return lgmath::se2::tran2vec(C_ab_, r_ba_ina_);
 }
 
 Transformation Transformation::inverse() const {
