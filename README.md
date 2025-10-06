@@ -40,7 +40,7 @@ mkdir build && cd $_
 cmake .. && make install # default install location is /usr/local/
 ```
 
-- Note: if installed from source to a custom location then make sure `cmake` can find it.
+- Note: if installed from source to a custom location then make sure `cmake` can find it. Also ensure that ros has not been sourced in the terminal used for compilation otherwise it will be compiled as an `ament_cmake` package.
 
 ### Build and install lgmath using `cmake`
 
@@ -61,15 +61,11 @@ Note: `lgmathConfig.cmake` will be generated in both `build/` and `<install pref
 
 ### Build and install lgmath using `ROS2(colcon+ament_cmake)`
 
+CMake will automatically determine if you are building as part of a 
 ```bash
-WORKSPACE=~/workspace  # choose your own workspace directory
-
-mkdir -p ${WORKSPACE}/lgmath && cd $_
-git clone https://github.com/utiasASRL/lgmath.git .
-
-source <your ROS2 worspace>
-colcon build --symlink-install --cmake-args "-DUSE_AMENT=ON"
-colcon build --symlink-install --cmake-args "-DUSE_AMENT=ON" --cmake-target doc  # (optional) generate documentation in ./build/doc
+colcon build
 ```
+and use `ament_cmake` for you. This is achieved checking if ROS is present in your terminal and if the install location is not the default `/usr/local` which is true of ROS packages.
+
 
 ## [License](./LICENSE)
