@@ -51,7 +51,7 @@ mkdir -p ${WORKSPACE}/lgmath && cd $_
 git clone https://github.com/utiasASRL/lgmath.git .
 # build and install
 mkdir -p build && cd $_
-cmake ..
+cmake ..  # optionally include -DBUILD_TESTING=ON to build tests
 cmake --build .
 cmake --install . # (optional) install, default location is /usr/local/
 make doc  # (optional) generate documentation in ./doc
