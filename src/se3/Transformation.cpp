@@ -13,6 +13,8 @@
 
 #include <lgmath/se3/Operations.hpp>
 #include <lgmath/so3/Operations.hpp>
+#include <lgmath/so3/Rotation.hpp>
+#include <lgmath/se2/Transformation.hpp>
 
 namespace lgmath {
 namespace se3 {
@@ -86,7 +88,9 @@ Eigen::Matrix<double, 6, 6> Transformation::adjoint() const {
 void Transformation::reproject(bool force) {
   // Note that the translation parameter always belongs to SE(3), but the
   // rotation can incur numerical error that accumulates.
-  C_ba_ = so3::vec2rot(so3::rot2vec(C_ba_));
+  so3::Rotation rotation(C_ba_);
+  rotation.reproject(force);
+  C_ba_ = rotation.matrix();
 }
 
 Transformation& Transformation::operator*=(const Transformation& T_rhs) {
@@ -131,6 +135,15 @@ Eigen::Vector4d Transformation::operator*(
   return p_b;
 }
 
+se2::Transformation Transformation::toSE2() const {
+  // Check norm of z, roll, pitch components to warn if they are large
+  if (this->vec().segment<3>(2).norm() > 1e-3) {
+    std::cerr << "Warning: SE(3) has significant z, roll, or pitch component. "
+              << "Projecting to SE(2) will discard this information."
+              << std::endl;
+  }
+  return se2::Transformation(C_ba_.block<2, 2>(0, 0), r_ba_ina().head<2>());
+}
 }  // namespace se3
 }  // namespace lgmath
 

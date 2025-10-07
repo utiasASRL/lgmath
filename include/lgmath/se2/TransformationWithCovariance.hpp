@@ -16,6 +16,9 @@
 
 #include <lgmath/se2/Transformation.hpp>
 
+// Forward declaration to avoid circular dependency
+namespace lgmath { namespace se3 { class TransformationWithCovariance; } }
+
 namespace lgmath {
 namespace se2 {
 
@@ -157,6 +160,14 @@ class TransformationWithCovariance : public Transformation {
    */
   TransformationWithCovariance& operator/=(
       const Transformation& T_rhs) override;
+
+  /**
+   * \brief Convert to SE(3) transformation with covariance
+   * \details Embeds the SE(2) transformation into SE(3) by placing it in the
+   * xy-plane with z=0, roll=0, pitch=0. A very small covariance is set for the
+   * z, roll, and pitch components and cross-correlations are set to zero.
+   */
+   se3::TransformationWithCovariance toSE3() const;
 
  private:
   /** \brief Covariance */

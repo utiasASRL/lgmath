@@ -14,6 +14,7 @@
 
 #include <lgmath/se2/Operations.hpp>
 #include <lgmath/so2/Operations.hpp>
+#include <lgmath/se3/TransformationWithCovariance.hpp>
 
 namespace lgmath {
 namespace se2 {
@@ -141,6 +142,38 @@ TransformationWithCovariance TransformationWithCovariance::inverse() const {
   temp.setCovariance(adjointOfInverse * covariance_ *
                      adjointOfInverse.transpose());
   return temp;
+}
+
+se3::TransformationWithCovariance TransformationWithCovariance::toSE3() const {
+  // Use the base class toSE3() method to create the SE(3) transformation
+  se3::Transformation base_transform = Transformation::toSE3();
+  
+  // Create the SE(3) transformation with covariance
+  se3::TransformationWithCovariance T_se3(base_transform);
+
+  if (this->covarianceSet()) {
+    // Create the SE(3) covariance matrix, filling in the known parts and
+    // setting the rest to zero
+    Eigen::Matrix<double, 6, 6> cov_se3 = Eigen::Matrix<double, 6, 6>::Zero();
+    // Set x, y, yaw covariance
+    cov_se3(0, 0) = this->covariance_(0, 0);
+    cov_se3(1, 1) = this->covariance_(1, 1);
+    cov_se3(5, 5) = this->covariance_(2, 2);
+    // Set cross-correlations
+    cov_se3(0, 1) = this->covariance_(0, 1);
+    cov_se3(1, 0) = this->covariance_(1, 0);
+    cov_se3(0, 5) = this->covariance_(0, 2);
+    cov_se3(5, 0) = this->covariance_(2, 0);
+    cov_se3(1, 5) = this->covariance_(1, 2);
+    cov_se3(5, 1) = this->covariance_(2, 1);
+    // Set small covariance for z, roll, pitch to avoid singular covariance matrix
+    cov_se3(2, 2) = 1e-6;
+    cov_se3(3, 3) = 1e-6;
+    cov_se3(4, 4) = 1e-6;
+    T_se3.setCovariance(cov_se3);
+  }
+
+  return T_se3;
 }
 
 TransformationWithCovariance& TransformationWithCovariance::operator*=(
