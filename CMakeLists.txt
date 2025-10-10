@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-march=native -O3 -Wall -pedantic)
 
 ## cmake flow (default)
-if ((NOT ament_cmake_FOUND) OR ("/usr/local" STREQUAL ${CMAKE_INSTALL_PREFIX}))
+if ((NOT ament_cmake_FOUND) OR (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT))
   message(STATUS "Not using ROS to build")
 
   set(PROJECT_VERSION 1.1.0)
