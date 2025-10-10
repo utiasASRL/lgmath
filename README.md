@@ -5,10 +5,10 @@ It is used to store, manipulate, and apply three-dimensional rotations and trans
 
 There are no minimal, constraint-free, singularity-free representations for these quantities, so lgmath exploits two different representations for the nominal and noisy parts of the uncertain random variable.
 
-- Nominal rotations and transformations are represented using their composable, singularity-free _matrix Lie groups_, _SO(3)_ and _SE(3)_.
-- Their uncertainties are represented as multiplicative perturbations on the minimal, constraint-free vectorspaces of their _Lie algebras_, **\*so\*\***(3)\* and **\*se\*\***(3)\*.
+- Nominal rotations and transformations are represented using their composable, singularity-free _matrix Lie groups_, **SO(2)**/**SO(3)** and **SE(2)**/**SE(3)**.
+- Their uncertainties are represented as multiplicative perturbations on the minimal, constraint-free vectorspaces of their _Lie algebras_, **so(2)**/**so(3)** and **se(2)**/**se(3)**.
 
-This library uses concepts and mathematics described in Timothy D. Barfoot's book [State Estimation for Robotics](asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser17.pdf).
+This library uses concepts and mathematics described in Timothy D. Barfoot's book [State Estimation for Robotics](http://asrl.utias.utoronto.ca/~tdb/bib/barfoot_ser24.pdf). The library also references [Associating Uncertainty With Three-Dimensional Poses for Use in Estimation Problems](https://ieeexplore.ieee.org/document/6727494) and [Integral Forms in Matrix Lie Groups](https://arxiv.org/abs/2503.02820).
 It is used for robotics research at the Autonomous Space Robotics Lab; most notably in the STEAM Engine, a library for Simultaneous Trajectory Estimation and Mapping.
 
 ## Installation
@@ -51,7 +51,7 @@ mkdir -p ${WORKSPACE}/lgmath && cd $_
 git clone https://github.com/utiasASRL/lgmath.git .
 # build and install
 mkdir -p build && cd $_
-cmake ..
+cmake ..  # optionally include -DBUILD_TESTING=ON to build tests
 cmake --build .
 cmake --install . # (optional) install, default location is /usr/local/
 make doc  # (optional) generate documentation in ./doc
