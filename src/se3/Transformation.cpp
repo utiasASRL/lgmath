@@ -33,7 +33,7 @@ Transformation::Transformation(const Eigen::Matrix3d& C_ba,
   C_ba_ = C_ba;
   // Trigger a conditional reprojection, depending on determinant
   this->reproject(false);
-  r_ab_inb_ = (-1.0) * C_ba_ * r_ba_ina;
+  r_ab_inb_ = -C_ba_ * r_ba_ina;
 }
 
 Transformation::Transformation(const Eigen::Matrix<double, 6, 1>& xi_ab,
@@ -63,7 +63,7 @@ Eigen::Matrix4d Transformation::matrix() const {
 const Eigen::Matrix3d& Transformation::C_ba() const { return C_ba_; }
 
 Eigen::Vector3d Transformation::r_ba_ina() const {
-  return (-1.0) * C_ba_.transpose() * r_ab_inb_;
+  return -C_ba_.transpose() * r_ab_inb_;
 }
 
 const Eigen::Vector3d& Transformation::r_ab_inb() const { return r_ab_inb_; }
@@ -77,7 +77,7 @@ Transformation Transformation::inverse() const {
   temp.C_ba_ = C_ba_.transpose();
   // Trigger a conditional reprojection, depending on determinant
   temp.reproject(false);
-  temp.r_ab_inb_ = (-1.0) * temp.C_ba_ * r_ab_inb_;
+  temp.r_ab_inb_ = -temp.C_ba_ * r_ab_inb_;
   return temp;
 }
 
