@@ -52,15 +52,15 @@ TransformationWithCovariance::TransformationWithCovariance(
     : Transformation(T), covariance_(covariance), covarianceSet_(true) {}
 
 TransformationWithCovariance::TransformationWithCovariance(
-    const Eigen::Matrix2d& C_ab, const Eigen::Vector2d& r_ba_ina)
-    : Transformation(C_ab, r_ba_ina),
+    const Eigen::Matrix2d& C_ba, const Eigen::Vector2d& r_ba_ina)
+    : Transformation(C_ba, r_ba_ina),
       covariance_(Eigen::Matrix<double, 3, 3>::Zero()),
       covarianceSet_(false) {}
 
 TransformationWithCovariance::TransformationWithCovariance(
-    const Eigen::Matrix2d& C_ab, const Eigen::Vector2d& r_ba_ina,
+    const Eigen::Matrix2d& C_ba, const Eigen::Vector2d& r_ba_ina,
     const Eigen::Matrix<double, 3, 3>& covariance)
-    : Transformation(C_ab, r_ba_ina),
+    : Transformation(C_ba, r_ba_ina),
       covariance_(covariance),
       covarianceSet_(true) {}
 
