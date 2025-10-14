@@ -98,13 +98,14 @@ Eigen::Matrix<double, 3, 3> covSafe(lgmath::se2::TransformationWithCovariance& T
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST(LGMath, SE2TransformationWithCovarianceConstructors) {
   // Generate random transform from most basic constructor
-  Eigen::Matrix<double, 2, 2> C_ab =
+  Eigen::Matrix<double, 2, 2> C_ba =
       lgmath::so2::vec2rot(Eigen::Matrix<double, 1, 1>::Random()(0));
   Eigen::Matrix<double, 2, 1> r_ba_ina = Eigen::Matrix<double, 2, 1>::Random();
+  Eigen::Matrix<double, 2, 1> r_ab_inb = -C_ba * r_ba_ina;
   Eigen::Matrix<double, 3, 3> U = Eigen::Matrix<double, 3, 3>::Random();
   Eigen::Matrix<double, 3, 3> Z = Eigen::Matrix<double, 3, 3>::Zero();
-  lgmath::se2::Transformation randBase(C_ab, r_ba_ina);
-  lgmath::se2::TransformationWithCovariance rand(C_ab, r_ba_ina, U);
+  lgmath::se2::Transformation randBase(C_ba, r_ba_ina);
+  lgmath::se2::TransformationWithCovariance rand(C_ba, r_ba_ina, U);
 
   // TransformationWithCovariance();
   // default"
@@ -236,7 +237,7 @@ TEST(LGMath, SE2TransformationWithCovarianceConstructors) {
     Eigen::Matrix3d tmat = lgmath::se2::vec2tran(vec);
     lgmath::se2::TransformationWithCovariance test(vec);
 
-    std::cout << "Exponential map test: \n" << std::endl;
+    // std::cout << "Exponential map test: \n" << std::endl;
     CHECK_EQ(tmat, test.matrix());
     CHECK_NO_COVARIANCE(test);
   }
@@ -248,34 +249,34 @@ TEST(LGMath, SE2TransformationWithCovarianceConstructors) {
     Eigen::Matrix3d tmat = lgmath::se2::vec2tran(vec);
     lgmath::se2::TransformationWithCovariance test(vec, U);
 
-    std::cout << "Exponential map with covariance test: \n" << std::endl;
+    // std::cout << "Exponential map with covariance test: \n" << std::endl;
     CHECK_EQ(tmat, test.matrix());
     CHECK_HAS_COVARIANCE(test);
     CHECK_EQ_COVARIANCE(test, U);
   }
 
-  // TransformationWithCovariance(const Eigen::Matrix2d& C_ab,
+  // TransformationWithCovariance(const Eigen::Matrix2d& C_ba,
   //                             const Eigen::Vector2d& r_ba_ina);
   // test C/r constructor"
   {
-    lgmath::se2::TransformationWithCovariance test(C_ab, r_ba_ina);
+    lgmath::se2::TransformationWithCovariance test(C_ba, r_ba_ina);
     Eigen::Matrix3d tmat = Eigen::Matrix3d::Identity();
-    tmat.topLeftCorner<2, 2>() = C_ab;
-    tmat.topRightCorner<2, 1>() = r_ba_ina;
+    tmat.topLeftCorner<2, 2>() = C_ba;
+    tmat.topRightCorner<2, 1>() = r_ab_inb;
 
     CHECK_EQ(tmat, test.matrix());
     CHECK_NO_COVARIANCE(test);
   }
 
-  // TransformationWithCovariance(const Eigen::Matrix2d& C_ab,
+  // TransformationWithCovariance(const Eigen::Matrix2d& C_ba,
   //                             const Eigen::Vector2d& r_ba_ina,
   //                             Eigen::Matrix3d& U);
   // test C/r constructor with covariance"
   {
-    lgmath::se2::TransformationWithCovariance test(C_ab, r_ba_ina, U);
+    lgmath::se2::TransformationWithCovariance test(C_ba, r_ba_ina, U);
     Eigen::Matrix3d tmat = Eigen::Matrix3d::Identity();
-    tmat.topLeftCorner<2, 2>() = C_ab;
-    tmat.topRightCorner<2, 1>() = r_ba_ina;
+    tmat.topLeftCorner<2, 2>() = C_ba;
+    tmat.topRightCorner<2, 1>() = r_ab_inb;
 
     CHECK_EQ(tmat, test.matrix());
     CHECK_HAS_COVARIANCE(test);
@@ -361,37 +362,38 @@ TEST(LGMath, SE2TransformationWithCovarianceConstructors) {
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST(LGMath, SE2TransformationWithCovarianceGetMethods) {
   // Generate random transform from most basic constructor
-  Eigen::Matrix<double, 2, 2> C_ab =
+  Eigen::Matrix<double, 2, 2> C_ba =
       lgmath::so2::vec2rot(Eigen::Matrix<double, 1, 1>::Random()(0));
   Eigen::Matrix<double, 2, 1> r_ba_ina = Eigen::Matrix<double, 2, 1>::Random();
+  Eigen::Matrix<double, 2, 1> r_ab_inb = -C_ba * r_ba_ina;
   Eigen::Matrix<double, 3, 3> U = Eigen::Matrix<double, 3, 3>::Random();
-  lgmath::se2::TransformationWithCovariance T_ba(C_ab, r_ba_ina, U);
+  lgmath::se2::TransformationWithCovariance T_ba(C_ba, r_ba_ina, U);
 
   // Construct simple eigen matrix from random rotation and translation
   Eigen::Matrix3d test = Eigen::Matrix3d::Identity();
-  test.topLeftCorner<2, 2>() = C_ab;
-  test.topRightCorner<2, 1>() = r_ba_ina;
+  test.topLeftCorner<2, 2>() = C_ba;
+  test.topRightCorner<2, 1>() = r_ab_inb;
 
   // Test matrix()
-  std::cout << "T_ba: " << T_ba.matrix() << std::endl;
-  std::cout << "test: " << test << std::endl;
+  // std::cout << "T_ba: " << T_ba.matrix() << std::endl;
+  // std::cout << "test: " << test << std::endl;
   EXPECT_TRUE(lgmath::common::nearEqual(T_ba.matrix(), test, 1e-6));
 
-  // Test C_ab()
-  std::cout << "T_ba: " << T_ba.C_ab() << std::endl;
-  std::cout << "C_ab: " << C_ab << std::endl;
-  EXPECT_TRUE(lgmath::common::nearEqual(T_ba.C_ab(), C_ab, 1e-6));
+  // Test C_ba()
+  // std::cout << "T_ba: " << T_ba.C_ba() << std::endl;
+  // std::cout << "C_ba: " << C_ba << std::endl;
+  EXPECT_TRUE(lgmath::common::nearEqual(T_ba.C_ba(), C_ba, 1e-6));
 
   // Test r_ba_ina()
-  std::cout << "T_ba: " << T_ba.r_ba_ina() << std::endl;
-  std::cout << "r_ba_ina: " << r_ba_ina << std::endl;
+  // std::cout << "T_ba: " << T_ba.r_ba_ina() << std::endl;
+  // std::cout << "r_ba_ina: " << r_ba_ina << std::endl;
   EXPECT_TRUE(lgmath::common::nearEqual(T_ba.r_ba_ina(), r_ba_ina, 1e-6));
 
   // Test r_ab_inb()
   Eigen::Vector2d r_ab_inb_computed = T_ba.r_ab_inb();
-  Eigen::Vector2d r_ab_inb_expected = -C_ab.transpose() * r_ba_ina;
-  std::cout << "T_ba: " << r_ab_inb_computed << std::endl;
-  std::cout << "expected: " << r_ab_inb_expected << std::endl;
+  Eigen::Vector2d r_ab_inb_expected = r_ab_inb;
+  // std::cout << "T_ba: " << r_ab_inb_computed << std::endl;
+  // std::cout << "expected: " << r_ab_inb_expected << std::endl;
   EXPECT_TRUE(lgmath::common::nearEqual(r_ab_inb_computed, r_ab_inb_expected, 1e-6));
 }
 

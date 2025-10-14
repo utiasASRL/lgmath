@@ -14,6 +14,7 @@
 
 #include <lgmath/se3/Operations.hpp>
 #include <lgmath/so3/Operations.hpp>
+#include <lgmath/se2/TransformationWithCovariance.hpp>
 
 namespace lgmath {
 namespace se3 {
@@ -144,6 +145,34 @@ TransformationWithCovariance TransformationWithCovariance::inverse() const {
   temp.setCovariance(adjointOfInverse * covariance_ *
                      adjointOfInverse.transpose());
   return temp;
+}
+
+se2::TransformationWithCovariance TransformationWithCovariance::toSE2() const {
+  // Use the base class toSE2() method to create the SE(2) transformation
+  se2::Transformation base_transform = Transformation::toSE2();
+  
+  // Create the SE(2) transformation with covariance
+  se2::TransformationWithCovariance T_se2(base_transform);
+
+  if (this->covarianceSet()) {
+    // Create the SE(2) covariance matrix by extracting the relevant parts
+    Eigen::Matrix<double, 3, 3> cov_se2;
+    // Extract x, y, yaw covariance (indices 0, 1, 5 in SE(3))
+    cov_se2(0, 0) = this->covariance_(0, 0);  // x variance
+    cov_se2(1, 1) = this->covariance_(1, 1);  // y variance
+    cov_se2(2, 2) = this->covariance_(5, 5);  // yaw variance
+    // Extract cross-correlations
+    cov_se2(0, 1) = this->covariance_(0, 1);
+    cov_se2(1, 0) = this->covariance_(1, 0);
+    cov_se2(0, 2) = this->covariance_(0, 5);
+    cov_se2(2, 0) = this->covariance_(5, 0);
+    cov_se2(1, 2) = this->covariance_(1, 5);
+    cov_se2(2, 1) = this->covariance_(5, 1);
+    
+    T_se2.setCovariance(cov_se2);
+  }
+
+  return T_se2;
 }
 
 TransformationWithCovariance& TransformationWithCovariance::operator*=(
