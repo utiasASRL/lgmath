@@ -63,7 +63,7 @@ class TransformationWithCovariance : public Transformation {
    * \brief Constructor with covariance.
    * The transformation will be T_ab = [C_ab, r_ba_ina; 0 0 0 1]
    */
-  TransformationWithCovariance(const Eigen::Matrix2d& C_ab,
+  explicit TransformationWithCovariance(const Eigen::Matrix2d& C_ab,
                                const Eigen::Vector2d& r_ba_ina,
                                const Eigen::Matrix<double, 3, 3>& covariance);
 
@@ -71,13 +71,13 @@ class TransformationWithCovariance : public Transformation {
    * \brief Constructor.
    * The transformation will be T_ab = vec2tran(xi_ba), xi_ba must be 3x1
    */
-  TransformationWithCovariance(const Eigen::Vector3d& xi_ba);
+  explicit TransformationWithCovariance(const Eigen::Matrix<double, 3, 1>& xi_ba);
 
   /**
    * \brief Constructor.
    * The transformation will be T_ab = vec2tran(xi_ba), xi_ba must be 3x1
    */
-  TransformationWithCovariance(const Eigen::Vector3d& xi_ba,
+  explicit TransformationWithCovariance(const Eigen::Matrix<double, 3, 1>& xi_ba,
                                const Eigen::Matrix<double, 3, 3>& covariance);
 
   /**
