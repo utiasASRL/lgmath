@@ -120,6 +120,10 @@ if ((NOT ament_cmake_FOUND) OR (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT))
     add_executable(se2_transform_with_covariance_tests tests/SE2TransformWithCovarianceTests.cpp)
     target_link_libraries(se2_transform_with_covariance_tests ${PROJECT_NAME} GTest::gtest GTest::gtest_main)
     add_test(NAME se2_transform_with_covariance_tests COMMAND se2_transform_with_covariance_tests)
+
+    add_executable(conversion_tests tests/ConversionTests.cpp)
+    target_link_libraries(conversion_tests ${PROJECT_NAME} GTest::gtest GTest::gtest_main)
+    add_test(NAME conversion_tests COMMAND conversion_tests)
   endif()
 
 ## ROS2 ament_cmake flow
@@ -177,6 +181,8 @@ else()
     target_link_libraries(se2_transform_with_covariance_tests ${PROJECT_NAME})
     ament_add_gtest(transform_with_covariance_tests tests/TransformWithCovarianceTests.cpp)
     target_link_libraries(transform_with_covariance_tests ${PROJECT_NAME})
+    ament_add_gtest(conversion_tests tests/ConversionTests.cpp)
+    target_link_libraries(conversion_tests ${PROJECT_NAME})
 
     # Benchmarks
     ament_add_gtest(so3_benchmarks benchmarks/SO3SpeedTest.cpp)

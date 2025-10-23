@@ -10,6 +10,9 @@
 
 #include <Eigen/Dense>
 
+// Forward declaration to avoid circular dependency  
+namespace lgmath { namespace se2 { class Transformation; } }
+
 namespace lgmath {
 namespace se3 {
 
@@ -96,6 +99,15 @@ class Transformation {
 
   /** \brief Right-hand side multiply the homogeneous vector p_a */
   Eigen::Vector4d operator*(const Eigen::Ref<const Eigen::Vector4d>& p_a) const;
+
+  /**
+   * \brief Project to SE(2) transformation by extracting xy-plane motion
+   * \details Projects the SE(3) transformation onto the xy-plane, discarding
+   * z-translation and rotations around x/y axes. This is useful for 2D navigation
+   * applications where only planar motion is relevant.
+   * \return SE(2) transformation representing the xy-plane motion
+   */
+  lgmath::se2::Transformation toSE2() const;
 
  private:
   /** \brief Rotation matrix from a to b */

@@ -10,6 +10,9 @@
 
 #include <Eigen/Dense>
 
+// Forward declaration to avoid circular dependency
+namespace lgmath { namespace se3 { class Transformation; } }
+
 namespace lgmath {
 namespace se2 {
 
@@ -29,20 +32,20 @@ class Transformation {
 
   /**
    * \brief Constructor.
-   * The transformation will be T_ab = [C_ab, r_ba_ina; 0 0 0 1]
+   * The transformation will be T_ba = [C_ba, -C_ba*r_ba_ina; 0 0 0 1]
    */
-  explicit Transformation(const Eigen::Matrix2d& C_ab,
+  explicit Transformation(const Eigen::Matrix2d& C_ba,
                           const Eigen::Vector2d& r_ba_ina);
 
   /**
    * \brief Constructor.
-   * The transformation will be T_ab = vec2tran(xi_ba), xi_ba must be 3x1
+   * The transformation will be T_ba = vec2tran(xi_ab), xi_ab must be 3x1
    */
-  explicit Transformation(const Eigen::Vector3d& xi_ba);
+  explicit Transformation(const Eigen::Vector3d& xi_ab);
 
   /**
    * \brief Constructor.
-   * The transformation will be T_ab = vec2tran(xi_ba), xi_ba must be 3x1
+   * The transformation will be T_ba = vec2tran(xi_ab), xi_ab must be 3x1
    */
   explicit Transformation(const Eigen::VectorXd& xi_ab);
 
@@ -59,13 +62,13 @@ class Transformation {
   Eigen::Matrix3d matrix() const;
 
   /** \brief Gets the underlying rotation matrix */
-  const Eigen::Matrix2d& C_ab() const;
+  const Eigen::Matrix2d& C_ba() const;
 
-  /** \brief Gets the underlying r_ba_ina vector. */
-  const Eigen::Vector2d r_ba_ina() const;
+  /** \brief Gets r_ba_ina = -C_ba.transpose() * r_ab_inb */
+  Eigen::Vector2d r_ba_ina() const;
 
-  /** \brief Gets r_ba_inb = -C_ab.transpose() * r_ba_ina */
-  Eigen::Vector2d r_ab_inb() const;
+  /** \brief Gets the underlying r_ab_inb vector. */
+  const Eigen::Vector2d& r_ab_inb() const;
 
   /** \brief Get the corresponding Lie algebra using the logarithmic map */
   Eigen::Matrix<double, 3, 1> vec() const;
@@ -93,15 +96,22 @@ class Transformation {
   /** \brief Right-hand side multiply the inverse of T_rhs */
   virtual Transformation operator/(const Transformation& T_rhs) const;
 
-  /** \brief Right-hand side multiply the homogeneous vector p_b */
-  Eigen::Vector3d operator*(const Eigen::Ref<const Eigen::Vector3d>& p_b) const;
+  /** \brief Right-hand side multiply the homogeneous vector p_a */
+  Eigen::Vector3d operator*(const Eigen::Ref<const Eigen::Vector3d>& p_a) const;
+
+  /**
+   * \brief Convert to SE(3) transformation by embedding in the xy-plane
+   * \details Embeds the SE(2) transformation into SE(3) by placing it in the
+   * xy-plane with z=0.
+   */
+  se3::Transformation toSE3() const;
 
  private:
-  /** \brief Rotation matrix from b to a */
-  Eigen::Matrix2d C_ab_;
+  /** \brief Rotation matrix from a to b */
+  Eigen::Matrix2d C_ba_;
 
-  /** \brief Translation vector from b to a, expressed in frame a */
-  Eigen::Vector2d r_ba_ina_;
+  /** \brief Translation vector from b to a, expressed in frame b */
+  Eigen::Vector2d r_ab_inb_;
 };
 
 }  // namespace se2

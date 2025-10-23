@@ -32,41 +32,41 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST(LGMath, SE2TransformationConstructors) {
   // Generate random transform from most basic constructor
-  Eigen::Matrix<double, 2, 2> C_ab =
+  Eigen::Matrix<double, 2, 2> C_ba =
       lgmath::so2::vec2rot(Eigen::Matrix<double, 1, 1>::Random()(0));
   Eigen::Matrix<double, 2, 1> r_ba_ina = Eigen::Matrix<double, 2, 1>::Random();
-  lgmath::se2::Transformation rand(C_ab, r_ba_ina);
+  lgmath::se2::Transformation rand(C_ba, r_ba_ina);
 
   // Transformation();
   {
     lgmath::se2::Transformation tmatrix;
     Eigen::Matrix3d test = Eigen::Matrix3d::Identity();
-    std::cout << "tmat: " << tmatrix.matrix() << std::endl;
-    std::cout << "test: " << test << std::endl;
+    // std::cout << "tmat: " << tmatrix.matrix() << std::endl;
+    // std::cout << "test: " << test << std::endl;
     EXPECT_TRUE(lgmath::common::nearEqual(tmatrix.matrix(), test, 1e-6));
   }
 
   // Transformation(const Transformation& T);
   {
     lgmath::se2::Transformation test(rand);
-    std::cout << "tmat: " << rand.matrix() << std::endl;
-    std::cout << "test: " << test.matrix() << std::endl;
+    // std::cout << "tmat: " << rand.matrix() << std::endl;
+    // std::cout << "test: " << test.matrix() << std::endl;
     EXPECT_TRUE(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
   }
 
   // Transformation(const Eigen::Matrix3d& T);
   {
     lgmath::se2::Transformation test(rand.matrix());
-    std::cout << "tmat: " << rand.matrix() << std::endl;
-    std::cout << "test: " << test.matrix() << std::endl;
+    // std::cout << "tmat: " << rand.matrix() << std::endl;
+    // std::cout << "test: " << test.matrix() << std::endl;
     EXPECT_TRUE(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
   }
 
   // Transformation& operator=(Transformation T);
   {
     lgmath::se2::Transformation test = rand;
-    std::cout << "tmat: " << rand.matrix() << std::endl;
-    std::cout << "test: " << test.matrix() << std::endl;
+    // std::cout << "tmat: " << rand.matrix() << std::endl;
+    // std::cout << "test: " << test.matrix() << std::endl;
     EXPECT_TRUE(lgmath::common::nearEqual(rand.matrix(), test.matrix(), 1e-6));
   }
 
@@ -75,20 +75,20 @@ TEST(LGMath, SE2TransformationConstructors) {
     Eigen::Matrix<double, 3, 1> vec = Eigen::Matrix<double, 3, 1>::Random();
     Eigen::Matrix3d tmat = lgmath::se2::vec2tran(vec);
     lgmath::se2::Transformation test(vec);
-    std::cout << "tmat: " << tmat << std::endl;
-    std::cout << "test: " << test.matrix() << std::endl;
+    // std::cout << "tmat: " << tmat << std::endl;
+    // std::cout << "test: " << test.matrix() << std::endl;
     EXPECT_TRUE(lgmath::common::nearEqual(tmat, test.matrix(), 1e-6));
   }
 
-  // Transformation(const Eigen::Matrix2d& C_ab,
+  // Transformation(const Eigen::Matrix2d& C_ba,
   //               const Eigen::Vector2d& r_ba_ina);
   {
-    lgmath::se2::Transformation tmat(C_ab, r_ba_ina);
+    lgmath::se2::Transformation tmat(C_ba, r_ba_ina);
     Eigen::Matrix3d test = Eigen::Matrix3d::Identity();
-    test.topLeftCorner<2, 2>() = C_ab;
-    test.topRightCorner<2, 1>() = r_ba_ina;
-    std::cout << "tmat: " << tmat.matrix() << std::endl;
-    std::cout << "test: " << test << std::endl;
+    test.topLeftCorner<2, 2>() = C_ba;
+    test.topRightCorner<2, 1>() = -C_ba * r_ba_ina;
+    // std::cout << "tmat: " << tmat.matrix() << std::endl;
+    // std::cout << "test: " << test << std::endl;
     EXPECT_TRUE(lgmath::common::nearEqual(tmat.matrix(), test, 1e-6));
   }
 
@@ -98,8 +98,8 @@ TEST(LGMath, SE2TransformationConstructors) {
     lgmath::se2::Transformation test(std::move(rand));
     rand = rand2;
 
-    std::cout << "tmat: " << test.matrix() << std::endl;
-    std::cout << "test: " << rand.matrix() << std::endl;
+    // std::cout << "tmat: " << test.matrix() << std::endl;
+    // std::cout << "test: " << rand.matrix() << std::endl;
     EXPECT_TRUE(lgmath::common::nearEqual(test.matrix(), rand.matrix(), 1e-6));
   }
 
@@ -110,8 +110,8 @@ TEST(LGMath, SE2TransformationConstructors) {
     test = std::move(rand);
     rand = rand2;
 
-    std::cout << "tmat: " << test.matrix() << std::endl;
-    std::cout << "test: " << rand.matrix() << std::endl;
+    // std::cout << "tmat: " << test.matrix() << std::endl;
+    // std::cout << "test: " << rand.matrix() << std::endl;
     EXPECT_TRUE(lgmath::common::nearEqual(test.matrix(), rand.matrix(), 1e-6));
   }
 
@@ -121,8 +121,8 @@ TEST(LGMath, SE2TransformationConstructors) {
     Eigen::VectorXd vec = Eigen::Matrix<double, 3, 1>::Random();
     Eigen::Matrix3d tmat = lgmath::se2::vec2tran(vec.head<3>());
     lgmath::se2::Transformation test(vec);
-    std::cout << "tmat: " << tmat << std::endl;
-    std::cout << "test: " << test.matrix() << std::endl;
+    // std::cout << "tmat: " << tmat << std::endl;
+    // std::cout << "test: " << test.matrix() << std::endl;
     EXPECT_TRUE(lgmath::common::nearEqual(tmat, test.matrix(), 1e-6));
   }
 
@@ -147,36 +147,36 @@ TEST(LGMath, SE2TransformationConstructors) {
 /////////////////////////////////////////////////////////////////////////////////////////////
 TEST(LGMath, SE2TransformationGetMethods) {
   // Generate random transform from most basic constructor
-  Eigen::Matrix<double, 2, 2> C_ab =
+  Eigen::Matrix<double, 2, 2> C_ba =
       lgmath::so2::vec2rot(Eigen::Matrix<double, 1, 1>::Random()(0));
   Eigen::Matrix<double, 2, 1> r_ba_ina = Eigen::Matrix<double, 2, 1>::Random();
-  lgmath::se2::Transformation T_ab(C_ab, r_ba_ina);
+  lgmath::se2::Transformation T_ba(C_ba, r_ba_ina);
 
   // Construct simple eigen matrix from random rotation and translation
   Eigen::Matrix3d test = Eigen::Matrix3d::Identity();
-  Eigen::Matrix<double, 2, 1> r_ab_inb = -C_ab.transpose() * r_ba_ina;
-  test.topLeftCorner<2, 2>() = C_ab;
-  test.topRightCorner<2, 1>() = r_ba_ina;
+  Eigen::Matrix<double, 2, 1> r_ab_inb = -C_ba * r_ba_ina;
+  test.topLeftCorner<2, 2>() = C_ba;
+  test.topRightCorner<2, 1>() = r_ab_inb;
 
   // Test matrix()
-  std::cout << "T_ab: " << T_ab.matrix() << std::endl;
-  std::cout << "test: " << test << std::endl;
-  EXPECT_TRUE(lgmath::common::nearEqual(T_ab.matrix(), test, 1e-6));
+  // std::cout << "T_ba: " << T_ba.matrix() << std::endl;
+  // std::cout << "test: " << test << std::endl;
+  EXPECT_TRUE(lgmath::common::nearEqual(T_ba.matrix(), test, 1e-6));
 
-  // Test C_ab()
-  std::cout << "T_ab: " << T_ab.C_ab() << std::endl;
-  std::cout << "C_ab: " << C_ab << std::endl;
-  EXPECT_TRUE(lgmath::common::nearEqual(T_ab.C_ab(), C_ab, 1e-6));
+  // Test C_ba()
+  // std::cout << "T_ba: " << T_ba.C_ba() << std::endl;
+  // std::cout << "C_ba: " << C_ba << std::endl;
+  EXPECT_TRUE(lgmath::common::nearEqual(T_ba.C_ba(), C_ba, 1e-6));
 
   // Test r_ba_ina()
-  std::cout << "T_ab: " << T_ab.r_ba_ina() << std::endl;
-  std::cout << "r_ba_ina: " << r_ba_ina << std::endl;
-  EXPECT_TRUE(lgmath::common::nearEqual(T_ab.r_ba_ina(), r_ba_ina, 1e-6));
+  // std::cout << "T_ba: " << T_ba.r_ba_ina() << std::endl;
+  // std::cout << "r_ba_ina: " << r_ba_ina << std::endl;
+  EXPECT_TRUE(lgmath::common::nearEqual(T_ba.r_ba_ina(), r_ba_ina, 1e-6));
 
   // Test r_ab_inb()
-  std::cout << "T_ab: " << T_ab.r_ab_inb() << std::endl;
-  std::cout << "r_ab_inb: " << r_ab_inb << std::endl;
-  EXPECT_TRUE(lgmath::common::nearEqual(T_ab.r_ab_inb(), r_ab_inb, 1e-6));
+  // std::cout << "T_ba: " << T_ba.r_ab_inb() << std::endl;
+  // std::cout << "r_ab_inb: " << r_ab_inb << std::endl;
+  EXPECT_TRUE(lgmath::common::nearEqual(T_ba.r_ab_inb(), r_ab_inb, 1e-6));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -225,8 +225,8 @@ TEST(LGMath, SE2TransformationToFromSE2Algebra) {
   // Compare matrices
   {
     for (unsigned i = 0; i < numTests; i++) {
-      std::cout << "matr: " << transMatrices.at(i) << std::endl;
-      std::cout << "tran: " << transformations.at(i).matrix() << std::endl;
+      // std::cout << "matr: " << transMatrices.at(i) << std::endl;
+      // std::cout << "tran: " << transformations.at(i).matrix() << std::endl;
       EXPECT_TRUE(lgmath::common::nearEqual(
           transMatrices.at(i), transformations.at(i).matrix(), 1e-6));
     }
@@ -236,8 +236,8 @@ TEST(LGMath, SE2TransformationToFromSE2Algebra) {
   {
     for (unsigned i = 0; i < numTests; i++) {
       Eigen::Matrix<double, 3, 1> testVec = transformations.at(i).vec();
-      std::cout << "true: " << trueVecs.at(i) << std::endl;
-      std::cout << "func: " << testVec << std::endl;
+      // std::cout << "true: " << trueVecs.at(i) << std::endl;
+      // std::cout << "func: " << testVec << std::endl;
       EXPECT_TRUE(
           lgmath::common::nearEqual(trueVecs.at(i), testVec, 1e-6));
     }
@@ -296,9 +296,9 @@ TEST(LGMath, SE2TransformationInverse) {
   // Compare inverse to basic matrix inverse
   {
     for (unsigned i = 0; i < numTests; i++) {
-      std::cout << "matr: " << transMatrices.at(i).inverse() << std::endl;
-      std::cout << "tran: " << transformations.at(i).inverse().matrix()
-                << std::endl;
+      // std::cout << "matr: " << transMatrices.at(i).inverse() << std::endl;
+      // std::cout << "tran: " << transformations.at(i).inverse().matrix()
+                // << std::endl;
       EXPECT_TRUE(lgmath::common::nearEqual(
           transMatrices.at(i).inverse(),
           transformations.at(i).inverse().matrix(), 1e-6));
@@ -308,9 +308,9 @@ TEST(LGMath, SE2TransformationInverse) {
   // Test that product of inverse and self make identity
   {
     for (unsigned i = 0; i < numTests; i++) {
-      std::cout << "T*Tinv: "
-                << transformations.at(i).matrix() *
-                       transformations.at(i).inverse().matrix();
+      // std::cout << "T*Tinv: "
+                // << transformations.at(i).matrix() *
+                //        transformations.at(i).inverse().matrix();
       EXPECT_TRUE(lgmath::common::nearEqual(
           transformations.at(i).matrix() *
               transformations.at(i).inverse().matrix(),
@@ -322,18 +322,18 @@ TEST(LGMath, SE2TransformationInverse) {
   {
     for (unsigned i = 0; i < numTests; i++) {
       // Calculate expected adjoint matrix for SE(2)
-      // Adjoint(T_ab) = [C_ab   -S*r_ba_ina] where S = [0 -1; 1 0]
+      // Adjoint(T_ba) = [C_ba   -S*r_ab_inb] where S = [0 -1; 1 0]
       //                 [ 0^T        1     ]
       Eigen::Matrix<double, 3, 3> expectedAdjoint = Eigen::Matrix3d::Identity();
-      Eigen::Matrix2d C = transformations.at(i).C_ab();
-      Eigen::Vector2d r = transformations.at(i).r_ba_ina();
+      Eigen::Matrix2d C = transformations.at(i).C_ba();
+      Eigen::Vector2d r = transformations.at(i).r_ab_inb();
       Eigen::Matrix2d S;
       S << 0, -1, 1, 0;
       expectedAdjoint.topLeftCorner<2, 2>() = C;
       expectedAdjoint.topRightCorner<2, 1>() = -S * r;
       
-      std::cout << "expected: " << expectedAdjoint << std::endl;
-      std::cout << "tran: " << transformations.at(i).adjoint() << std::endl;
+      // std::cout << "expected: " << expectedAdjoint << std::endl;
+      // std::cout << "tran: " << transformations.at(i).adjoint() << std::endl;
       EXPECT_TRUE(
           lgmath::common::nearEqual(expectedAdjoint,
                                     transformations.at(i).adjoint(), 1e-6));
@@ -346,8 +346,8 @@ TEST(LGMath, SE2TransformationInverse) {
       lgmath::se2::Transformation test = transformations.at(i);
       test *= transformations.at(i + 1);
       Eigen::Matrix3d matrix = transMatrices.at(i) * transMatrices.at(i + 1);
-      std::cout << "matr: " << matrix << std::endl;
-      std::cout << "tran: " << test.matrix() << std::endl;
+      // std::cout << "matr: " << matrix << std::endl;
+      // std::cout << "tran: " << test.matrix() << std::endl;
       EXPECT_TRUE(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
     }
   }
@@ -358,8 +358,8 @@ TEST(LGMath, SE2TransformationInverse) {
       lgmath::se2::Transformation test =
           transformations.at(i) * transformations.at(i + 1);
       Eigen::Matrix3d matrix = transMatrices.at(i) * transMatrices.at(i + 1);
-      std::cout << "matr: " << matrix << std::endl;
-      std::cout << "tran: " << test.matrix() << std::endl;
+      // std::cout << "matr: " << matrix << std::endl;
+      // std::cout << "tran: " << test.matrix() << std::endl;
       EXPECT_TRUE(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
     }
   }
@@ -371,8 +371,8 @@ TEST(LGMath, SE2TransformationInverse) {
       test /= transformations.at(i + 1);
       Eigen::Matrix3d matrix =
           transMatrices.at(i) * transMatrices.at(i + 1).inverse();
-      std::cout << "matr: " << matrix << std::endl;
-      std::cout << "tran: " << test.matrix() << std::endl;
+      // std::cout << "matr: " << matrix << std::endl;
+      // std::cout << "tran: " << test.matrix() << std::endl;
       EXPECT_TRUE(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
     }
   }
@@ -384,8 +384,8 @@ TEST(LGMath, SE2TransformationInverse) {
           transformations.at(i) / transformations.at(i + 1);
       Eigen::Matrix3d matrix =
           transMatrices.at(i) * transMatrices.at(i + 1).inverse();
-      std::cout << "matr: " << matrix << std::endl;
-      std::cout << "tran: " << test.matrix() << std::endl;
+      // std::cout << "matr: " << matrix << std::endl;
+      // std::cout << "tran: " << test.matrix() << std::endl;
       EXPECT_TRUE(lgmath::common::nearEqual(matrix, test.matrix(), 1e-6));
     }
   }
@@ -397,8 +397,8 @@ TEST(LGMath, SE2TransformationInverse) {
       Eigen::Matrix<double, 3, 1> test =
           transformations.at(i) * landmarks.at(i);
 
-      std::cout << "matr: " << mat << std::endl;
-      std::cout << "test: " << test << std::endl;
+      // std::cout << "matr: " << mat << std::endl;
+      // std::cout << "test: " << test << std::endl;
       EXPECT_TRUE(lgmath::common::nearEqual(mat, test, 1e-6));
     }
   }
