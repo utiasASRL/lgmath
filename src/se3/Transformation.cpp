@@ -89,7 +89,7 @@ void Transformation::reproject(bool force) {
   // Note that the translation parameter always belongs to SE(3), but the
   // rotation can incur numerical error that accumulates.
   so3::Rotation rotation(C_ba_);
-  rotation.reproject(force);
+  rotation.reproject(true); // Always reproject to avoid numerical issues
   C_ba_ = rotation.matrix();
 }
 
