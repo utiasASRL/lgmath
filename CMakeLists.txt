@@ -6,7 +6,7 @@ find_package(ament_cmake QUIET)
 # Compiler setup
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_compile_options(-march=native -O3 -Wall -pedantic)
+add_compile_options(-O3 -Wall -pedantic)
 
 ## cmake flow (default)
 if ((NOT ament_cmake_FOUND) OR (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT))
