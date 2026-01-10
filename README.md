@@ -44,6 +44,8 @@ cmake .. && make install # default install location is /usr/local/
 
 ### Build and install lgmath using `cmake`
 
+Note that lgmath is by default compiled with `-march=native` in the `CMakeLists.txt` file in order to improve performance. This can cause issues in a project using lgmath that does not enable the same compilation option. Ensure that your project either makes use of this compilation flag or simply remove that flag from the lgmath `CMakeLists.txt`. 
+
 ```bash
 WORKSPACE=~/workspace  # choose your own workspace directory
 # clone
