@@ -137,11 +137,11 @@ Eigen::Vector4d Transformation::operator*(
 
 se2::Transformation Transformation::toSE2() const {
   // Check norm of z, roll, pitch components to warn if they are large
-  if (this->vec().segment<3>(2).norm() > 1e-3) {
-    std::cerr << "Warning: SE(3) has significant z, roll, or pitch component. "
-              << "Projecting to SE(2) will discard this information."
-              << std::endl;
-  }
+  // if (this->vec().segment<3>(2).norm() > 1e-3) {
+  //   std::cerr << "Warning: SE(3) has significant z, roll, or pitch component. "
+  //             << "Projecting to SE(2) will discard this information."
+  //             << std::endl;
+  // }
   return se2::Transformation(C_ba_.block<2, 2>(0, 0), r_ba_ina().head<2>());
 }
 }  // namespace se3
