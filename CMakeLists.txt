@@ -12,7 +12,7 @@ add_compile_options(-march=native -O3 -Wall -pedantic)
 if ((NOT ament_cmake_FOUND) OR (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT))
   message(STATUS "Not using ROS to build")
 
-  set(PROJECT_VERSION 1.1.0)
+  set(PROJECT_VERSION 3.0.0)
 
   # Find dependencies
   find_package(Eigen3 3.3.7 REQUIRED)
